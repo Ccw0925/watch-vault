@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/Ccw0925/movie-watchlist/routes"
+	"github.com/Ccw0925/watch-vault/routes"
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pressly/goose/v3"

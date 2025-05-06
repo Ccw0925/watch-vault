@@ -1,4 +1,4 @@
-module github.com/Ccw0925/movie-watchlist
+module github.com/Ccw0925/watch-vault
 
 go 1.24.2
 
