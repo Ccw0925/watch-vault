@@ -6,6 +6,8 @@ import (
 
 	"github.com/Ccw0925/movie-watchlist/routes"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/pressly/goose/v3"
 )
 
 func main() {
@@ -16,17 +18,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// Create tables (if not exists)
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS movies (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			title TEXT NOT NULL,
-			year INTEGER,
-			watched BOOLEAN DEFAULT FALSE
-		);
-	`)
-
-	if err != nil {
+	if err := goose.Up(db, "./db/migrations"); err != nil {
 		log.Fatal(err)
 	}
 

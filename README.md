@@ -7,6 +7,7 @@ A modern full-stack web application boilerplate combining:
 - **SQLite** for simple, file-based persistence
 - **TanStack React Query** for frontend data fetching and caching
 - **ShadCN UI** for styled, accessible React components
+- **goose** for database migration versioning control
 
 ## 🔧 Tech Stack
 
@@ -37,6 +38,7 @@ cd your-repo-name
 ### 2. Setup the Backend (Go)
 ```bash
 cd backend
+go install github.com/pressly/goose/v3/cmd/goose@latest
 go mod tidy
 go run main.go
 ```
@@ -54,3 +56,4 @@ yarn dev
 - [TanStack Query](https://tanstack.com/query)
 - [ShadCN UI](https://ui.shadcn.com/)
 - [SQLite](https://github.com/mattn/go-sqlite3)
+- [pressly/goose](https://github.com/pressly/goose)
