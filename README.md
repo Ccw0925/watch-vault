@@ -11,13 +11,14 @@ A modern full-stack web application boilerplate combining:
 
 ## 🔧 Tech Stack
 
-| Layer     | Technology               |
-|-----------|--------------------------|
-| Backend   | Go                       |
-| Frontend  | Next.js (React 18+)      |
-| Database  | SQLite                   |
-| UI Kit    | ShadCN UI                |
-| Data Sync | TanStack React Query     |
+| Layer               | Technology           |
+| ------------------- | -------------------- |
+| Backend             | Go                   |
+| Frontend            | Next.js (React 18+)  |
+| Database            | SQLite               |
+| Database Migrations | pressly/goose        |
+| UI Kit              | ShadCN UI            |
+| Data Sync           | TanStack React Query |
 
 ## 🗂 Project Structure
 
@@ -36,13 +37,16 @@ cd your-repo-name
 ```
 
 ### 2. Setup the Backend (Go)
+
 ```bash
 cd backend
 go install github.com/pressly/goose/v3/cmd/goose@latest
 go mod tidy
 go run main.go
 ```
+
 ### 3. Setup the Frontend (Next.js)
+
 ```bash
 cd ../frontend
 yarn
