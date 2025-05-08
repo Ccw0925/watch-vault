@@ -1,3 +1,4 @@
+import MovieForm from "@/components/movie/MovieForm";
 import { TypographyH2 } from "@/components/ui/typography";
 import React from "react";
 
@@ -10,6 +11,7 @@ const MovieEditPage = async ({
   return (
     <div className="p-5">
       <TypographyH2>Movie: {id}</TypographyH2>
+      <MovieForm id={id} />
     </div>
   );
 };

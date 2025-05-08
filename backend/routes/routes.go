@@ -142,8 +142,8 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 		}
 
 		var movieFromDB movie.Movie
-		err = db.QueryRow("SELECT id, title, year, watched FROM movies WHERE id = ?", id).Scan(
-			&movieFromDB.ID, &movieFromDB.Title, &movieFromDB.Year, &movieFromDB.Watched,
+		err = db.QueryRow("SELECT id, title, year, watched, image_path FROM movies WHERE id = ?", id).Scan(
+			&movieFromDB.ID, &movieFromDB.Title, &movieFromDB.Year, &movieFromDB.Watched, &movieFromDB.ImagePathObject,
 		)
 
 		if err != nil {
@@ -151,7 +151,17 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			return
 		}
 
-		c.JSON(http.StatusOK, movieFromDB)
+		if movieFromDB.ImagePathObject.Valid {
+			movieFromDB.ImagePath = movieFromDB.ImagePathObject.String
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id":        movieFromDB.ID,
+			"title":     movieFromDB.Title,
+			"year":      movieFromDB.Year,
+			"watched":   movieFromDB.Watched,
+			"imagePath": movieFromDB.ImagePath,
+		})
 	})
 
 	// Delete movie
