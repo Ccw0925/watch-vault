@@ -3,14 +3,16 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import ThemeButton from "@/components/ThemeButton";
-
-// Define TypeScript interface for Movie
-interface Movie {
-  id: number;
-  title: string;
-  year: number;
-  watched: boolean;
-}
+import {
+  TypographyH1,
+  TypographyH4,
+  TypographyP,
+} from "@/components/ui/typography";
+import Image from "next/image";
+import { motion } from "motion/react";
+import Link from "next/link";
+import { Movie } from "@/types/movie";
+import { Button } from "@/components/ui/button";
 
 const fetchMovies = async (): Promise<Movie[]> => {
   const response = await axios.get<Movie[]>("/api/movies");
@@ -37,25 +39,52 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-5">
-      <ThemeButton />
-      <h1 className="text-2xl font-bold mb-4">My Movie Watchlist</h1>
-      <ul className="list-none p-0">
+    <div className="p-5">
+      <div className="flex justify-end mb-2">
+        <ThemeButton />
+      </div>
+      <div className="relative flex justify-center mb-4">
+        <TypographyH1 className="text-2xl font-bold text-center">
+          My Movie Watchlist
+        </TypographyH1>
+        <div className="absolute right-0 h-full flex items-center">
+          <Link href={"/movies/new"}>
+            <Button className="text-white cursor-pointer">New</Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-y-3 gap-x-5 justify-center">
         {movies && movies.length > 0 ? (
-          movies.map((movie) => (
-            <li key={movie.id} className="bg-gray-100 p-4 mb-3 rounded-md">
-              <h2 className="text-xl font-semibold mt-0 text-black">
-                {movie.title} ({movie.year})
-              </h2>
-              <p className="text-black">
-                Status: {movie.watched ? "✅ Watched" : "⏳ Not Watched"}
-              </p>
-            </li>
+          movies.map(({ id, title, year, watched }) => (
+            <Link key={id} href={`/movies/${id}`}>
+              <motion.div
+                className="h-[250px] rounded-xl flex flex-1 max-w-[400px] min-w-[350px] shadow-lg hover:shadow-xl hover:cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="bg-white flex-1 rounded-l-xl flex">
+                  <Image
+                    src="/no-image.png"
+                    width={200}
+                    height={200}
+                    alt="Picture of the author"
+                    className="object-contain"
+                  />
+                </div>
+                <div className="bg-gray-800 flex-1 rounded-r-xl p-5">
+                  <TypographyH4 className="text-white">{title}</TypographyH4>
+                  <p className="text-white">{year}</p>
+                  <p className="text-white">
+                    Status: {watched ? "✅ Watched" : "⏳ Not Watched"}
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
           ))
         ) : (
-          <p>No movies found</p>
+          <TypographyP>No movies found</TypographyP>
         )}
-      </ul>
+      </div>
     </div>
   );
 }
