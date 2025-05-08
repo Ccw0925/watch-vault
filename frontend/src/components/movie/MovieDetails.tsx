@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
 import { TypographyP } from "../ui/typography";
+import Image from "next/image";
 
 const fetchMovieDetails = async (id: string): Promise<Movie> => {
   const response = await axios.get<Movie>(`/api/movies/${id}`);
@@ -35,18 +36,34 @@ const MovieDetails = ({ id }: { id: string }) => {
   return (
     <>
       {movie && (
-        <>
-          <TypographyP>
-            <span className="font-bold">Title:</span> {movie.title}
-          </TypographyP>
-          <TypographyP>
-            <span className="font-bold">Year:</span> {movie.year}
-          </TypographyP>
-          <TypographyP>
-            <span className="font-bold">Watched:</span>{" "}
-            {movie.watched ? "✅ Watched" : "⏳ Not Watched"}
-          </TypographyP>
-        </>
+        <div className="mt-5 flex gap-x-5">
+          <div>
+            <Image
+              src={
+                movie.imagePath
+                  ? `http://localhost:8080/${movie.imagePath}`
+                  : "/placeholder.png"
+              }
+              alt="Picture of the movie"
+              width={0} // ignored when unoptimized
+              height={0} // ignored when unoptimized
+              unoptimized
+              style={{ width: "auto", height: "auto" }}
+            />
+          </div>
+          <div>
+            <TypographyP>
+              <span className="font-bold">Title:</span> {movie.title}
+            </TypographyP>
+            <TypographyP>
+              <span className="font-bold">Year:</span> {movie.year}
+            </TypographyP>
+            <TypographyP>
+              <span className="font-bold">Watched:</span>{" "}
+              {movie.watched ? "✅ Watched" : "⏳ Not Watched"}
+            </TypographyP>
+          </div>
+        </div>
       )}
     </>
   );

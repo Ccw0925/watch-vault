@@ -75,7 +75,7 @@ export default function Home() {
                     }
                     width={200}
                     height={200}
-                    alt="Picture of the author"
+                    alt="Picture of the movie"
                     className={`rounded-l-xl ${
                       imagePath ? "object-cover" : "object-contain"
                     }`}
