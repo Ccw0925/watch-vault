@@ -110,8 +110,12 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			return
 		}
 
-		newMovie.ID = int(id)
-		c.JSON(http.StatusCreated, newMovie)
+		c.JSON(http.StatusCreated, gin.H{
+			"id":      id,
+			"title":   newMovie.Title,
+			"year":    newMovie.Year,
+			"watched": newMovie.Watched,
+		})
 	})
 
 	// Edit movie by id
