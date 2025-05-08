@@ -3,4 +3,5 @@ export interface Movie {
   title: string;
   year: number;
   watched: boolean;
+  imagePath?: string;
 }

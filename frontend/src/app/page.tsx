@@ -56,19 +56,29 @@ export default function Home() {
 
       <div className="flex flex-wrap gap-y-3 gap-x-5 justify-center">
         {movies && movies.length > 0 ? (
-          movies.map(({ id, title, year, watched }) => (
+          movies.map(({ id, title, year, watched, imagePath }) => (
             <Link key={id} href={`/movies/${id}`}>
               <motion.div
                 className="h-[250px] rounded-xl flex flex-1 max-w-[400px] min-w-[350px] shadow-lg hover:shadow-xl hover:cursor-pointer"
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="bg-white flex-1 rounded-l-xl flex">
+                <div
+                  className={`flex-1 rounded-l-xl flex ${
+                    imagePath ? "bg-black" : "bg-white"
+                  }`}
+                >
                   <Image
-                    src="/no-image.png"
+                    src={
+                      imagePath
+                        ? `http://localhost:8080/${imagePath}`
+                        : "/placeholder.png"
+                    }
                     width={200}
                     height={200}
                     alt="Picture of the author"
-                    className="object-contain"
+                    className={`rounded-l-xl ${
+                      imagePath ? "object-cover" : "object-contain"
+                    }`}
                   />
                 </div>
                 <div className="bg-gray-800 flex-1 rounded-r-xl p-5">
