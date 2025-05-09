@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TypographyH1 } from "../ui/typography";
+import { toast } from "sonner";
+import { Movie } from "@/types/movie";
+import Image from "next/image";
 
 export const formSchema = z.object({
   title: z.string().min(1).max(100),
@@ -22,8 +25,8 @@ export const formSchema = z.object({
 });
 
 type MovieFormProps = {
-  defaultValues?: z.infer<typeof formSchema>;
-  onSubmit: (values: z.infer<typeof formSchema>) => Promise<void> | void;
+  defaultValues?: Movie;
+  onSubmit: (values: z.infer<typeof formSchema>) => Promise<Movie> | void;
   isPending: boolean;
   title: string;
   submitButtonText: string;
@@ -36,6 +39,32 @@ export const MovieForm = ({
   title,
   submitButtonText,
 }: MovieFormProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const { id: existingMovieId, imagePath: existingImagePath } =
+    defaultValues || {};
+  const imageSrc =
+    previewUrl || (existingImagePath ? `http://localhost:8080/${existingImagePath}` : null);
+
+    console.log(imageSrc, existingImagePath)
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setPreviewUrl(objectUrl);
+
+    // Clean up the object URL when the component unmounts or when selectedFile changes
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedFile]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
@@ -44,12 +73,96 @@ export const MovieForm = ({
     },
   });
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File too large", {
+          description: "Maximum file size is 10MB",
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+    }
+  };
+
+  const uploadImage = async (movieId: string) => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      setIsUploading(true);
+      const response = await fetch(`/api/movies/${movieId}/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Image upload failed");
+      }
+
+      toast.success("Success", {
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      toast.error("Error", {
+        description:
+          "Failed to upload image: " +
+          (error instanceof Error && error.message),
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // First submit the movie data
+      const movie = await onSubmit(values);
+
+      // Determine the movie ID:
+      // - For edit flow, we have existingMovieId
+      // - For create flow, we get the ID from the onSubmit result
+      const movieId = String(existingMovieId) || String(movie?.id);
+
+      if (!movieId) {
+        throw new Error("Could not determine movie ID");
+      }
+
+      // Then upload the image if one was selected
+      if (selectedFile) {
+        await uploadImage(movieId);
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+      });
+    }
+  };
+
   return (
     <div className="p-5">
       <TypographyH1 className="mb-4">{title}</TypographyH1>
 
+      {imageSrc && (
+        <div className="relative w-[25%] aspect-square h-auto mb-5">
+          <Image
+            src={imageSrc}
+            alt="Movie preview"
+            fill
+            className="object-contain rounded border"
+          />
+        </div>
+      )}
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
           <FormField
             control={form.control}
             name="title"
@@ -85,12 +198,21 @@ export const MovieForm = ({
               </FormItem>
             )}
           />
+
+          <FormItem>
+            <FormLabel>Movie Image</FormLabel>
+            <FormControl>
+              <Input type="file" accept="image/*" onChange={handleFileChange} />
+            </FormControl>
+            <FormDescription>Upload a movie poster (max 10MB)</FormDescription>
+          </FormItem>
+
           <Button
             type="submit"
             className="text-white cursor-pointer"
-            disabled={isPending}
+            disabled={isPending || isUploading}
           >
-            {isPending ? "Processing..." : submitButtonText}
+            {isPending || isUploading ? "Processing..." : submitButtonText}
           </Button>
         </form>
       </Form>

@@ -76,9 +76,7 @@ export default function Home() {
                     width={200}
                     height={200}
                     alt="Picture of the movie"
-                    className={`rounded-l-xl ${
-                      imagePath ? "object-cover" : "object-contain"
-                    }`}
+                    className={`rounded-l-xl object-contain`}
                   />
                 </div>
                 <div className="bg-gray-800 flex-1 rounded-r-xl p-5">

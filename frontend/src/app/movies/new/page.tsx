@@ -20,7 +20,7 @@ const createMovie = async (movieData: {
 const CreateMovieForm = () => {
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: createMovie,
     onSuccess: (data) => {
       toast.success("Success!", {
@@ -38,7 +38,7 @@ const CreateMovieForm = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const { title, year } = values;
-    mutate({ title, year });
+    return mutateAsync({ title, year });
   }
 
   return (

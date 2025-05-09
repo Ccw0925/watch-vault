@@ -45,10 +45,9 @@ const MovieDetails = ({ id }: { id: string }) => {
                   : "/placeholder.png"
               }
               alt="Picture of the movie"
-              width={0} // ignored when unoptimized
-              height={0} // ignored when unoptimized
-              unoptimized
-              style={{ width: "auto", height: "auto" }}
+              width={300}
+              height={450}
+              style={{ width: "100%", height: "auto" }}
             />
           </div>
           <div>
