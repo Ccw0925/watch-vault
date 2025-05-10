@@ -22,6 +22,7 @@ import Image from "next/image";
 export const formSchema = z.object({
   title: z.string().min(1).max(100),
   year: z.coerce.number().min(1889),
+  imageUrl: z.string().optional(), // Add imageUrl to the form schema
 });
 
 type MovieFormProps = {
@@ -39,110 +40,79 @@ export const MovieForm = ({
   title,
   submitButtonText,
 }: MovieFormProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageSourceType, setImageSourceType] = useState<"file" | "url">(
+    "file"
+  );
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const { id: existingMovieId, imagePath: existingImagePath } =
-    defaultValues || {};
-  const imageSrc =
-    previewUrl || (existingImagePath ? `http://localhost:8080/${existingImagePath}` : null);
-
-    console.log(imageSrc, existingImagePath)
-
-  useEffect(() => {
-    if (!selectedFile) {
-      setPreviewUrl(null);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(selectedFile);
-    setPreviewUrl(objectUrl);
-
-    // Clean up the object URL when the component unmounts or when selectedFile changes
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [selectedFile]);
+  const { imagePath: existingImagePath } = defaultValues || {};
+  const showExistingImage = existingImagePath && !previewUrl;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues || {
-      title: "",
-      year: "" as unknown as number,
+    defaultValues: {
+      ...defaultValues,
+      imageUrl: "",
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+  const imageUrl = form.watch("imageUrl");
 
-      // Check file size (10MB limit)
+  // Show preview when URL changes
+  useEffect(() => {
+    if (imageSourceType === "url" && imageUrl) {
+      setPreviewUrl(imageUrl);
+    }
+  }, [imageUrl, imageSourceType]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
       if (file.size > 10 * 1024 * 1024) {
         toast.error("File too large", {
           description: "Maximum file size is 10MB",
         });
         return;
       }
-
       setSelectedFile(file);
-    }
-  };
-
-  const uploadImage = async (movieId: string) => {
-    if (!selectedFile) return;
-
-    const formData = new FormData();
-    formData.append("image", selectedFile);
-
-    try {
-      setIsUploading(true);
-      const response = await fetch(`/api/movies/${movieId}/image`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Image upload failed");
-      }
-
-      toast.success("Success", {
-        description: "Image uploaded successfully",
-      });
-    } catch (error) {
-      toast.error("Error", {
-        description:
-          "Failed to upload image: " +
-          (error instanceof Error && error.message),
-      });
-    } finally {
-      setIsUploading(false);
+      setImageSourceType("file");
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // First submit the movie data
-      const movie = await onSubmit(values);
-
-      // Determine the movie ID:
-      // - For edit flow, we have existingMovieId
-      // - For create flow, we get the ID from the onSubmit result
-      const movieId = String(existingMovieId) || String(movie?.id);
-
-      if (!movieId) {
-        throw new Error("Could not determine movie ID");
-      }
-
-      // Then upload the image if one was selected
+      // If file upload was selected, we'll handle it separately
       if (selectedFile) {
-        await uploadImage(movieId);
+        const formData = new FormData();
+        formData.append("title", values.title);
+        formData.append("year", String(values.year));
+        formData.append("image", selectedFile);
+
+        setIsUploading(true);
+        const response = await fetch(`/api/movies`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to create movie");
+
+        const movie = await response.json();
+        toast.success("Movie created successfully");
+        return movie;
+      } else {
+        // For URL, we just submit normally and let backend handle it
+        await onSubmit(values);
       }
     } catch (error) {
       toast.error("Error", {
         description:
           error instanceof Error ? error.message : "An error occurred",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -150,13 +120,20 @@ export const MovieForm = ({
     <div className="p-5">
       <TypographyH1 className="mb-4">{title}</TypographyH1>
 
-      {imageSrc && (
+      {(previewUrl || showExistingImage) && (
         <div className="relative w-[25%] aspect-square h-auto mb-5">
           <Image
-            src={imageSrc}
+            src={previewUrl || `http://localhost:8080/${existingImagePath}`}
             alt="Movie preview"
             fill
             className="object-contain rounded border"
+            unoptimized={!!previewUrl}
+            onError={() => {
+              toast.error("Invalid image", {
+                description: "Could not load the image",
+              });
+              setPreviewUrl(null);
+            }}
           />
         </div>
       )}
@@ -191,21 +168,67 @@ export const MovieForm = ({
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  This is the movie release year.
-                </FormDescription>
+                <FormDescription>Movie release year</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormItem>
+          <div className="space-y-3">
             <FormLabel>Movie Image</FormLabel>
-            <FormControl>
-              <Input type="file" accept="image/*" onChange={handleFileChange} />
-            </FormControl>
-            <FormDescription>Upload a movie poster (max 10MB)</FormDescription>
-          </FormItem>
+
+            <div className="flex gap-4 mb-4">
+              <Button
+                type="button"
+                variant={imageSourceType === "file" ? "default" : "outline"}
+                onClick={() => setImageSourceType("file")}
+                className="text-white cursor-pointer"
+              >
+                Upload File
+              </Button>
+              <Button
+                type="button"
+                variant={imageSourceType === "url" ? "default" : "outline"}
+                onClick={() => setImageSourceType("url")}
+                className="text-white cursor-pointer"
+              >
+                Use URL
+              </Button>
+            </div>
+
+            {imageSourceType === "file" ? (
+              <FormItem>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Upload a movie poster (max 10MB)
+                </FormDescription>
+              </FormItem>
+            ) : (
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/image.jpg"
+                        type="url"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>Enter a valid image URL</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
 
           <Button
             type="submit"

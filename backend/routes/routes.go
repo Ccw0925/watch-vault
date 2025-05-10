@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Ccw0925/watch-vault/internal/movie"
@@ -92,13 +94,21 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 
 	// Create movie
 	r.POST("/movies", func(c *gin.Context) {
-		var newMovie movie.Movie
-		if err := c.ShouldBindJSON(&newMovie); err != nil {
+		var input struct {
+			Title    string `json:"title" binding:"required"`
+			Year     int    `json:"year" binding:"required"`
+			Watched  bool   `json:"watched"`
+			ImageUrl string `json:"imageUrl"` // Optional
+		}
+
+		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		result, err := db.Exec("INSERT INTO movies (title, year, watched) VALUES (?, ?, ?)", newMovie.Title, newMovie.Year, newMovie.Watched)
+		// First insert the movie without the image
+		result, err := db.Exec("INSERT INTO movies (title, year, watched) VALUES (?, ?, ?)",
+			input.Title, input.Year, input.Watched)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -110,62 +120,116 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			return
 		}
 
-		c.JSON(http.StatusCreated, gin.H{
+		response := gin.H{
 			"id":      id,
-			"title":   newMovie.Title,
-			"year":    newMovie.Year,
-			"watched": newMovie.Watched,
-		})
+			"title":   input.Title,
+			"year":    input.Year,
+			"watched": input.Watched,
+		}
+
+		// Handle image URL if provided
+		if input.ImageUrl != "" {
+			imagePath, err := handleImageUpload(id, input.ImageUrl)
+			if err != nil {
+				response["imageError"] = err.Error()
+			} else if imagePath != "" {
+				// Update the movie with the image path
+				_, err = db.Exec("UPDATE movies SET image_path = ? WHERE id = ?", imagePath, id)
+				if err != nil {
+					response["imageError"] = fmt.Sprintf("Saved image but failed to update record: %v", err)
+				} else {
+					response["imagePath"] = imagePath
+				}
+			}
+		}
+
+		c.JSON(http.StatusCreated, response)
 	})
 
 	// Edit movie by id
 	r.PATCH("/movies/:id", func(c *gin.Context) {
-		id := c.Param("id")
-
-		var updatedMovie movie.Movie
-		if err := c.ShouldBindJSON(&updatedMovie); err != nil {
+		idStr := c.Param("id")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid movie ID"})
+			return
+		}
+	
+		var input struct {
+			Title    string `json:"title"`
+			Year     int    `json:"year"`
+			Watched  bool   `json:"watched"`
+			ImageUrl string `json:"imageUrl"` // Optional
+		}
+	
+		if err := c.ShouldBindJSON(&input); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-
-		result, err := db.Exec("UPDATE movies SET title = ?, year = ?, watched = ? WHERE id = ?", updatedMovie.Title, updatedMovie.Year, updatedMovie.Watched, id)
+	
+		// First update the basic movie info
+		result, err := db.Exec("UPDATE movies SET title = ?, year = ?, watched = ? WHERE id = ?", 
+			input.Title, input.Year, input.Watched, id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
+	
 		rowsAffected, err := result.RowsAffected()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check update result"})
 			return
 		}
-
+	
 		if rowsAffected == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
 			return
 		}
-
-		var movieFromDB movie.Movie
-		err = db.QueryRow("SELECT id, title, year, watched, image_path FROM movies WHERE id = ?", id).Scan(
-			&movieFromDB.ID, &movieFromDB.Title, &movieFromDB.Year, &movieFromDB.Watched, &movieFromDB.ImagePathObject,
-		)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve updated movie"})
-			return
+	
+		response := gin.H{
+			"id":      id,
+			"title":   input.Title,
+			"year":    input.Year,
+			"watched": input.Watched,
 		}
-
-		if movieFromDB.ImagePathObject.Valid {
-			movieFromDB.ImagePath = movieFromDB.ImagePathObject.String
+	
+		// Handle image URL if provided
+		if input.ImageUrl != "" {
+			// Get current image path to delete old image if exists
+			var currentImagePath sql.NullString
+			err := db.QueryRow("SELECT image_path FROM movies WHERE id = ?", id).Scan(&currentImagePath)
+			if err != nil {
+				response["imageError"] = fmt.Sprintf("Failed to check current image: %v", err)
+			} else {
+				// Process new image (using the int64 ID)
+				imagePath, err := handleImageUpload(id, input.ImageUrl)
+				if err != nil {
+					response["imageError"] = err.Error()
+				} else if imagePath != "" {
+					// Update the movie with the new image path
+					_, err = db.Exec("UPDATE movies SET image_path = ? WHERE id = ?", imagePath, id)
+					if err != nil {
+						response["imageError"] = fmt.Sprintf("Saved image but failed to update record: %v", err)
+					} else {
+						// Delete old image if it existed
+						if currentImagePath.Valid && currentImagePath.String != "" {
+							if err := os.Remove(currentImagePath.String); err != nil && !os.IsNotExist(err) {
+								response["imageWarning"] = "New image saved but failed to delete old image"
+							}
+						}
+						response["imagePath"] = imagePath
+					}
+				}
+			}
+		} else {
+			// If no image URL provided, include existing image path in response
+			var imagePath sql.NullString
+			if err := db.QueryRow("SELECT image_path FROM movies WHERE id = ?", id).Scan(&imagePath); err == nil && imagePath.Valid {
+				response["imagePath"] = imagePath.String
+			}
 		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"id":        movieFromDB.ID,
-			"title":     movieFromDB.Title,
-			"year":      movieFromDB.Year,
-			"watched":   movieFromDB.Watched,
-			"imagePath": movieFromDB.ImagePath,
-		})
+	
+		c.JSON(http.StatusOK, response)
 	})
 
 	// Delete movie
@@ -185,8 +249,13 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 	r.POST("/movies/:id/image", func(c *gin.Context) {
 		// Verify movie exists first
 		id := c.Param("id")
-		var movieID int
-		err := db.QueryRow("SELECT id FROM movies WHERE id = ?", id).Scan(&movieID)
+
+		var movie struct {
+			ID        int
+			ImagePath sql.NullString
+		}
+
+		err := db.QueryRow("SELECT id, image_path FROM movies WHERE id = ?", id).Scan(&movie.ID, &movie.ImagePath)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
@@ -208,6 +277,14 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			return
 		}
 		defer file.Close()
+
+		// Check if there's an existing image and delete it
+		if movie.ImagePath.Valid && movie.ImagePath.String != "" {
+			if err := os.Remove(movie.ImagePath.String); err != nil && !os.IsNotExist(err) {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete existing image"})
+				return
+			}
+		}
 
 		// Create uploads directory if it doesn't exist
 		if err := os.MkdirAll("uploads", os.ModePerm); err != nil {
@@ -237,6 +314,8 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 		// Update movie with image path
 		_, err = db.Exec("UPDATE movies SET image_path = ? WHERE id = ?", imagePath, id)
 		if err != nil {
+			// If update fails, try to delete the new image we just created
+			os.Remove(imagePath)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -248,4 +327,52 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 	})
 
 	return r
+}
+
+// Reusable image upload function (similar to your existing endpoint logic)
+func handleImageUpload(movieID int64, imageUrl string) (string, error) {
+    // Download the image
+    resp, err := http.Get(imageUrl)
+    if err != nil {
+        return "", fmt.Errorf("failed to download image: %v", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return "", fmt.Errorf("failed to download image: status %d", resp.StatusCode)
+    }
+
+    // Check content type
+    contentType := resp.Header.Get("Content-Type")
+    if !strings.HasPrefix(contentType, "image/") {
+        return "", fmt.Errorf("URL does not point to an image")
+    }
+
+    // Create uploads directory if it doesn't exist
+    if err := os.MkdirAll("uploads", os.ModePerm); err != nil {
+        return "", fmt.Errorf("could not create upload directory")
+    }
+
+    // Generate unique filename with movie ID
+    ext := filepath.Ext(imageUrl)
+    if ext == "" {
+        ext = ".jpg" // Default extension
+    }
+    imageName := fmt.Sprintf("%d-%d%s", movieID, time.Now().UnixNano(), ext)
+    imagePath := filepath.Join("uploads", imageName)
+
+    // Create the file
+    out, err := os.Create(imagePath)
+    if err != nil {
+        return "", fmt.Errorf("could not create file")
+    }
+    defer out.Close()
+
+    // Copy the file
+    if _, err := io.Copy(out, resp.Body); err != nil {
+        os.Remove(imagePath) // Clean up if copy fails
+        return "", fmt.Errorf("could not save file")
+    }
+
+    return imagePath, nil
 }
