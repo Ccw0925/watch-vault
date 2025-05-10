@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,6 +18,16 @@ import { TypographyH1 } from "../ui/typography";
 import { toast } from "sonner";
 import { Movie } from "@/types/movie";
 import Image from "next/image";
+
+declare global {
+  interface Permissions {
+    query(
+      permissionDesc:
+        | PermissionDescriptor
+        | { name: "clipboard-read" | "clipboard-write" }
+    ): Promise<PermissionStatus>;
+  }
+}
 
 export const formSchema = z.object({
   title: z.string().min(1).max(100),
@@ -42,17 +52,22 @@ export const MovieForm = ({
 }: MovieFormProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [imageSourceType, setImageSourceType] = useState<"file" | "url">(
-    "file"
-  );
+  const [imageSourceType, setImageSourceType] = useState<
+    "file" | "url" | "paste"
+  >("file");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [canPaste, setCanPaste] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { imagePath: existingImagePath } = defaultValues || {};
+  const { id: existingMovieId, imagePath: existingImagePath } =
+    defaultValues || {};
   const showExistingImage = existingImagePath && !previewUrl;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      title: "",
+      year: "" as unknown as number,
       ...defaultValues,
       imageUrl: "",
     },
@@ -82,29 +97,96 @@ export const MovieForm = ({
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          if (blob.size > 10 * 1024 * 1024) {
+            toast.error("Image too large", {
+              description: "Maximum file size is 10MB",
+            });
+            return;
+          }
+          setSelectedFile(blob);
+          setImageSourceType("paste");
+          setPreviewUrl(URL.createObjectURL(blob));
+          return;
+        }
+      }
+    }
+  };
+
+  // Check clipboard permissions and contents
+  useEffect(() => {
+    const checkClipboard = async () => {
+      try {
+        // Check if we have permission to read clipboard
+        const permission = await navigator.permissions.query({
+          name: "clipboard-read" as PermissionName,
+        });
+        setCanPaste(permission.state !== "denied");
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        // Some browsers don't support the permissions API
+        setCanPaste(true);
+      }
+    };
+    checkClipboard();
+  }, []);
+
+  const uploadImage = async (movieId: string) => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+      setIsUploading(true);
+      const response = await fetch(`/api/movies/${movieId}/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Image upload failed");
+      }
+
+      toast.success("Success", {
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      toast.error("Error", {
+        description:
+          "Failed to upload image: " +
+          (error instanceof Error && error.message),
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // If file upload was selected, we'll handle it separately
+      // First submit the movie data
+      const movie = await onSubmit(values);
+
+      // Then upload the image if one was selected
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append("title", values.title);
-        formData.append("year", String(values.year));
-        formData.append("image", selectedFile);
+        // Determine the movie ID:
+        // - For edit flow, we have existingMovieId
+        // - For create flow, we get the ID from the onSubmit result
+        const movieId =
+          existingMovieId !== undefined
+            ? String(existingMovieId)
+            : String(movie?.id);
 
-        setIsUploading(true);
-        const response = await fetch(`/api/movies`, {
-          method: "POST",
-          body: formData,
-        });
+        if (!movieId) {
+          throw new Error("Could not determine movie ID");
+        }
 
-        if (!response.ok) throw new Error("Failed to create movie");
-
-        const movie = await response.json();
-        toast.success("Movie created successfully");
-        return movie;
-      } else {
-        // For URL, we just submit normally and let backend handle it
-        await onSubmit(values);
+        await uploadImage(movieId);
       }
     } catch (error) {
       toast.error("Error", {
@@ -117,7 +199,7 @@ export const MovieForm = ({
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5" onPaste={handlePaste}>
       <TypographyH1 className="mb-4">{title}</TypographyH1>
 
       {(previewUrl || showExistingImage) && (
@@ -194,6 +276,19 @@ export const MovieForm = ({
               >
                 Use URL
               </Button>
+              {canPaste && (
+                <Button
+                  type="button"
+                  variant={imageSourceType === "paste" ? "default" : "outline"}
+                  onClick={() => {
+                    setImageSourceType("paste");
+                    toast.info("Press Ctrl+V to paste an image");
+                  }}
+                  className="text-white cursor-pointer"
+                >
+                  Paste Image
+                </Button>
+              )}
             </div>
 
             {imageSourceType === "file" ? (
@@ -203,13 +298,14 @@ export const MovieForm = ({
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
+                    ref={fileInputRef}
                   />
                 </FormControl>
                 <FormDescription>
                   Upload a movie poster (max 10MB)
                 </FormDescription>
               </FormItem>
-            ) : (
+            ) : imageSourceType === "url" ? (
               <FormField
                 control={form.control}
                 name="imageUrl"
@@ -227,6 +323,17 @@ export const MovieForm = ({
                   </FormItem>
                 )}
               />
+            ) : (
+              <div className="border-2 border-dashed p-4 rounded-md text-center">
+                <p>Press Ctrl+V to paste an image from your clipboard</p>
+                {previewUrl && (
+                  <div className="mt-2">
+                    <p className="text-sm text-muted-foreground">
+                      Image ready to be saved
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

@@ -12,6 +12,7 @@ import { formSchema, MovieForm } from "@/components/movie/MovieForm";
 const createMovie = async (movieData: {
   title: string;
   year: number;
+  imageUrl?: string;
 }): Promise<Movie> => {
   const response = await axios.post<Movie>("/api/movies", movieData);
   return response.data;
@@ -37,8 +38,8 @@ const CreateMovieForm = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const { title, year } = values;
-    return mutateAsync({ title, year });
+    const { title, year, imageUrl } = values;
+    return mutateAsync({ title, year, imageUrl });
   }
 
   return (
