@@ -13,6 +13,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { Movie } from "@/types/movie";
 import { Button } from "@/components/ui/button";
+import MovieHighlightsBanner from "@/components/movie/MovieHighlightsBanner";
 
 const fetchMovies = async (): Promise<Movie[]> => {
   const response = await axios.get<Movie[]>("/api/movies");
@@ -43,10 +44,14 @@ export default function Home() {
       <div className="flex justify-end mb-2">
         <ThemeButton />
       </div>
-      <div className="relative flex justify-center mb-4">
+
+      <MovieHighlightsBanner />
+
+      <div className="relative flex justify-center mb-4 mt-5">
         <TypographyH1 className="text-2xl font-bold text-center">
           My Movie Watchlist
         </TypographyH1>
+
         <div className="absolute right-0 h-full flex items-center">
           <Link href={"/movies/new"}>
             <Button className="text-white cursor-pointer">New</Button>
