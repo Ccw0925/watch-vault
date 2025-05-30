@@ -54,7 +54,7 @@ export default function Home() {
 
         <div className="absolute right-0 h-full flex items-center">
           <Link href={"/movies/new"}>
-            <Button className="text-white cursor-pointer">New</Button>
+            <Button className="text-white cursor-pointer font-inter">New</Button>
           </Link>
         </div>
       </div>
@@ -86,8 +86,8 @@ export default function Home() {
                 </div>
                 <div className="bg-gray-800 flex-1 rounded-r-xl p-5">
                   <TypographyH4 className="text-white">{title}</TypographyH4>
-                  <p className="text-white">{year}</p>
-                  <p className="text-white">
+                  <p className="text-white font-inter">{year}</p>
+                  <p className="text-white font-inter">
                     Status: {watched ? "✅ Watched" : "⏳ Not Watched"}
                   </p>
                 </div>
