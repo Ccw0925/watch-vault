@@ -5,7 +5,7 @@ import { TypographyH3 } from "../ui/typography";
 const MovieHighlightsBanner = () => {
   return (
     <div className="flex justify-center">
-      <div className="w-[85%] h-[500px] relative rounded-b-3xl rounded-tr-3xl">
+      <div className="w-[85%] h-[600px] relative rounded-b-3xl rounded-tr-3xl">
         <div
           className={`
             absolute bg-background py-3 px-5 rounded-br-3xl z-1 
