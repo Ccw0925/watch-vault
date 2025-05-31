@@ -2,10 +2,10 @@ import React from "react";
 import Image from "next/image";
 import { TypographyH3 } from "../ui/typography";
 
-const MovieHighlightsBanner = () => {
+const HighlightsBanner = () => {
   return (
     <div className="flex justify-center">
-      <div className="w-[85%] h-[600px] relative rounded-b-3xl rounded-tr-3xl">
+      <div className="w-full h-[600px] relative rounded-b-3xl rounded-tr-3xl">
         <div
           className={`
             absolute bg-background py-3 px-5 rounded-br-3xl z-1 
@@ -31,4 +31,4 @@ const MovieHighlightsBanner = () => {
   );
 };
 
-export default MovieHighlightsBanner;
+export default HighlightsBanner;
