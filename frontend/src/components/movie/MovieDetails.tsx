@@ -37,7 +37,7 @@ const MovieDetails = ({ id }: { id: string }) => {
     <>
       {movie && (
         <div className="mt-5 flex gap-x-5">
-          <div>
+          <div className="rounded-lg">
             <Image
               src={
                 movie.imagePath
@@ -47,6 +47,7 @@ const MovieDetails = ({ id }: { id: string }) => {
               alt="Picture of the movie"
               width={300}
               height={450}
+              className="rounded-lg"
               style={{ width: "100%", height: "auto" }}
             />
           </div>

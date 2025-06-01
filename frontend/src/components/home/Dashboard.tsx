@@ -1,47 +1,27 @@
-import { useMovies } from "@/hooks/api/movieHooks";
 import React from "react";
 import HighlightsBanner from "./HighlightsBanner";
-import {
-  TypographyH1,
-  TypographyH4,
-  TypographyP,
-} from "@/components/ui/typography";
-import { motion } from "motion/react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { twMerge } from "tailwind-merge";
+import ContinueWatching from "./ContinueWatching";
+// import {
+//   TypographyH1,
+//   TypographyH4,
+//   TypographyP,
+// } from "@/components/ui/typography";
+// import { motion } from "motion/react";
+// import Link from "next/link";
+// import { Button } from "@/components/ui/button";
+// import Image from "next/image";
 
 const Dashboard = ({ className }: { className?: string }) => {
-  const { data: movies, isLoading, isError, error } = useMovies();
-
-  if (isLoading) {
-    return <div>Loading movies...</div>;
-  }
-
-  if (isError) {
-    return <div>Error: {error?.message || "Failed to fetch movies"}</div>;
-  }
-
   return (
-    <div className={twMerge("p-5 overflow-y-auto", className)}>
+    <div
+      className={twMerge("p-5 overflow-y-auto flex flex-col gap-5", className)}
+    >
       <HighlightsBanner />
 
-      <div className="relative flex justify-center mb-4 mt-5">
-        <TypographyH1 className="text-2xl font-bold text-center">
-          My Movie Watchlist
-        </TypographyH1>
+      <ContinueWatching />
 
-        <div className="absolute right-0 h-full flex items-center">
-          <Link href={"/movies/new"}>
-            <Button className="text-white cursor-pointer font-inter">
-              New
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-y-3 gap-x-5 justify-center">
+      {/* <div className="flex flex-wrap gap-y-3 gap-x-5 justify-center">
         {movies && movies.length > 0 ? (
           movies.map(({ id, title, year, watched, imagePath }) => (
             <Link key={id} href={`/movies/${id}`}>
@@ -79,7 +59,7 @@ const Dashboard = ({ className }: { className?: string }) => {
         ) : (
           <TypographyP>No movies found</TypographyP>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
