@@ -42,6 +42,13 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			offsetInt = 0
 		}
 
+		var totalCount int
+		err = db.QueryRow("SELECT COUNT(*) FROM movies").Scan(&totalCount)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+
 		query := "SELECT id, title, year, watched, image_path FROM movies LIMIT ? OFFSET ?"
 		rows, err := db.Query(query, limitInt, offsetInt)
 		if err != nil {
@@ -74,7 +81,26 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			})
 		}
 
-		c.JSON(http.StatusOK, movies)
+		response := gin.H{
+			"data":   movies,
+			"total":  totalCount,
+			"limit":  limitInt,
+			"offset": offsetInt,
+		}
+
+		if offsetInt+limitInt < totalCount {
+			nextValues := c.Request.URL.Query()
+			nextValues.Set("offset", strconv.Itoa(offsetInt+limitInt))
+			response["next"] = c.Request.URL.Path + "?" + nextValues.Encode() + "&limit=" + limit
+		}
+
+		if offsetInt > 0 {
+			prevValues := c.Request.URL.Query()
+			prevValues.Set("offset", strconv.Itoa(max(0, offsetInt-limitInt)))
+			response["prev"] = c.Request.URL.Path + "?" + prevValues.Encode() + "&limit=" + limit
+		}
+
+		c.JSON(http.StatusOK, response)
 	})
 
 	// Get movie by id
