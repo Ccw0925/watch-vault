@@ -8,7 +8,8 @@ import { motion } from "motion/react";
 import MovieGridView from "../movie/MovieGridView";
 
 const ContinueWatching = () => {
-  const { data: movies, isLoading } = useMovies({ pageSize: 15 });
+  const { data, isLoading } = useMovies({ pageSize: 15 });
+  const movies = data?.data;
 
   const renderMovieSkeleton = () =>
     [...Array(8)].map((_, i) => (

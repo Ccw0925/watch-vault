@@ -1,5 +1,6 @@
 import { fetchMovies } from "@/lib/api/movieService";
 import { Movie } from "@/types/movie";
+import { PaginationResource } from "@/types/paginationResource";
 import { useQuery } from "@tanstack/react-query";
 
 export const useMovies = ({
@@ -9,7 +10,7 @@ export const useMovies = ({
   pageSize?: number;
   page?: number;
 }) => {
-  return useQuery<Movie[], Error>({
+  return useQuery<PaginationResource<Movie>, Error>({
     queryKey: ["movies", { pageSize, page }],
     queryFn: () => fetchMovies({ pageSize, page }),
   });

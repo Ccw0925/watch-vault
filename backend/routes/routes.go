@@ -29,17 +29,17 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 
 	// List movies
 	r.GET("/movies", func(c *gin.Context) {
-		limit := c.DefaultQuery("limit", "10")
-		offset := c.DefaultQuery("offset", "0")
+		pageSize := c.DefaultQuery("pageSize", "10")
+		page := c.DefaultQuery("page", "1")
 
-		limitInt, err := strconv.Atoi(limit)
-		if err != nil || limitInt <= 0 {
-			limitInt = 10
+		pageSizeInt, err := strconv.Atoi(pageSize)
+		if err != nil || pageSizeInt <= 0 {
+			pageSizeInt = 10
 		}
 
-		offsetInt, err := strconv.Atoi(offset)
-		if err != nil || offsetInt < 0 {
-			offsetInt = 0
+		pageInt, err := strconv.Atoi(page)
+		if err != nil || pageInt <= 0 {
+			pageInt = 1
 		}
 
 		var totalCount int
@@ -49,8 +49,13 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			return
 		}
 
+		offsetInt := (pageInt - 1) * pageSizeInt
+		if offsetInt < 0 {
+			offsetInt = 0
+		}
+
 		query := "SELECT id, title, year, watched, image_path FROM movies LIMIT ? OFFSET ?"
-		rows, err := db.Query(query, limitInt, offsetInt)
+		rows, err := db.Query(query, pageSizeInt, offsetInt)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -81,23 +86,29 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 			})
 		}
 
+		totalPages := totalCount / pageSizeInt
+		if totalCount%pageSizeInt != 0 {
+			totalPages++
+		}
+
 		response := gin.H{
-			"data":   movies,
-			"total":  totalCount,
-			"limit":  limitInt,
-			"offset": offsetInt,
+			"data":       movies,
+			"totalCount": totalCount,
+			"totalPages": totalPages,
+			"pageSize":   pageSizeInt,
+			"page":       pageInt,
 		}
 
-		if offsetInt+limitInt < totalCount {
+		if pageInt < totalPages {
 			nextValues := c.Request.URL.Query()
-			nextValues.Set("offset", strconv.Itoa(offsetInt+limitInt))
-			response["next"] = c.Request.URL.Path + "?" + nextValues.Encode() + "&limit=" + limit
+			nextValues.Set("page", strconv.Itoa(pageInt+1))
+			response["next"] = c.Request.URL.Path + "?" + nextValues.Encode()
 		}
 
-		if offsetInt > 0 {
+		if pageInt > 1 {
 			prevValues := c.Request.URL.Query()
-			prevValues.Set("offset", strconv.Itoa(max(0, offsetInt-limitInt)))
-			response["prev"] = c.Request.URL.Path + "?" + prevValues.Encode() + "&limit=" + limit
+			prevValues.Set("page", strconv.Itoa(pageInt-1))
+			response["prev"] = c.Request.URL.Path + "?" + prevValues.Encode()
 		}
 
 		c.JSON(http.StatusOK, response)

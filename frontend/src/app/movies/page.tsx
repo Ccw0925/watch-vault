@@ -4,12 +4,19 @@ import React from "react";
 import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import MovieGridView from "@/components/movie/MovieGridView";
+import { useSearchParams } from "next/navigation";
 
 const MoviesPage = () => {
-  const { data: movies, isLoading } = useMovies({ pageSize: 20 });
+  const queryParams = useSearchParams();
+  const page = queryParams.get("page");
+  const { data, isLoading } = useMovies({
+    pageSize: 20,
+    page: parseInt(page ?? "1"),
+  });
+  const movies = data?.data;
 
   const renderMovieSkeleton = () =>
-    [...Array(8)].map((_, i) => (
+    [...Array(5)].map((_, i) => (
       <div key={i} className="h-[350px] items-center py-5 flex flex-col gap-1">
         <Skeleton className="w-[215px] h-[254px] rounded-xl" />
         <Skeleton className="h-4 w-[50%]" />
