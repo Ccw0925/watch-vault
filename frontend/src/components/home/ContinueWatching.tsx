@@ -1,11 +1,11 @@
 import React from "react";
 import { TypographyH3 } from "../ui/typography";
-import Image from "next/image";
 import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { motion } from "motion/react";
+import MovieGridView from "../movie/MovieGridView";
 
 const ContinueWatching = () => {
   const { data: movies, isLoading } = useMovies({ pageSize: 15 });
@@ -21,40 +21,13 @@ const ContinueWatching = () => {
 
   const renderMovieView = () =>
     movies?.map(({ id, title, year, imagePath }) => (
-      <div key={id} className="h-[350px] items-center py-5 flex flex-col gap-1">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className="w-[215px] rounded-xl flex-1 dark:bg-[#22262c] bg-gray-300 relative"
-        >
-          <Link href={`/movies/${id}`}>
-            <Image
-              src={
-                imagePath
-                  ? `http://localhost:8080/${imagePath}`
-                  : "/placeholder.png"
-              }
-              alt="Description of your image"
-              fill
-              sizes="215px"
-              className={`rounded-xl ${
-                imagePath ? "object-cover" : "object-contain"
-              }`}
-            />
-          </Link>
-        </motion.div>
-
-        <div>
-          <Link href={`/movies/${id}`}>
-            <p className="font-inter">{title}</p>
-          </Link>
-        </div>
-
-        <div>
-          <Link href={`/movies/${id}`}>
-            <p className="font-inter text-muted-foreground">{year}</p>
-          </Link>
-        </div>
-      </div>
+      <MovieGridView
+        key={id}
+        id={id}
+        title={title}
+        year={year}
+        imagePath={imagePath}
+      />
     ));
 
   return (
