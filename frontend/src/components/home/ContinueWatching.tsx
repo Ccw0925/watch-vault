@@ -5,6 +5,7 @@ import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 const ContinueWatching = () => {
   const { data: movies, isLoading } = useMovies({ pageSize: 15 });
@@ -21,7 +22,10 @@ const ContinueWatching = () => {
   const renderMovieView = () =>
     movies?.map(({ id, title, year, imagePath }) => (
       <div key={id} className="h-[350px] items-center py-5 flex flex-col gap-1">
-        <div className="w-[215px] rounded-xl flex-1 dark:bg-[#22262c] bg-gray-300 relative">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="w-[215px] rounded-xl flex-1 dark:bg-[#22262c] bg-gray-300 relative"
+        >
           <Link href={`/movies/${id}`}>
             <Image
               src={
@@ -37,7 +41,7 @@ const ContinueWatching = () => {
               }`}
             />
           </Link>
-        </div>
+        </motion.div>
 
         <div>
           <Link href={`/movies/${id}`}>
@@ -61,13 +65,13 @@ const ContinueWatching = () => {
         {isLoading ? renderMovieSkeleton() : renderMovieView()}
       </div>
 
-      <div className="flex justify-center">
+      <motion.div whileTap={{ y: -1 }} className="flex justify-center">
         <Link href="/movies">
           <Button className="cursor-pointer dark:bg-[#22262c] text-white">
             See all
           </Button>
         </Link>
-      </div>
+      </motion.div>
     </div>
   );
 };

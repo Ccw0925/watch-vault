@@ -18,7 +18,6 @@ const Dashboard = ({ className }: { className?: string }) => {
       className={twMerge("p-5 overflow-y-auto flex flex-col gap-5", className)}
     >
       <HighlightsBanner />
-
       <ContinueWatching />
 
       {/* <div className="flex flex-wrap gap-y-3 gap-x-5 justify-center">
