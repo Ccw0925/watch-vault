@@ -10,7 +10,7 @@ const MoviesPage = () => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
   const { data, isLoading } = useMovies({
-    pageSize: 20,
+    pageSize: 15,
     page: parseInt(page ?? "1"),
   });
   const movies = data?.data;
