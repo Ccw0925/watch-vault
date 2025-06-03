@@ -5,15 +5,21 @@ import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import MovieGridView from "@/components/movie/MovieGridView";
 import { useSearchParams } from "next/navigation";
+import CustomPagination from "@/components/CustomPagination";
 
 const MoviesPage = () => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
-  const { data, isLoading } = useMovies({
-    pageSize: 15,
-    page: parseInt(page ?? "1"),
-  });
+  const pageInt = parseInt(page ?? "1");
+  const { data, isLoading } = useMovies(
+    {
+      pageSize: 15,
+      page: pageInt,
+    },
+    
+  );
   const movies = data?.data;
+  const totalPages = data?.totalPages;
 
   const renderMovieSkeleton = () =>
     [...Array(5)].map((_, i) => (
@@ -39,11 +45,15 @@ const MoviesPage = () => {
     <div className="p-5">
       <TypographyH1 className="text-center mb-5">All Movies</TypographyH1>
 
+      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-[repeat(auto-fill,215px)] gap-5 justify-center">
           {isLoading ? renderMovieSkeleton() : renderMovieView()}
         </div>
       </div>
+
+      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
     </div>
   );
 };

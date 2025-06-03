@@ -16,7 +16,7 @@ const MovieDetailsPage = async ({
     <div className="p-5">
       <div className="relative flex items-center">
         <TypographyH2 className="flex-1 flex items-center gap-2">
-          <Link href="/">
+          <Link href="/movies">
             <Button variant="outline" size="icon" className="h-8 w-8 cursor-pointer rounded-full">
               <ArrowLeft className="h-4 w-4" />
             </Button>
