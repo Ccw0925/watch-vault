@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Ccw0925/watch-vault/internal/jikan"
 	"github.com/Ccw0925/watch-vault/internal/movie"
 	"github.com/gin-gonic/gin"
 
@@ -26,6 +27,9 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 
 	// Setup static file server for images
 	r.Static("/uploads", "./uploads")
+
+	jikanClient := jikan.NewClient()
+	RegisterAnimeRoutes(r, jikanClient)
 
 	// List movies
 	r.GET("/movies", func(c *gin.Context) {
