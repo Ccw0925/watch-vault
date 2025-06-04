@@ -1,5 +1,5 @@
 "use client";
-import { TypographyH1 } from "@/components/ui/typography";
+import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import React from "react";
 import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,13 +11,10 @@ const MoviesPage = () => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
-  const { data, isLoading } = useMovies(
-    {
-      pageSize: 15,
-      page: pageInt,
-    },
-    
-  );
+  const { data, isLoading } = useMovies({
+    pageSize: 15,
+    page: pageInt,
+  });
   const movies = data?.data;
   const totalPages = data?.totalPages;
 
@@ -45,15 +42,23 @@ const MoviesPage = () => {
     <div className="p-5">
       <TypographyH1 className="text-center mb-5">All Movies</TypographyH1>
 
-      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+      {movies && movies.length > 0 ? (
+        <>
+          <CustomPagination currentPage={pageInt} totalPages={totalPages} />
 
-      <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-[repeat(auto-fill,215px)] gap-5 justify-center">
-          {isLoading ? renderMovieSkeleton() : renderMovieView()}
-        </div>
-      </div>
+          <div className="max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-[repeat(auto-fill,215px)] gap-5 justify-center">
+              {isLoading ? renderMovieSkeleton() : renderMovieView()}
+            </div>
+          </div>
 
-      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+          <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+        </>
+      ) : (
+        <TypographyH3 className="text-muted-foreground text-center">
+          No movies available.
+        </TypographyH3>
+      )}
     </div>
   );
 };
