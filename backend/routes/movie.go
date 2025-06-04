@@ -28,9 +28,9 @@ func RegisterMovieRoutes(r *gin.Engine, db *sql.DB) {
 
 	moviesGroup := r.Group("/movies")
 	{
-		moviesGroup.GET("/", handler.ListMovies)
+		moviesGroup.GET("", handler.ListMovies)
 		moviesGroup.GET("/:id", handler.GetMovieByID)
-		moviesGroup.POST("/", handler.CreateMovie)
+		moviesGroup.POST("", handler.CreateMovie)
 		moviesGroup.PATCH("/:id", handler.UpdateMovie)
 		moviesGroup.DELETE("/:id", handler.DeleteMovie)
 		moviesGroup.POST("/:id/image", handler.UploadMovieImage)
