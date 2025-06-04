@@ -19,8 +19,8 @@ func NewAnimeHandler(jikanClient *jikan.Client) *AnimeHandler {
 func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 	handler := NewAnimeHandler(jikanClient)
 
+	animeGroup := r.Group("/anime")
 	{
-		animeGroup := r.Group("/anime")
 		animeGroup.GET("/top", handler.GetTopAnime)
 	}
 }
