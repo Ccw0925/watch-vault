@@ -20,8 +20,8 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 	r.Static("/uploads", "./uploads")
 
 	jikanClient := jikan.NewClient()
-	RegisterAnimeRoutes(r, jikanClient)
 
+	RegisterAnimeRoutes(r, jikanClient)
 	RegisterMovieRoutes(r, db)
 
 	return r
