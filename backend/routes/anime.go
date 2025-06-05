@@ -44,8 +44,16 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 	animeList := make([]gin.H, 0, len(response.Data))
 	for _, anime := range response.Data {
 		animeList = append(animeList, gin.H{
-			"id":    anime.ID,
-			"title": anime.Name,
+			"id":        anime.ID,
+			"title":     anime.Name,
+			"year":      anime.Year,
+			"genre":     anime.Genres,
+			"rank":      anime.Rank,
+			"score":     anime.Score,
+			"scored_by": anime.ScoredBy,
+			"episodes":  anime.Episodes,
+			"status":    anime.Status,
+			"images":    anime.Images,
 		})
 	}
 
