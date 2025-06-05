@@ -4,13 +4,13 @@ import Image from "next/image";
 import React from "react";
 
 interface AnimeGridViewProps {
-  //   id: number;
   title: string;
   score: number;
   scoredBy: number;
   rank: number;
   episodes: number;
   images: Images;
+  status: string;
 }
 
 const AnimeGridView = ({
@@ -20,6 +20,7 @@ const AnimeGridView = ({
   rank,
   episodes,
   images,
+  status,
 }: AnimeGridViewProps) => {
   return (
     <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4">
@@ -36,7 +37,7 @@ const AnimeGridView = ({
       <div className="flex-5 flex gap-5 flex-col">
         <div className="flex">
           <p className="font-inter p-2 rounded-xl font-semibold border-2">
-            Finished Airing
+            {status}
           </p>
         </div>
         <div>
@@ -61,7 +62,9 @@ const AnimeGridView = ({
             </p>
           </div>
           <div>
-            <p className="font-inter text-xl font-semibold"># {rank}</p>
+            <p className="font-inter text-xl font-semibold">{`${
+              rank > 0 ? `# ${rank}` : "N/A"
+            }`}</p>
             <p className="font-inter font-semibold text-gray-400">Ranking</p>
           </div>
         </div>

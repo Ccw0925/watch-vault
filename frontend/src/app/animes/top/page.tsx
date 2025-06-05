@@ -1,7 +1,8 @@
 "use client";
 import AnimeGridView from "@/components/anime/AnimeGridView";
 import CustomPagination from "@/components/CustomPagination";
-import { TypographyH1 } from "@/components/ui/typography";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import { useTopAnimes } from "@/hooks/api/animeHooks";
 import { useSearchParams } from "next/navigation";
 import React from "react";
@@ -14,7 +15,22 @@ const TopAnimePage = () => {
   const topAnimes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 
-  if (isLoading) <div>Loading...</div>;
+  const renderAnimeSkeleton = () =>
+    [...Array(5)].map((_, i) => (
+      <div
+        key={i}
+        className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4"
+      >
+        <div className="flex-4 rounded-2xl">
+          <Skeleton className="w-full h-full" />
+        </div>
+        <div className="flex-5 flex flex-col gap-5">
+          <Skeleton className="h-12 w-[50%]" />
+          <Skeleton className="h-6 w-[35%]" />
+          <Skeleton className="h-8 w-[80%] my-2" />
+        </div>
+      </div>
+    ));
 
   return (
     <div className="p-5">
@@ -22,11 +38,27 @@ const TopAnimePage = () => {
 
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
 
-      <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center my-5 gap-5">
-        {topAnimes?.map(({ id, ...anime }) => (
-          <AnimeGridView key={id} {...anime} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+          {renderAnimeSkeleton()}
+        </div>
+      ) : topAnimes && topAnimes.length > 0 ? (
+        <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+          {topAnimes.map(({ id, ...anime }) => (
+            <AnimeGridView key={id} {...anime} />
+          ))}
+        </div>
+      ) : (
+        <TypographyH3 className="text-muted-foreground text-center">
+          No animes found
+        </TypographyH3>
+      )}
+
+      {topAnimes && topAnimes.length > 0 && (
+        <p className="font-inter text-center text-muted-foreground mb-5">
+          Data provided by Jikan API.
+        </p>
+      )}
 
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
     </div>

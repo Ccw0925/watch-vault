@@ -15,5 +15,17 @@ export const fetchTopAnimes = async (options?: {
   }
 
   const response = await api.get<TopAnimesResponse>("/animes/top", { params });
-  return response.data;
+
+  const sortedData = {
+    ...response.data,
+    data: response.data.data.sort(sortByRank),
+  };
+
+  return sortedData;
+};
+
+const sortByRank = (a: { rank: number }, b: { rank: number }) => {
+  if (a.rank === 0) return 1;
+  if (b.rank === 0) return -1;
+  return a.rank - b.rank;
 };
