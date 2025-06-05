@@ -35,7 +35,7 @@ const ContinueWatching = () => {
     <div>
       <TypographyH3>Continue Watching</TypographyH3>
 
-      <div className="flex gap-5 overflow-x-auto scrollbar-hover">
+      <div className="flex gap-5 overflow-x-auto overflow-y-hidden scrollbar-hover">
         {isLoading ? renderMovieSkeleton() : renderMovieView()}
       </div>
 
