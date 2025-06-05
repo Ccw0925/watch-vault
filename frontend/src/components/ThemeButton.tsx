@@ -10,19 +10,23 @@ const ThemeButton = () => {
 
   useEffect(() => {
     setIsClient(true);
-  }, [])
+  }, []);
 
-  return isClient && (
-    <Button
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className={theme === "dark" ? "bg-black hover:bg-slate-300" : ""}
-    >
-      {theme === "light" ? (
-        <Sun className="text-black" />
-      ) : (
-        <Moon className="text-white" />
-      )}
-    </Button>
+  return (
+    isClient && (
+      <Button
+        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        className={`cursor-pointer ${
+          theme === "dark" ? "bg-black hover:bg-slate-300" : ""
+        }`}
+      >
+        {theme === "light" ? (
+          <Sun className="text-black" />
+        ) : (
+          <Moon className="text-white" />
+        )}
+      </Button>
+    )
   );
 };
 
