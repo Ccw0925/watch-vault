@@ -23,7 +23,7 @@ const AnimeGridView = ({
   status,
 }: AnimeGridViewProps) => {
   return (
-    <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4">
+    <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4 cursor-pointer">
       <div className="flex-4 rounded-2xl relative overflow-hidden">
         <Image
           src={images.webp.large_image_url}
@@ -36,7 +36,11 @@ const AnimeGridView = ({
       </div>
       <div className="flex-5 flex gap-5 flex-col">
         <div className="flex">
-          <p className="font-inter p-2 rounded-xl font-semibold border-2">
+          <p
+            className={`font-inter p-2 rounded-xl font-semibold border-2 ${
+              status === "Finished Airing" ? "text-blue-300" : "text-orange-300"
+            }`}
+          >
             {status}
           </p>
         </div>
