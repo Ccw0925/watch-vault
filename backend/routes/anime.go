@@ -19,7 +19,7 @@ func NewAnimeHandler(jikanClient *jikan.Client) *AnimeHandler {
 func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 	handler := NewAnimeHandler(jikanClient)
 
-	animeGroup := r.Group("/anime")
+	animeGroup := r.Group("/animes")
 	{
 		animeGroup.GET("/top", handler.GetTopAnime)
 	}
@@ -41,21 +41,31 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 		return
 	}
 
+	seen := make(map[int]bool)
 	animeList := make([]gin.H, 0, len(response.Data))
+
 	for _, anime := range response.Data {
+		if seen[anime.ID] {
+			continue
+		}
+		seen[anime.ID] = true
+
 		animeList = append(animeList, gin.H{
-			"id":        anime.ID,
-			"title":     anime.Name,
-			"year":      anime.Year,
-			"genre":     anime.Genres,
-			"rank":      anime.Rank,
-			"score":     anime.Score,
-			"scored_by": anime.ScoredBy,
-			"episodes":  anime.Episodes,
-			"status":    anime.Status,
-			"images":    anime.Images,
+			"id":       anime.ID,
+			"title":    anime.Name,
+			"year":     anime.Year,
+			"genres":   anime.Genres,
+			"rank":     anime.Rank,
+			"score":    anime.Score,
+			"scoredBy": anime.ScoredBy,
+			"episodes": anime.Episodes,
+			"status":   anime.Status,
+			"images":   anime.Images,
 		})
 	}
 
-	c.JSON(http.StatusOK, animeList)
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": response.Pagination,
+		"data":       animeList,
+	})
 }
