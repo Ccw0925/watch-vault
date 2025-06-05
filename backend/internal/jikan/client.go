@@ -6,23 +6,31 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 )
 
 type Client struct {
 	baseURL    string
 	httpClient *http.Client
+	cache      *cache.Cache
 }
 
 func NewClient() *Client {
 	return &Client{
-		baseURL: "https://api.jikan.moe/v4",
-		httpClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
+		baseURL:    "https://api.jikan.moe/v4",
+		httpClient: &http.Client{Timeout: 10 * time.Second},
+		cache:      cache.New(30*time.Minute, 10*time.Minute),
 	}
 }
 
 func (c *Client) GetTopAnime(ctx context.Context, page int) (*TopAnimeResponse, error) {
+	cacheKey := fmt.Sprintf("top_anime_%d", page)
+
+	if cached, found := c.cache.Get(cacheKey); found {
+		return cached.(*TopAnimeResponse), nil
+	}
+
 	endpoint := fmt.Sprintf("%s/top/anime?page=%d", c.baseURL, page)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
@@ -44,6 +52,8 @@ func (c *Client) GetTopAnime(ctx context.Context, page int) (*TopAnimeResponse, 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}
+
+	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
 
 	return &result, nil
 }
