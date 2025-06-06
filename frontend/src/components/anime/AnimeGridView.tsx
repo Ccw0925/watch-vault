@@ -1,5 +1,5 @@
 import { Anime } from "@/types/anime";
-import { Star } from "lucide-react";
+import { Bookmark, Star } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import {
@@ -7,6 +7,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -44,14 +49,27 @@ const AnimeGridView = ({
       </div>
 
       <div className="flex-5 flex gap-4 flex-col">
-        <div className="flex">
+        <div className="flex justify-between">
           <p
             className={`font-inter p-2 rounded-xl font-semibold border-2 ${
-              status === "Finished Airing" ? "text-blue-300" : "text-orange-300"
+              status === "Finished Airing"
+                ? "dark:text-blue-300 text-blue-500"
+                : "dark:text-orange-300 text-orange-500"
             }`}
           >
             {status}
           </p>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
+                <Bookmark />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-inter text-white">Save to Watchlist</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <div>
