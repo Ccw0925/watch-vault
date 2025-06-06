@@ -1,7 +1,7 @@
 import { Anime } from "@/types/anime";
 import { Bookmark, Star } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useRef } from "react";
 import {
   HoverCard,
   HoverCardContent,
@@ -12,6 +12,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+} from "motion/react";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -25,6 +31,9 @@ type AnimeGridViewProps = Pick<
   | "images"
 >;
 
+const ROTATION_RANGE = 32.5;
+const HALF_ROTATION_RANGE = 32.5 / 2;
+
 const AnimeGridView = ({
   title,
   score,
@@ -35,8 +44,47 @@ const AnimeGridView = ({
   status,
   images,
 }: AnimeGridViewProps) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const xSpring = useSpring(x);
+  const ySpring = useSpring(y);
+
+  const transform = useMotionTemplate`rotateX(${xSpring}deg) rotateY(${ySpring}deg)`;
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!ref.current) return [0, 0];
+
+    const rect = ref.current.getBoundingClientRect();
+
+    const width = rect.width;
+    const height = rect.height;
+
+    const mouseX = (e.clientX - rect.left) * ROTATION_RANGE;
+    const mouseY = (e.clientY - rect.top) * ROTATION_RANGE;
+
+    const rotationX = (mouseY / height - HALF_ROTATION_RANGE) * -1;
+    const rotationY = mouseX / width - HALF_ROTATION_RANGE;
+
+    x.set(rotationX);
+    y.set(rotationY);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
-    <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4">
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ transform }}
+      className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4 transform-3d"
+    >
       <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
         <Image
           src={images.webp.large_image_url}
@@ -141,7 +189,7 @@ const AnimeGridView = ({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
