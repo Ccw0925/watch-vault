@@ -42,6 +42,7 @@ const AnimeGridView = ({
           className="object-cover"
         />
       </div>
+
       <div className="flex-5 flex gap-4 flex-col">
         <div className="flex">
           <p
@@ -52,11 +53,13 @@ const AnimeGridView = ({
             {status}
           </p>
         </div>
+
         <div>
           <p className="font-inter">
             {episodes > 0 ? episodes : "???"} episodes
           </p>
         </div>
+
         <div className="py-2">
           <p
             className="font-inter text-2xl font-bold line-clamp-2 cursor-pointer"
@@ -65,6 +68,7 @@ const AnimeGridView = ({
             {title}
           </p>
         </div>
+
         <div className="flex gap-5">
           <div>
             <div className="flex gap-1 items-center">
@@ -82,6 +86,7 @@ const AnimeGridView = ({
             <p className="font-inter font-semibold text-gray-400">Ranking</p>
           </div>
         </div>
+
         <div className="flex flex-wrap gap-2">
           {genres.slice(0, 2).map((genre) => (
             <div
