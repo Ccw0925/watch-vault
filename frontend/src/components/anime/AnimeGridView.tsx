@@ -73,13 +73,13 @@ const AnimeGridView = ({
           </div>
         </div>
         <div className="flex gap-2">
-          <div className="bg-gray-700 p-2 rounded-xl">
+          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
             <p className="font-inter font-semibold">Drama</p>
           </div>
-          <div className="bg-gray-700 p-2 rounded-xl">
+          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
             <p className="font-inter font-semibold">Sci-Fi</p>
           </div>
-          <div className="bg-gray-700 p-2 rounded-xl">
+          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
             <p className="font-inter font-semibold">+1</p>
           </div>
         </div>
