@@ -83,7 +83,7 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[350px] w-[550px] border rounded-2xl p-3 transform-3d"
+      className="h-[350px] w-[550px] border rounded-2xl p-3 transform-3d shadow-xl"
     >
       <div
         className="rounded-2xl flex gap-4 h-full transform-3d"
