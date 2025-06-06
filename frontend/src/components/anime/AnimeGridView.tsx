@@ -31,8 +31,8 @@ type AnimeGridViewProps = Pick<
   | "images"
 >;
 
-const ROTATION_RANGE = 32.5;
-const HALF_ROTATION_RANGE = 32.5 / 2;
+const ROTATION_RANGE = 16;
+const HALF_ROTATION_RANGE = 16 / 2;
 
 const AnimeGridView = ({
   title,
@@ -83,110 +83,115 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4 transform-3d"
+      className="h-[350px] w-[550px] border rounded-2xl p-3 transform-3d"
     >
-      <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
-        <Image
-          src={images.webp.large_image_url}
-          alt={title ?? "Anime Cover"}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority
-          className="object-cover"
-        />
-      </div>
-
-      <div className="flex-5 flex gap-4 flex-col">
-        <div className="flex justify-between">
-          <p
-            className={`font-inter p-2 rounded-xl font-semibold border-2 ${
-              status === "Finished Airing"
-                ? "dark:text-blue-300 text-blue-500"
-                : "dark:text-orange-300 text-orange-500"
-            }`}
-          >
-            {status}
-          </p>
-
-          <Tooltip>
-            <TooltipTrigger>
-              <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
-                <Bookmark />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-inter text-white">Save to Watchlist</p>
-            </TooltipContent>
-          </Tooltip>
+      <div
+        className="rounded-2xl flex gap-4 h-full transform-3d"
+        style={{ transform: "translateZ(30px)" }}
+      >
+        <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
+          <Image
+            src={images.webp.large_image_url}
+            alt={title ?? "Anime Cover"}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority
+            className="object-cover"
+          />
         </div>
 
-        <div>
-          <p className="font-inter">
-            {episodes > 0 ? episodes : "???"} episodes
-          </p>
-        </div>
+        <div className="flex-5 flex gap-4 flex-col">
+          <div className="flex justify-between">
+            <p
+              className={`font-inter p-2 rounded-xl font-semibold border-2 ${
+                status === "Finished Airing"
+                  ? "dark:text-blue-300 text-blue-500"
+                  : "dark:text-orange-300 text-orange-500"
+              }`}
+            >
+              {status}
+            </p>
 
-        <div className="py-2">
-          <p
-            className="font-inter text-2xl font-bold line-clamp-2 cursor-pointer"
-            title={title}
-          >
-            {title}
-          </p>
-        </div>
+            <Tooltip>
+              <TooltipTrigger>
+                <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
+                  <Bookmark />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-inter text-white">Save to Watchlist</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
-        <div className="flex gap-5">
           <div>
-            <div className="flex gap-1 items-center">
-              <Star />
-              <p className="font-inter text-xl font-semibold">{score}</p>
-            </div>
-            <p className="font-inter font-semibold text-gray-400">
-              {scoredBy.toLocaleString()} users
+            <p className="font-inter">
+              {episodes > 0 ? episodes : "???"} episodes
             </p>
           </div>
-          <div>
-            <p className="font-inter text-xl font-semibold">{`${
-              rank > 0 ? `# ${rank}` : "N/A"
-            }`}</p>
-            <p className="font-inter font-semibold text-gray-400">Ranking</p>
-          </div>
-        </div>
 
-        <div className="flex flex-wrap gap-2">
-          {genres.slice(0, 2).map((genre) => (
-            <div
-              key={genre.mal_id}
-              className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer"
+          <div className="py-2">
+            <p
+              className="font-inter text-2xl font-bold line-clamp-2 cursor-pointer"
+              title={title}
             >
-              <p className="font-inter font-semibold">{genre.name}</p>
+              {title}
+            </p>
+          </div>
+
+          <div className="flex gap-5">
+            <div>
+              <div className="flex gap-1 items-center">
+                <Star />
+                <p className="font-inter text-xl font-semibold">{score}</p>
+              </div>
+              <p className="font-inter font-semibold text-gray-400">
+                {scoredBy.toLocaleString()} users
+              </p>
             </div>
-          ))}
-          {genres.length > 2 && (
-            <HoverCard>
-              <HoverCardTrigger>
-                <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
-                  <p className="font-inter font-semibold">
-                    +{genres.length - 2}
-                  </p>
-                </div>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-[200px]">
-                <div className="flex gap-5 flex-wrap">
-                  {genres.slice(2).map((genre) => (
-                    <div
-                      key={genre.mal_id}
-                      className={`bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer max-h-[40px] ${
-                        genres.length === 3 && "flex-1"
-                      }`}
-                    >
-                      <p className="font-inter font-semibold">{genre.name}</p>
-                    </div>
-                  ))}
-                </div>
-              </HoverCardContent>
-            </HoverCard>
-          )}
+            <div>
+              <p className="font-inter text-xl font-semibold">{`${
+                rank > 0 ? `# ${rank}` : "N/A"
+              }`}</p>
+              <p className="font-inter font-semibold text-gray-400">Ranking</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {genres.slice(0, 2).map((genre) => (
+              <div
+                key={genre.mal_id}
+                className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer"
+              >
+                <p className="font-inter font-semibold">{genre.name}</p>
+              </div>
+            ))}
+            {genres.length > 2 && (
+              <HoverCard>
+                <HoverCardTrigger>
+                  <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
+                    <p className="font-inter font-semibold">
+                      +{genres.length - 2}
+                    </p>
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-[200px]">
+                  <div className="flex gap-5 flex-wrap">
+                    {genres.slice(2).map((genre) => (
+                      <div
+                        key={genre.mal_id}
+                        className={`bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer max-h-[40px] ${
+                          genres.length === 3 && "flex-1"
+                        }`}
+                      >
+                        <p className="font-inter font-semibold">{genre.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
