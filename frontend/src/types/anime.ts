@@ -12,7 +12,7 @@ export type Anime = {
 };
 
 type Genre = {
-  id: number;
+  mal_id: number;
   name: string;
   url: string;
 };

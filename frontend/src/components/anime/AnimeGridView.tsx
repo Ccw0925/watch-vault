@@ -1,17 +1,24 @@
-import { Images } from "@/types/anime";
+import { Anime } from "@/types/anime";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
-interface AnimeGridViewProps {
-  title: string;
-  score: number;
-  scoredBy: number;
-  rank: number;
-  episodes: number;
-  images: Images;
-  status: string;
-}
+type AnimeGridViewProps = Pick<
+  Anime,
+  | "title"
+  | "score"
+  | "scoredBy"
+  | "rank"
+  | "episodes"
+  | "genres"
+  | "status"
+  | "images"
+>;
 
 const AnimeGridView = ({
   title,
@@ -19,22 +26,23 @@ const AnimeGridView = ({
   scoredBy,
   rank,
   episodes,
-  images,
+  genres,
   status,
+  images,
 }: AnimeGridViewProps) => {
   return (
-    <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4 cursor-pointer">
-      <div className="flex-4 rounded-2xl relative overflow-hidden">
+    <div className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4">
+      <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
         <Image
           src={images.webp.large_image_url}
           alt={title ?? "Anime Cover"}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={false}
+          priority
           className="object-cover"
         />
       </div>
-      <div className="flex-5 flex gap-5 flex-col">
+      <div className="flex-5 flex gap-4 flex-col">
         <div className="flex">
           <p
             className={`font-inter p-2 rounded-xl font-semibold border-2 ${
@@ -45,11 +53,13 @@ const AnimeGridView = ({
           </p>
         </div>
         <div>
-          <p className="font-inter">{episodes} episodes</p>
+          <p className="font-inter">
+            {episodes > 0 ? episodes : "???"} episodes
+          </p>
         </div>
         <div className="py-2">
           <p
-            className="font-inter text-2xl font-bold line-clamp-2"
+            className="font-inter text-2xl font-bold line-clamp-2 cursor-pointer"
             title={title}
           >
             {title}
@@ -72,16 +82,40 @@ const AnimeGridView = ({
             <p className="font-inter font-semibold text-gray-400">Ranking</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
-            <p className="font-inter font-semibold">Drama</p>
-          </div>
-          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
-            <p className="font-inter font-semibold">Sci-Fi</p>
-          </div>
-          <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
-            <p className="font-inter font-semibold">+1</p>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {genres.slice(0, 2).map((genre) => (
+            <div
+              key={genre.mal_id}
+              className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer"
+            >
+              <p className="font-inter font-semibold">{genre.name}</p>
+            </div>
+          ))}
+          {genres.length > 2 && (
+            <HoverCard>
+              <HoverCardTrigger>
+                <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl">
+                  <p className="font-inter font-semibold">
+                    +{genres.length - 2}
+                  </p>
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-[200px]">
+                <div className="flex gap-5 flex-wrap">
+                  {genres.slice(2).map((genre) => (
+                    <div
+                      key={genre.mal_id}
+                      className={`bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer max-h-[40px] ${
+                        genres.length === 3 && "flex-1"
+                      }`}
+                    >
+                      <p className="font-inter font-semibold">{genre.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          )}
         </div>
       </div>
     </div>
