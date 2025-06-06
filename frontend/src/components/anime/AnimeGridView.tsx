@@ -85,7 +85,9 @@ const AnimeGridView = ({
       style={{ transform }}
       className="h-[350px] w-[550px] border rounded-2xl p-3 transform-3d shadow-xl"
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
         className="rounded-2xl flex gap-4 h-full transform-3d"
         style={{ transform: "translateZ(30px)" }}
       >
@@ -193,7 +195,7 @@ const AnimeGridView = ({
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
