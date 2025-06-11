@@ -92,7 +92,7 @@ const AnimeGridView = ({
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         className="rounded-2xl flex gap-4 h-full transform-3d"
-        style={{ transform: "translateZ(30px)" }}
+        style={{ z: 30 }}
       >
         <ImageComponent
           imageUrl={images.webp.large_image_url}
