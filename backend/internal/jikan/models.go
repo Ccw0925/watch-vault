@@ -36,6 +36,10 @@ type Images struct {
 	} `json:"webp"`
 }
 
+type AnimeResponse struct {
+	Data Anime `json:"data"`
+}
+
 type TopAnimeResponse struct {
 	Pagination Pagination `json:"pagination"`
 	Data       []Anime    `json:"data"`

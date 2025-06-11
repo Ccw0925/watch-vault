@@ -22,7 +22,28 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 	animeGroup := r.Group("/animes")
 	{
 		animeGroup.GET("/top", handler.GetTopAnime)
+		animeGroup.GET("/:id", handler.GetAnimeById)
 	}
+}
+
+func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	anime, err := h.jikanClient.GetAnimeById(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch anime",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, anime.Data)
 }
 
 func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
