@@ -41,7 +41,7 @@ const TopAnimePage = () => {
       ) : topAnimes && topAnimes.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
           {topAnimes.map(({ id, ...anime }) => (
-            <AnimeGridView key={id} {...anime} />
+            <AnimeGridView key={id} id={id} {...anime} />
           ))}
         </div>
       ) : (
