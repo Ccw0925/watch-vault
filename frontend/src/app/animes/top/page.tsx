@@ -19,13 +19,14 @@ const TopAnimePage = () => {
 
   return (
     <div className="p-5 relative">
-      <div className="absolute top-3 left-5 hidden sm:block">
+      <div className="absolute top-3 left-5 hidden sm:block h-[90px] w-[160px]">
         <Link href="/">
           <Image
             src="/logo-transparent.png"
             alt="Logo"
             width={160}
-            height={80}
+            height={90}
+            priority
           />
         </Link>
       </div>

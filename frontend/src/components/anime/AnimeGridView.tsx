@@ -125,14 +125,14 @@ const ImageComponent = ({
   title: string;
 }) => (
   <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer transform-3d">
-    <Link href={`/animes/${animeId}`}>
+    <Link href={`/animes/${animeId}`} className="relative block w-full h-full">
       <Image
         src={imageUrl}
         alt={title ?? "Anime Cover"}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         priority
-        className="object-cover"
+        className="object-cover absolute"
       />
     </Link>
   </div>
