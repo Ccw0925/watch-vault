@@ -91,16 +91,7 @@ const AnimeGridView = ({
         className="rounded-2xl flex gap-4 h-full transform-3d"
         style={{ transform: "translateZ(30px)" }}
       >
-        <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
-          <Image
-            src={images.webp.large_image_url}
-            alt={title ?? "Anime Cover"}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority
-            className="object-cover"
-          />
-        </div>
+        <ImageComponent imageUrl={images.webp.large_image_url} title={title} />
 
         <div className="flex-5 flex gap-4 flex-col">
           <div className="flex justify-between">
@@ -199,5 +190,24 @@ const AnimeGridView = ({
     </motion.div>
   );
 };
+
+const ImageComponent = ({
+  imageUrl,
+  title,
+}: {
+  imageUrl: string;
+  title: string;
+}) => (
+  <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
+    <Image
+      src={imageUrl}
+      alt={title ?? "Anime Cover"}
+      fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      priority
+      className="object-cover"
+    />
+  </div>
+);
 
 export default AnimeGridView;
