@@ -4,6 +4,8 @@ import CustomPagination from "@/components/CustomPagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import { useTopAnimes } from "@/hooks/api/animeHooks";
+import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -33,7 +35,18 @@ const TopAnimePage = () => {
     ));
 
   return (
-    <div className="p-5">
+    <div className="p-5 relative">
+      <div className="absolute top-3 left-5 hidden sm:block">
+        <Link href="/">
+          <Image
+            src="/logo-transparent.png"
+            alt="Logo"
+            width={160}
+            height={80}
+          />
+        </Link>
+      </div>
+
       <TypographyH1 className="text-center mb-5">Top Animes</TypographyH1>
 
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
