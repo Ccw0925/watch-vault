@@ -124,7 +124,7 @@ const ImageComponent = ({
   imageUrl: string;
   title: string;
 }) => (
-  <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer">
+  <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer transform-3d">
     <Link href={`/animes/${animeId}`}>
       <Image
         src={imageUrl}
