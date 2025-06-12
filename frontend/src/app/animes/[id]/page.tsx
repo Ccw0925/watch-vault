@@ -33,8 +33,8 @@ const AnimeDetailsPage = () => {
   const { data: anime, isLoading } = useAnimeById(id);
 
   return (
-    <div className="p-5 flex flex-col mx-auto w-full max-w-[1850px]">
-      <div className="flex mb-5 justify-between">
+    <div className="p-5 lg:p-8 flex flex-col mx-auto w-full max-w-[1850px]">
+      <div className="flex mb-8 justify-between">
         <BackButton redirectUrl="/animes/top" />
         <Button
           variant="outline"
@@ -47,17 +47,9 @@ const AnimeDetailsPage = () => {
       {isLoading || anime === undefined ? (
         <PageSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_350px] gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_350px] gap-5 lg:gap-10 mb-12">
           <div className="md:col-span-2 space-y-6 order-2 lg:order-none">
-            <TypographyH3 className="text-3xl">{anime.title}</TypographyH3>
-            <TypographyMuted className="text-base">
-              {anime?.englishTitle}
-            </TypographyMuted>
-
-            <TypographyMuted className="text-base">
-              {anime?.japaneseTitle}
-            </TypographyMuted>
-
+            <AnimeTitleInfo anime={anime} />
             <AnimeStatsBadges anime={anime} />
 
             <TypographyP className="text-justify whitespace-pre-line">
@@ -97,6 +89,19 @@ const PageSkeleton = () => (
       </div>
     </div>
   </div>
+);
+
+const AnimeTitleInfo = ({ anime }: { anime: Anime }) => (
+  <>
+    <TypographyH3 className="text-3xl">{anime.title}</TypographyH3>
+    <TypographyMuted className="text-base">
+      {anime.englishTitle}
+    </TypographyMuted>
+
+    <TypographyMuted className="text-base">
+      {anime.japaneseTitle}
+    </TypographyMuted>
+  </>
 );
 
 const AnimeStatsBadges = ({ anime }: { anime: Anime }) => (
