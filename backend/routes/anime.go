@@ -43,7 +43,7 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, anime.Data)
+	c.JSON(http.StatusOK, animeToResponse(&anime.Data))
 }
 
 func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
@@ -71,22 +71,33 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 		}
 		seen[anime.ID] = true
 
-		animeList = append(animeList, gin.H{
-			"id":       anime.ID,
-			"title":    anime.Name,
-			"year":     anime.Year,
-			"genres":   anime.Genres,
-			"rank":     anime.Rank,
-			"score":    anime.Score,
-			"scoredBy": anime.ScoredBy,
-			"episodes": anime.Episodes,
-			"status":   anime.Status,
-			"images":   anime.Images,
-		})
+		animeList = append(animeList, animeToResponse(&anime))
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
 		"data":       animeList,
 	})
+}
+
+func animeToResponse(anime *jikan.Anime) gin.H {
+	return gin.H{
+		"id":            anime.ID,
+		"url":           anime.Url,
+		"title":         anime.Name,
+		"englishTitle":  anime.EnglishName,
+		"japaneseTitle": anime.JapaneseName,
+		"season":        anime.Season,
+		"year":          anime.Year,
+		"genres":        anime.Genres,
+		"rank":          anime.Rank,
+		"score":         anime.Score,
+		"scoredBy":      anime.ScoredBy,
+		"episodes":      anime.Episodes,
+		"status":        anime.Status,
+		"rating":        anime.Rating,
+		"synopsis":      anime.Sypnosis,
+		"images":        anime.Images,
+		"aired":         anime.Aired,
+	}
 }

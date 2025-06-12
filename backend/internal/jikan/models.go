@@ -12,16 +12,23 @@ type Pagination struct {
 }
 
 type Anime struct {
-	ID       int     `json:"mal_id"`
-	Name     string  `json:"title"`
-	Year     int     `json:"year"`
-	Genres   []Genre `json:"genres"`
-	Rank     int     `json:"rank"`
-	Score    float32 `json:"score"`
-	ScoredBy int     `json:"scored_by"`
-	Episodes int     `json:"episodes"`
-	Status   string  `json:"status"`
-	Images   Images  `json:"images"`
+	ID           int     `json:"mal_id"`
+	Url          string  `json:"url"`
+	Name         string  `json:"title"`
+	EnglishName  string  `json:"title_english"`
+	JapaneseName string  `json:"title_japanese"`
+	Year         int     `json:"year"`
+	Genres       []Genre `json:"genres"`
+	Rank         int     `json:"rank"`
+	Score        float32 `json:"score"`
+	ScoredBy     int     `json:"scored_by"`
+	Episodes     int     `json:"episodes"`
+	Status       string  `json:"status"`
+	Season       string  `json:"season"`
+	Rating       string  `json:"rating"`
+	Sypnosis     string  `json:"synopsis"`
+	Images       Images  `json:"images"`
+	Aired        Aired   `json:"aired"`
 }
 
 type Genre struct {
@@ -34,6 +41,10 @@ type Images struct {
 	Webp struct {
 		LargeImageUrl string `json:"large_image_url"`
 	} `json:"webp"`
+}
+
+type Aired struct {
+	String string `json:"string"`
 }
 
 type AnimeResponse struct {
