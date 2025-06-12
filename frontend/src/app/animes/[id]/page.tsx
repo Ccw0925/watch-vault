@@ -9,6 +9,7 @@ import {
   TypographyP,
 } from "@/components/ui/typography";
 import { useAnimeById } from "@/hooks/api/animeHooks";
+import { Anime } from "@/types/anime";
 import {
   Award,
   Bookmark,
@@ -57,173 +58,22 @@ const AnimeDetailsPage = () => {
               {anime?.japaneseTitle}
             </TypographyMuted>
 
-            <div className="flex flex-wrap gap-2 items-center">
-              <div className="flex items-center gap-1 py-1 px-2 rounded-full bg-secondary hover:bg-secondary/80">
-                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                <p className="font-bold text-xs font-inter">
-                  {anime.score.toFixed(2)}
-                </p>
-                <p className="text-xs text-muted-foreground font-inter">
-                  ({anime.scoredBy.toLocaleString()})
-                </p>
-              </div>
-
-              <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium">
-                {anime.rating}
-              </p>
-
-              <p className="text-xs font-inter px-2 py-1 rounded-full border font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                {anime.status}
-              </p>
-
-              <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
-                {`${anime.season} ${anime.year}`}
-              </p>
-            </div>
+            <AnimeStatsBadges anime={anime} />
 
             <TypographyP className="text-justify whitespace-pre-line">
               {anime.synopsis}
             </TypographyP>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
-              <AnimeInfoCard
-                icon={Calendar}
-                cardTitle="Aired"
-                cardDescription={anime.aired.string}
-              />
-              <AnimeInfoCard
-                icon={Clock}
-                cardTitle="Duration"
-                cardDescription={anime.duration}
-              />
-              <AnimeInfoCard
-                icon={Play}
-                cardTitle="Episodes"
-                cardDescription={
-                  anime.episodes > 0 ? anime.episodes.toString() : "N/A"
-                }
-              />
-              <AnimeInfoCard
-                icon={Users}
-                cardTitle="Members"
-                cardDescription={anime.members.toLocaleString()}
-              />
-              <AnimeInfoCard
-                icon={Award}
-                cardTitle="Rank"
-                cardDescription={`#${anime.rank}`}
-              />
-              <AnimeInfoCard
-                icon={Heart}
-                cardTitle="Favorites"
-                cardDescription={anime.favourites.toLocaleString()}
-              />
-            </div>
+            <AnimeInfoCardGroup anime={anime} />
 
-            {anime.studios.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-3 font-inter">Studios</h3>
-                <div className="flex flex-wrap gap-2">
-                  {anime.studios.map(({ name, mal_id, url }) => (
-                    <Link key={mal_id} href={url}>
-                      <Button
-                        variant="outline"
-                        className="cursor-pointer rounded-3xl font-inter"
-                      >
-                        {name}
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {anime.producers.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-3 font-inter">Producers</h3>
-                <div className="flex flex-wrap gap-2">
-                  {anime.producers.map(({ name, mal_id, url }) => (
-                    <Link key={mal_id} href={url}>
-                      <Button
-                        variant="outline"
-                        className="cursor-pointer rounded-3xl font-inter"
-                      >
-                        {name}
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {anime.genres.length > 0 && (
-              <div>
-                <div className="flex gap-1 items-center mb-3">
-                  <h3 className="font-semibold font-inter">Genres</h3>
-                  <Tag className="h-5 w-5" />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {anime.genres.map(({ name, mal_id }) => (
-                    <Button
-                      key={mal_id}
-                      className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md"
-                    >
-                      {name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {anime.themes.length > 0 && (
-              <div>
-                <div className="flex gap-1 items-center mb-3">
-                  <h3 className="font-semibold font-inter">Themes</h3>
-                  <Swords className="h-5 w-5" />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {anime.themes.map(({ name, mal_id }) => (
-                    <Button
-                      key={mal_id}
-                      className="cursor-pointer rounded-3xl font-inter text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 hover:shadow-md"
-                    >
-                      {name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <StudiosInfo studios={anime.studios} />
+            <ProducersInfo producers={anime.producers} />
+            <GenresInfo genres={anime.genres} />
+            <ThemesInfo themes={anime.themes} />
           </div>
 
           <div className="relative order-1 lg:order-none">
-            <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
-              <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
-                <Image
-                  src={anime.images.webp.large_image_url}
-                  alt="Anime Poster"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 350px"
-                  priority
-                />
-              </div>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
-                    <Play />
-                    Watch Trailer
-                  </Button>
-                </div>
-                <div className="flex-1">
-                  <Link href={anime.url} target="_blank">
-                    <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
-                      <SquareArrowOutUpRight />
-                      MyAnimeList
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <ImageInfoGroup images={anime.images} url={anime.url} />
           </div>
         </div>
       )}
@@ -244,6 +94,186 @@ const PageSkeleton = () => (
         <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
           <Skeleton className="w-full h-full rounded-xl" />
         </div>
+      </div>
+    </div>
+  </div>
+);
+
+const AnimeStatsBadges = ({ anime }: { anime: Anime }) => (
+  <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex items-center gap-1 py-1 px-2 rounded-full bg-secondary hover:bg-secondary/80">
+      <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+      <p className="font-bold text-xs font-inter">{anime.score.toFixed(2)}</p>
+      <p className="text-xs text-muted-foreground font-inter">
+        ({anime.scoredBy.toLocaleString()})
+      </p>
+    </div>
+
+    <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium">
+      {anime.rating}
+    </p>
+
+    <p className="text-xs font-inter px-2 py-1 rounded-full border font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+      {anime.status}
+    </p>
+
+    <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
+      {`${anime.season} ${anime.year}`}
+    </p>
+  </div>
+);
+
+const AnimeInfoCardGroup = ({ anime }: { anime: Anime }) => (
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
+    <AnimeInfoCard
+      icon={Calendar}
+      cardTitle="Aired"
+      cardDescription={anime.aired.string}
+    />
+    <AnimeInfoCard
+      icon={Clock}
+      cardTitle="Duration"
+      cardDescription={anime.duration}
+    />
+    <AnimeInfoCard
+      icon={Play}
+      cardTitle="Episodes"
+      cardDescription={anime.episodes > 0 ? anime.episodes.toString() : "N/A"}
+    />
+    <AnimeInfoCard
+      icon={Users}
+      cardTitle="Members"
+      cardDescription={anime.members.toLocaleString()}
+    />
+    <AnimeInfoCard
+      icon={Award}
+      cardTitle="Rank"
+      cardDescription={`#${anime.rank}`}
+    />
+    <AnimeInfoCard
+      icon={Heart}
+      cardTitle="Favorites"
+      cardDescription={anime.favourites.toLocaleString()}
+    />
+  </div>
+);
+
+const StudiosInfo = ({ studios }: Pick<Anime, "studios">) => {
+  return (
+    studios.length > 0 && (
+      <div>
+        <h3 className="font-semibold mb-3 font-inter">Studios</h3>
+        <div className="flex flex-wrap gap-2">
+          {studios.map(({ name, mal_id, url }) => (
+            <Link key={mal_id} href={url}>
+              <Button
+                variant="outline"
+                className="cursor-pointer rounded-3xl font-inter"
+              >
+                {name}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </div>
+    )
+  );
+};
+
+const ProducersInfo = ({ producers }: Pick<Anime, "producers">) => {
+  return (
+    producers.length > 0 && (
+      <div>
+        <h3 className="font-semibold mb-3 font-inter">Producers</h3>
+        <div className="flex flex-wrap gap-2">
+          {producers.map(({ name, mal_id, url }) => (
+            <Link key={mal_id} href={url}>
+              <Button
+                variant="outline"
+                className="cursor-pointer rounded-3xl font-inter"
+              >
+                {name}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </div>
+    )
+  );
+};
+
+const GenresInfo = ({ genres }: Pick<Anime, "genres">) => {
+  return (
+    genres.length > 0 && (
+      <div>
+        <div className="flex gap-1 items-center mb-3">
+          <h3 className="font-semibold font-inter">Genres</h3>
+          <Tag className="h-5 w-5" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {genres.map(({ name, mal_id }) => (
+            <Button
+              key={mal_id}
+              className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md"
+            >
+              {name}
+            </Button>
+          ))}
+        </div>
+      </div>
+    )
+  );
+};
+
+const ThemesInfo = ({ themes }: Pick<Anime, "themes">) => {
+  return (
+    themes.length > 0 && (
+      <div>
+        <div className="flex gap-1 items-center mb-3">
+          <h3 className="font-semibold font-inter">Themes</h3>
+          <Swords className="h-5 w-5" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {themes.map(({ name, mal_id }) => (
+            <Button
+              key={mal_id}
+              className="cursor-pointer rounded-3xl font-inter text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 hover:shadow-md"
+            >
+              {name}
+            </Button>
+          ))}
+        </div>
+      </div>
+    )
+  );
+};
+
+const ImageInfoGroup = ({ images, url }: Pick<Anime, "images" | "url">) => (
+  <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
+    <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
+      <Image
+        src={images.webp.large_image_url}
+        alt="Anime Poster"
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, 350px"
+        priority
+      />
+    </div>
+    <div className="flex gap-3">
+      <div className="flex-1">
+        <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
+          <Play />
+          Watch Trailer
+        </Button>
+      </div>
+      <div className="flex-1">
+        <Link href={url} target="_blank">
+          <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
+            <SquareArrowOutUpRight />
+            MyAnimeList
+          </Button>
+        </Link>
       </div>
     </div>
   </div>
