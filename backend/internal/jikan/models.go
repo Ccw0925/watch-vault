@@ -12,23 +12,30 @@ type Pagination struct {
 }
 
 type Anime struct {
-	ID           int     `json:"mal_id"`
-	Url          string  `json:"url"`
-	Name         string  `json:"title"`
-	EnglishName  string  `json:"title_english"`
-	JapaneseName string  `json:"title_japanese"`
-	Year         int     `json:"year"`
-	Genres       []Genre `json:"genres"`
-	Rank         int     `json:"rank"`
-	Score        float32 `json:"score"`
-	ScoredBy     int     `json:"scored_by"`
-	Episodes     int     `json:"episodes"`
-	Status       string  `json:"status"`
-	Season       string  `json:"season"`
-	Rating       string  `json:"rating"`
-	Sypnosis     string  `json:"synopsis"`
-	Images       Images  `json:"images"`
-	Aired        Aired   `json:"aired"`
+	ID           int           `json:"mal_id"`
+	Url          string        `json:"url"`
+	Name         string        `json:"title"`
+	EnglishName  string        `json:"title_english"`
+	JapaneseName string        `json:"title_japanese"`
+	Year         int           `json:"year"`
+	Genres       []Genre       `json:"genres"`
+	Rank         int           `json:"rank"`
+	Score        float32       `json:"score"`
+	ScoredBy     int           `json:"scored_by"`
+	Episodes     int           `json:"episodes"`
+	Status       string        `json:"status"`
+	Season       string        `json:"season"`
+	Rating       string        `json:"rating"`
+	Sypnosis     string        `json:"synopsis"`
+	Images       Images        `json:"images"`
+	Aired        Aired         `json:"aired"`
+	Duration     string        `json:"duration"`
+	Members      int           `json:"members"`
+	Favourites   int           `json:"favorites"`
+	Studios      []Studio      `json:"studios"`
+	Themes       []Theme       `json:"themes"`
+	Producers    []Producer    `json:"producers"`
+	Demographics []DemoGraphic `json:"demographics"`
 }
 
 type Genre struct {
@@ -45,6 +52,34 @@ type Images struct {
 
 type Aired struct {
 	String string `json:"string"`
+}
+
+type Studio struct {
+	ID   int    `json:"mal_id"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+type Producer struct {
+	ID   int    `json:"mal_id"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+type Theme struct {
+	ID   int    `json:"mal_id"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
+type DemoGraphic struct {
+	ID   int    `json:"mal_id"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 type AnimeResponse struct {

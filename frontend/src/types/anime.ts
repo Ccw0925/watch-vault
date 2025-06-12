@@ -16,6 +16,13 @@ export type Anime = {
   synopsis: string;
   images: Images;
   aired: Aired;
+  duration: string;
+  members: number;
+  favourites: number;
+  studios: Studio[];
+  producers: Producer[];
+  themes: Theme[];
+  demographics: DemoGraphic[];
 };
 
 type Genre = {
@@ -30,6 +37,34 @@ export type Images = {
 
 type Aired = {
   string: string;
+};
+
+type Studio = {
+  mal_id: number;
+  type: string;
+  name: string;
+  url: string;
+};
+
+type Producer = {
+  mal_id: number;
+  type: string;
+  name: string;
+  url: string;
+};
+
+type Theme = {
+  mal_id: number;
+  type: string;
+  name: string;
+  url: string;
+};
+
+type DemoGraphic = {
+  mal_id: number;
+  type: string;
+  name: string;
+  url: string;
 };
 
 type Pagination = {

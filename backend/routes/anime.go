@@ -99,5 +99,12 @@ func animeToResponse(anime *jikan.Anime) gin.H {
 		"synopsis":      anime.Sypnosis,
 		"images":        anime.Images,
 		"aired":         anime.Aired,
+		"duration":      anime.Duration,
+		"members":       anime.Members,
+		"favourites":    anime.Favourites,
+		"studios":       anime.Studios,
+		"themes":        anime.Themes,
+		"producers":     anime.Producers,
+		"demographics":  anime.Demographics,
 	}
 }

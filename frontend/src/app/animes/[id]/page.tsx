@@ -10,13 +10,17 @@ import {
 } from "@/components/ui/typography";
 import { useAnimeById } from "@/hooks/api/animeHooks";
 import {
+  Award,
   Bookmark,
   Calendar,
+  Clock,
+  Heart,
   Play,
   SquareArrowOutUpRight,
   Star,
   Swords,
   Tag,
+  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -88,9 +92,9 @@ const AnimeDetailsPage = () => {
                 cardDescription={anime.aired.string}
               />
               <AnimeInfoCard
-                icon={Bookmark}
-                cardTitle="Genres"
-                cardDescription="Action, Adventure, Comedy"
+                icon={Clock}
+                cardTitle="Duration"
+                cardDescription={anime.duration}
               />
               <AnimeInfoCard
                 icon={Play}
@@ -100,79 +104,97 @@ const AnimeDetailsPage = () => {
                 }
               />
               <AnimeInfoCard
-                icon={Bookmark}
-                cardTitle="Genres"
-                cardDescription="Action, Adventure, Comedy"
+                icon={Users}
+                cardTitle="Members"
+                cardDescription={anime.members.toLocaleString()}
               />
               <AnimeInfoCard
-                icon={Bookmark}
-                cardTitle="Genres"
-                cardDescription="Action, Adventure, Comedy"
+                icon={Award}
+                cardTitle="Rank"
+                cardDescription={`#${anime.rank}`}
               />
               <AnimeInfoCard
-                icon={Bookmark}
-                cardTitle="Genres"
-                cardDescription="Action, Adventure, Comedy"
+                icon={Heart}
+                cardTitle="Favorites"
+                cardDescription={anime.favourites.toLocaleString()}
               />
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-3 font-inter">Studios</h3>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  className="cursor-pointer rounded-3xl font-inter"
-                >
-                  MAPPA
-                </Button>
+            {anime.studios.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-3 font-inter">Studios</h3>
+                <div className="flex flex-wrap gap-2">
+                  {anime.studios.map(({ name, mal_id, url }) => (
+                    <Link key={mal_id} href={url}>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer rounded-3xl font-inter"
+                      >
+                        {name}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div>
-              <h3 className="font-semibold mb-3 font-inter">Producers</h3>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  className="cursor-pointer rounded-3xl font-inter"
-                >
-                  TV Tokyo
-                </Button>
-                <Button
-                  variant="outline"
-                  className="cursor-pointer rounded-3xl font-inter"
-                >
-                  Movic
-                </Button>
+            {anime.producers.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-3 font-inter">Producers</h3>
+                <div className="flex flex-wrap gap-2">
+                  {anime.producers.map(({ name, mal_id, url }) => (
+                    <Link key={mal_id} href={url}>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer rounded-3xl font-inter"
+                      >
+                        {name}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div>
-              <div className="flex gap-1 items-center mb-3">
-                <h3 className="font-semibold font-inter">Genres</h3>
-                <Tag className="h-5 w-5" />
+            {anime.genres.length > 0 && (
+              <div>
+                <div className="flex gap-1 items-center mb-3">
+                  <h3 className="font-semibold font-inter">Genres</h3>
+                  <Tag className="h-5 w-5" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {anime.genres.map(({ name, mal_id }) => (
+                    <Button
+                      key={mal_id}
+                      className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md"
+                    >
+                      {name}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md">
-                  Action
-                </Button>
-                <Button className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md">
-                  Fantasy
-                </Button>
-              </div>
-            </div>
+            )}
 
-            <div>
-              <div className="flex gap-1 items-center mb-3">
-                <h3 className="font-semibold font-inter">Themes</h3>
-                <Swords className="h-5 w-5" />
+            {anime.themes.length > 0 && (
+              <div>
+                <div className="flex gap-1 items-center mb-3">
+                  <h3 className="font-semibold font-inter">Themes</h3>
+                  <Swords className="h-5 w-5" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {anime.themes.map(({ name, mal_id }) => (
+                    <Button
+                      key={mal_id}
+                      className="cursor-pointer rounded-3xl font-inter text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 hover:shadow-md"
+                    >
+                      {name}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button className="cursor-pointer rounded-3xl font-inter text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 hover:shadow-md">
-                  Isekai
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
+
           <div className="relative order-1 lg:order-none">
             <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
               <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
