@@ -1,9 +1,14 @@
-import { TopAnimesResponse } from "@/types/anime";
+import { Anime, TopAnimesResponse } from "@/types/anime";
 import axios from "axios";
 
 const api = axios.create({
   baseURL: "/api",
 });
+
+export const fetchAnimeById = async (id: string): Promise<Anime> => {
+  const response = await api.get<Anime>(`/animes/${id}`);
+  return response.data;
+}
 
 export const fetchTopAnimes = async (options?: {
   page?: number;

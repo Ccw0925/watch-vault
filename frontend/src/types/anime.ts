@@ -1,6 +1,11 @@
 export type Anime = {
   id: number;
+  url: string;
   title: string;
+  englishTitle: string;
+  japaneseTitle: string;
+  season: string;
+  rating: string;
   year: number;
   genres: Genre[];
   rank: number;
@@ -8,7 +13,9 @@ export type Anime = {
   scoredBy: number;
   episodes: number;
   status: string;
+  synopsis: string;
   images: Images;
+  aired: Aired;
 };
 
 type Genre = {
@@ -19,6 +26,10 @@ type Genre = {
 
 export type Images = {
   webp: { large_image_url: string };
+};
+
+type Aired = {
+  string: string;
 };
 
 type Pagination = {
