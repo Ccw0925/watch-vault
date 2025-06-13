@@ -94,13 +94,16 @@ const PageSkeleton = () => (
 const AnimeTitleInfo = ({ anime }: { anime: Anime }) => (
   <>
     <TypographyH3 className="text-3xl">{anime.title}</TypographyH3>
-    <TypographyMuted className="text-base">
-      {anime.englishTitle}
-    </TypographyMuted>
-
-    <TypographyMuted className="text-base">
-      {anime.japaneseTitle}
-    </TypographyMuted>
+    {anime.englishTitle && (
+      <TypographyMuted className="text-base">
+        {anime.englishTitle}
+      </TypographyMuted>
+    )}
+    {anime.japaneseTitle && (
+      <TypographyMuted className="text-base">
+        {anime.japaneseTitle}
+      </TypographyMuted>
+    )}
   </>
 );
 
