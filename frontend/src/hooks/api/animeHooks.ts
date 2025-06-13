@@ -10,14 +10,18 @@ export const useAnimes = ({
   page,
   genres,
   rating,
+  orderBy,
+  sort,
 }: {
   page?: number;
-  genres?: string;
-  rating?: string;
+  genres?: string | null;
+  rating?: string | null;
+  orderBy?: string | null;
+  sort?: string | null;
 }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["animes", { page, genres, rating }],
-    queryFn: () => fetchAnimes({ page, genres, rating }),
+    queryKey: ["animes", { page, genres, rating, orderBy, sort }],
+    queryFn: () => fetchAnimes({ page, genres, rating, orderBy, sort }),
     placeholderData: keepPreviousData,
   });
 };

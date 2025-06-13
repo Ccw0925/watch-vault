@@ -15,8 +15,9 @@ const AnimeByGenrePage = () => {
   const genreName = queryParams.get("name");
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
+  const rating = queryParams.get("rating");
 
-  const { data, isLoading } = useAnimes({ genres: id, page: pageInt });
+  const { data, isLoading } = useAnimes({ genres: id, page: pageInt, rating });
   const animes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 

@@ -13,10 +13,19 @@ const AnimeByRatingPage = () => {
   const { type } = useParams<{ type: string }>();
   const queryParams = useSearchParams();
   const ratingName = queryParams.get("name");
+  const orderBy = queryParams.get("orderBy");
+  const sort = queryParams.get("sort");
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
+  const genres = queryParams.get("genres");
 
-  const { data, isLoading } = useAnimes({ rating: type, page: pageInt });
+  const { data, isLoading } = useAnimes({
+    rating: type,
+    page: pageInt,
+    orderBy,
+    sort,
+    genres
+  });
   const animes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 

@@ -91,7 +91,7 @@ const AnimeGridView = ({
     >
       <motion.div
         initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
+        animate={{ opacity: 1, x: 0, transition: { duration: 0.5 } }}
         className="rounded-2xl flex gap-4 h-full transform-3d"
         style={{ z: 30 }}
       >
@@ -265,12 +265,14 @@ const RatingAndRankingRow = ({
 const GenresRow = ({ genres }: Pick<Anime, "genres">) => (
   <div className="flex flex-wrap gap-2">
     {genres.slice(0, 2).map((genre) => (
-      <div
+      <Link
         key={genre.mal_id}
-        className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer"
+        href={`/animes/genre/${genre.mal_id}?name=${genre.name}`}
       >
-        <p className="font-inter font-semibold">{genre.name}</p>
-      </div>
+        <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer">
+          <p className="font-inter font-semibold">{genre.name}</p>
+        </div>
+      </Link>
     ))}
     {genres.length > 2 && (
       <HoverCard>
@@ -282,14 +284,18 @@ const GenresRow = ({ genres }: Pick<Anime, "genres">) => (
         <HoverCardContent className="w-[200px]">
           <div className="flex gap-5 flex-wrap">
             {genres.slice(2).map((genre) => (
-              <div
+              <Link
                 key={genre.mal_id}
-                className={`bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer max-h-[40px] ${
-                  genres.length === 3 && "flex-1"
-                }`}
+                href={`/animes/genre/${genre.mal_id}?name=${genre.name}`}
               >
-                <p className="font-inter font-semibold">{genre.name}</p>
-              </div>
+                <div
+                  className={`bg-gray-200 dark:bg-gray-700 p-2 rounded-xl cursor-pointer max-h-[40px] ${
+                    genres.length === 3 && "flex-1"
+                  }`}
+                >
+                  <p className="font-inter font-semibold">{genre.name}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </HoverCardContent>
