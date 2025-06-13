@@ -9,13 +9,15 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 export const useAnimes = ({
   page,
   genres,
+  rating,
 }: {
   page?: number;
   genres?: string;
+  rating?: string;
 }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["animes", { page, genres }],
-    queryFn: () => fetchAnimes({ page, genres }),
+    queryKey: ["animes", { page, genres, rating }],
+    queryFn: () => fetchAnimes({ page, genres, rating }),
     placeholderData: keepPreviousData,
   });
 };

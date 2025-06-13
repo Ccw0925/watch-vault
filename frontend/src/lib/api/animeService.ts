@@ -8,6 +8,7 @@ const api = axios.create({
 export const fetchAnimes = async (options?: {
   page?: number;
   genres?: string;
+  rating?: string;
 }): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
@@ -17,6 +18,10 @@ export const fetchAnimes = async (options?: {
 
   if (options?.genres !== undefined) {
     params.append("genres", options.genres);
+  }
+
+  if (options?.rating !== undefined) {
+    params.append("rating", options.rating);
   }
 
   const response = await api.get<AnimesResponse>("/animes", { params });

@@ -9,6 +9,7 @@ import {
   TypographyP,
 } from "@/components/ui/typography";
 import { useAnimeById } from "@/hooks/api/animeHooks";
+import { getRatingKey } from "@/lib/anime/rating/utils";
 import { Anime } from "@/types/anime";
 import {
   Award,
@@ -108,31 +109,43 @@ const AnimeTitleInfo = ({ anime }: { anime: Anime }) => (
   </>
 );
 
-const AnimeStatsBadges = ({ anime }: { anime: Anime }) => (
-  <div className="flex flex-wrap gap-2 items-center">
-    <div className="flex items-center gap-1 py-1 px-2 rounded-full bg-secondary hover:bg-secondary/80">
-      <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-      <p className="font-bold text-xs font-inter">{anime.score.toFixed(2)}</p>
-      <p className="text-xs text-muted-foreground font-inter">
-        ({anime.scoredBy.toLocaleString()})
-      </p>
-    </div>
-
+const AnimeStatsBadges = ({ anime }: { anime: Anime }) => {
+  const ratingTag = (
     <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium">
       {anime.rating}
     </p>
+  );
 
-    <p className="text-xs font-inter px-2 py-1 rounded-full border font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-      {anime.status}
-    </p>
+  return (
+    <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex items-center gap-1 py-1 px-2 rounded-full bg-secondary hover:bg-secondary/80">
+        <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+        <p className="font-bold text-xs font-inter">{anime.score.toFixed(2)}</p>
+        <p className="text-xs text-muted-foreground font-inter">
+          ({anime.scoredBy.toLocaleString()})
+        </p>
+      </div>
 
-    {anime.year > 0 && (
-      <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
-        {`${anime.season} ${anime.year}`}
+      {getRatingKey(anime.rating) ? (
+        <Link href={`/animes/rating/${getRatingKey(anime.rating)}`}>
+          {ratingTag}
+        </Link>
+      ) : (
+        ratingTag
+      )}
+
+      <p className="text-xs font-inter px-2 py-1 rounded-full border font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+        {anime.status}
       </p>
-    )}
-  </div>
-);
+
+      {anime.year > 0 && (
+        <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
+          {`${anime.season} ${anime.year}`}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const AnimeInfoCardGroup = ({ anime }: { anime: Anime }) => (
   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
