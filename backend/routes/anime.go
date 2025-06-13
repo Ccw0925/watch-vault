@@ -21,9 +21,29 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 
 	animeGroup := r.Group("/animes")
 	{
+		animeGroup.GET("", handler.ListAllAnime)
 		animeGroup.GET("/top", handler.GetTopAnime)
 		animeGroup.GET("/:id", handler.GetAnimeById)
 	}
+}
+
+func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
+	page := getPageParam(c)
+	genres := c.Query("genres")
+
+	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch all anime",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": response.Pagination,
+		"data":       buildAnimeResponse(response.Data),
+	})
 }
 
 func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
@@ -47,11 +67,7 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 }
 
 func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
-	pageStr := c.DefaultQuery("page", "1")
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page <= 0 {
-		page = 1
-	}
+	page := getPageParam(c)
 
 	response, err := h.jikanClient.GetTopAnime(c.Request.Context(), page)
 	if err != nil {
@@ -62,22 +78,34 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 		return
 	}
 
-	seen := make(map[int]bool)
-	animeList := make([]gin.H, 0, len(response.Data))
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": response.Pagination,
+		"data":       buildAnimeResponse(response.Data),
+	})
+}
 
-	for _, anime := range response.Data {
+func getPageParam(c *gin.Context) int {
+	pageStr := c.DefaultQuery("page", "1")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		return 1
+	}
+	return page
+}
+
+func buildAnimeResponse(data []jikan.Anime) []gin.H {
+	seen := make(map[int]bool)
+	animeList := make([]gin.H, 0, len(data))
+
+	for _, anime := range data {
 		if seen[anime.ID] {
 			continue
 		}
 		seen[anime.ID] = true
-
 		animeList = append(animeList, animeToResponse(&anime))
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"pagination": response.Pagination,
-		"data":       animeList,
-	})
+	return animeList
 }
 
 func animeToResponse(anime *jikan.Anime) gin.H {

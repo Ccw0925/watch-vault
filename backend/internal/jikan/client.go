@@ -24,8 +24,49 @@ func NewClient() *Client {
 	}
 }
 
+func (c *Client) ListAllAnime(ctx context.Context, page int, genres string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("all_anime:%d:%s", page, genres)
+
+	if cached, found := c.cache.Get(cacheKey); found {
+		return cached.(*AnimesListResponse), nil
+	}
+
+	endpoint := fmt.Sprintf("%s/anime", c.baseURL)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	q := req.URL.Query()
+
+	q.Add("page", fmt.Sprintf("%d", page))
+	q.Add("genres", genres)
+
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result AnimesListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding response: %w", err)
+	}
+
+	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+
+	return &result, nil
+}
+
 func (c *Client) GetAnimeById(ctx context.Context, id int) (*AnimeResponse, error) {
-	cacheKey := fmt.Sprintf("anime_%d", id)
+	cacheKey := fmt.Sprintf("anime:%d", id)
 
 	if cached, found := c.cache.Get(cacheKey); found {
 		return cached.(*AnimeResponse), nil
@@ -58,11 +99,11 @@ func (c *Client) GetAnimeById(ctx context.Context, id int) (*AnimeResponse, erro
 	return &result, nil
 }
 
-func (c *Client) GetTopAnime(ctx context.Context, page int) (*TopAnimeResponse, error) {
-	cacheKey := fmt.Sprintf("top_anime_%d", page)
+func (c *Client) GetTopAnime(ctx context.Context, page int) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("top_anime:%d", page)
 
 	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*TopAnimeResponse), nil
+		return cached.(*AnimesListResponse), nil
 	}
 
 	endpoint := fmt.Sprintf("%s/top/anime?page=%d", c.baseURL, page)
@@ -82,7 +123,7 @@ func (c *Client) GetTopAnime(ctx context.Context, page int) (*TopAnimeResponse, 
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var result TopAnimeResponse
+	var result AnimesListResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}

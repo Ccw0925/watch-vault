@@ -86,7 +86,7 @@ type AnimeResponse struct {
 	Data Anime `json:"data"`
 }
 
-type TopAnimeResponse struct {
+type AnimesListResponse struct {
 	Pagination Pagination `json:"pagination"`
 	Data       []Anime    `json:"data"`
 }
