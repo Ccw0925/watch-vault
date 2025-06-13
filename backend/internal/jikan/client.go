@@ -24,8 +24,8 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) ListAllAnime(ctx context.Context, page int, genres string) (*AnimesListResponse, error) {
-	cacheKey := fmt.Sprintf("all_anime:%d:%s", page, genres)
+func (c *Client) ListAllAnime(ctx context.Context, page int, genres string, rating string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("all_anime:%d:%s:%s", page, genres, rating)
 
 	if cached, found := c.cache.Get(cacheKey); found {
 		return cached.(*AnimesListResponse), nil
@@ -42,6 +42,7 @@ func (c *Client) ListAllAnime(ctx context.Context, page int, genres string) (*An
 
 	q.Add("page", fmt.Sprintf("%d", page))
 	q.Add("genres", genres)
+	q.Add("rating", rating)
 
 	req.URL.RawQuery = q.Encode()
 

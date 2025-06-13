@@ -30,8 +30,9 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
 	page := getPageParam(c)
 	genres := c.Query("genres")
+	rating := c.Query("rating")
 
-	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres)
+	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres, rating)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch all anime",
