@@ -36,11 +36,11 @@ const TopAnimePage = () => {
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
 
       {isLoading ? (
-        <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
           <AnimeSkeleton />
         </div>
       ) : topAnimes && topAnimes.length > 0 ? (
-        <div className="grid grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
           {topAnimes.map(({ id, ...anime }) => (
             <AnimeGridView key={id} id={id} {...anime} />
           ))}
@@ -66,7 +66,7 @@ const AnimeSkeleton = () =>
   [...Array(5)].map((_, i) => (
     <div
       key={i}
-      className="h-[350px] w-[550px] border rounded-2xl flex p-3 gap-4"
+      className="h-[200px] lg:h-[350px] w-full lg:w-[550px] border rounded-2xl flex p-3 gap-4"
     >
       <div className="flex-4 rounded-2xl">
         <Skeleton className="w-full h-full" />

@@ -86,7 +86,7 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[350px] w-[550px] border rounded-2xl p-3 transform-3d shadow-xl"
+      className="h-[200px] lg:h-[350px] w-full lg:w-[550px] border rounded-2xl p-3 transform-3d shadow-xl"
     >
       <motion.div
         initial={{ opacity: 0, x: -10 }}
@@ -124,7 +124,7 @@ const ImageComponent = ({
   imageUrl: string;
   title: string;
 }) => (
-  <div className="flex-4 rounded-2xl relative overflow-hidden cursor-pointer transform-3d">
+  <div className="flex-4 rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0">
     <Link href={`/animes/${animeId}`} className="relative block w-full h-full">
       <Image
         src={imageUrl}
@@ -158,7 +158,7 @@ const InfoComponent = ({
   | "rank"
   | "genres"
 >) => (
-  <div className="flex-5 flex gap-4 flex-col">
+  <div className="flex-5 flex gap-4 flex-col overflow-y-auto lg:overflow-visible">
     <StatusRow status={status} />
     <EpisodesRow episodes={episodes} />
     <TitleRow id={id} title={title} />
@@ -168,9 +168,9 @@ const InfoComponent = ({
 );
 
 const StatusRow = ({ status }: Pick<Anime, "status">) => (
-  <div className="flex justify-between">
+  <div className="flex lg:justify-between lg:gap-0 gap-1">
     <p
-      className={`font-inter p-2 rounded-xl font-semibold border-2 ${
+      className={`font-inter p-2 rounded-xl font-semibold border-2 truncate ${
         status === "Finished Airing"
           ? "dark:text-blue-300 text-blue-500"
           : "dark:text-orange-300 text-orange-500"
