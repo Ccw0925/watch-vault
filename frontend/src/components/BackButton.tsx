@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion"; // Note: I corrected the import from "motion/react" to "framer-motion"
 
 type Props = {
   btnText?: string;
@@ -11,13 +11,23 @@ type Props = {
 };
 
 const BackButton = ({ btnText = "Back", redirectUrl = "/" }: Props) => {
+  const router = useRouter();
   const arrow = {
     initial: { x: 0 },
     hover: { x: -4 },
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(redirectUrl);
+    }
+  };
+
   return (
-    <Link href={redirectUrl}>
+    <div onClick={handleClick}>
       <motion.div
         whileHover="hover"
         className="
@@ -53,7 +63,7 @@ const BackButton = ({ btnText = "Back", redirectUrl = "/" }: Props) => {
           {btnText}
         </div>
       </motion.div>
-    </Link>
+    </div>
   );
 };
 

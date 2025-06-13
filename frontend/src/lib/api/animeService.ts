@@ -1,25 +1,43 @@
-import { Anime, TopAnimesResponse } from "@/types/anime";
+import { Anime, AnimesResponse } from "@/types/anime";
 import axios from "axios";
 
 const api = axios.create({
   baseURL: "/api",
 });
 
-export const fetchAnimeById = async (id: string): Promise<Anime> => {
-  const response = await api.get<Anime>(`/animes/${id}`);
-  return response.data;
-}
-
-export const fetchTopAnimes = async (options?: {
+export const fetchAnimes = async (options?: {
   page?: number;
-}): Promise<TopAnimesResponse> => {
+  genres?: string;
+}): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
   if (options?.page !== undefined) {
     params.append("page", options.page.toString());
   }
 
-  const response = await api.get<TopAnimesResponse>("/animes/top", { params });
+  if (options?.genres !== undefined) {
+    params.append("genres", options.genres);
+  }
+
+  const response = await api.get<AnimesResponse>("/animes", { params });
+  return response.data;
+};
+
+export const fetchAnimeById = async (id: string): Promise<Anime> => {
+  const response = await api.get<Anime>(`/animes/${id}`);
+  return response.data;
+};
+
+export const fetchTopAnimes = async (options?: {
+  page?: number;
+}): Promise<AnimesResponse> => {
+  const params = new URLSearchParams();
+
+  if (options?.page !== undefined) {
+    params.append("page", options.page.toString());
+  }
+
+  const response = await api.get<AnimesResponse>("/animes/top", { params });
 
   const sortedData = {
     ...response.data,

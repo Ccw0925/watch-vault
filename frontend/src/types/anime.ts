@@ -78,7 +78,7 @@ type Pagination = {
   };
 };
 
-export type TopAnimesResponse = {
+export type AnimesResponse = {
   data: Anime[];
   pagination: Pagination;
 };

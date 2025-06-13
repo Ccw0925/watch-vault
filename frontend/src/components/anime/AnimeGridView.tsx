@@ -19,6 +19,7 @@ import {
   useSpring,
 } from "motion/react";
 import Link from "next/link";
+import { Skeleton } from "../ui/skeleton";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -115,6 +116,23 @@ const AnimeGridView = ({
   );
 };
 
+export const AnimeSkeleton = () =>
+  [...Array(5)].map((_, i) => (
+    <div
+      key={i}
+      className="h-[200px] lg:h-[350px] w-full lg:w-[550px] border rounded-2xl flex p-3 gap-4"
+    >
+      <div className="flex-4 rounded-2xl">
+        <Skeleton className="w-full h-full" />
+      </div>
+      <div className="flex-5 flex flex-col gap-5">
+        <Skeleton className="h-12 w-[50%]" />
+        <Skeleton className="h-6 w-[35%]" />
+        <Skeleton className="h-8 w-[80%] my-2" />
+      </div>
+    </div>
+  ));
+
 const ImageComponent = ({
   animeId,
   imageUrl,
@@ -167,30 +185,37 @@ const InfoComponent = ({
   </div>
 );
 
-const StatusRow = ({ status }: Pick<Anime, "status">) => (
-  <div className="flex lg:justify-between lg:gap-0 gap-1">
-    <p
-      className={`font-inter p-2 rounded-xl font-semibold border-2 truncate ${
-        status === "Finished Airing"
-          ? "dark:text-blue-300 text-blue-500"
-          : "dark:text-orange-300 text-orange-500"
-      }`}
-    >
-      {status}
-    </p>
+const StatusRow = ({ status }: Pick<Anime, "status">) => {
+  const statusStyling = {
+    "Finished Airing": "dark:text-blue-300 text-blue-500",
+    "Currently Airing": "dark:text-green-300 text-green-500",
+    "Not yet aired": "dark:text-orange-300 text-orange-500",
+  } as const;
+  const styling =
+    statusStyling[status as keyof typeof statusStyling] ||
+    "dark:text-orange-300 text-orange-500";
 
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
-          <Bookmark />
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-inter text-white">Save to Watchlist</p>
-      </TooltipContent>
-    </Tooltip>
-  </div>
-);
+  return (
+    <div className="flex lg:justify-between lg:gap-0 gap-1">
+      <p
+        className={`font-inter p-2 rounded-xl font-semibold border-2 truncate ${styling}`}
+      >
+        {status}
+      </p>
+
+      <Tooltip>
+        <TooltipTrigger>
+          <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
+            <Bookmark />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-inter text-white">Save to Watchlist</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+};
 
 const EpisodesRow = ({ episodes }: Pick<Anime, "episodes">) => (
   <div>
@@ -220,7 +245,9 @@ const RatingAndRankingRow = ({
     <div>
       <div className="flex gap-1 items-center">
         <Star />
-        <p className="font-inter text-xl font-semibold">{score}</p>
+        <p className="font-inter text-xl font-semibold">
+          {scoredBy <= 0 ? "--" : score}
+        </p>
       </div>
       <p className="font-inter font-semibold text-gray-400">
         {scoredBy.toLocaleString()} users

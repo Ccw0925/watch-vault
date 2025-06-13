@@ -125,9 +125,11 @@ const AnimeStatsBadges = ({ anime }: { anime: Anime }) => (
       {anime.status}
     </p>
 
-    <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
-      {`${anime.season} ${anime.year}`}
-    </p>
+    {anime.year > 0 && (
+      <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
+        {`${anime.season} ${anime.year}`}
+      </p>
+    )}
   </div>
 );
 
@@ -220,12 +222,11 @@ const GenresInfo = ({ genres }: Pick<Anime, "genres">) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {genres.map(({ name, mal_id }) => (
-            <Button
-              key={mal_id}
-              className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md"
-            >
-              {name}
-            </Button>
+            <Link key={mal_id} href={`/animes/genre/${mal_id}?name=${name}`}>
+              <Button className="cursor-pointer rounded-3xl font-inter text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/20 hover:shadow-md">
+                {name}
+              </Button>
+            </Link>
           ))}
         </div>
       </div>

@@ -2,18 +2,22 @@
 import AnimeGridView, { AnimeSkeleton } from "@/components/anime/AnimeGridView";
 import CustomPagination from "@/components/CustomPagination";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
-import { useTopAnimes } from "@/hooks/api/animeHooks";
+import { useAnimes } from "@/hooks/api/animeHooks";
 import Image from "next/image";
+
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 
-const TopAnimePage = () => {
+const AnimeByGenrePage = () => {
+  const { id } = useParams<{ id: string }>();
   const queryParams = useSearchParams();
+  const genreName = queryParams.get("name");
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
-  const { data, isLoading } = useTopAnimes({ page: pageInt });
-  const topAnimes = data?.data;
+
+  const { data, isLoading } = useAnimes({ genres: id, page: pageInt });
+  const animes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 
   return (
@@ -30,7 +34,9 @@ const TopAnimePage = () => {
         </Link>
       </div>
 
-      <TypographyH1 className="text-center mb-5">Top Animes</TypographyH1>
+      <TypographyH1 className="text-center mb-5">{`${
+        genreName ?? "Genre"
+      } Animes`}</TypographyH1>
 
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
 
@@ -38,9 +44,9 @@ const TopAnimePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
           <AnimeSkeleton />
         </div>
-      ) : topAnimes && topAnimes.length > 0 ? (
+      ) : animes && animes.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
-          {topAnimes.map(({ id, ...anime }) => (
+          {animes.map(({ id, ...anime }) => (
             <AnimeGridView key={id} id={id} {...anime} />
           ))}
         </div>
@@ -50,7 +56,7 @@ const TopAnimePage = () => {
         </TypographyH3>
       )}
 
-      {topAnimes && topAnimes.length > 0 && (
+      {animes && animes.length > 0 && (
         <p className="font-inter text-center text-muted-foreground mb-5">
           Data provided by Jikan API.
         </p>
@@ -61,4 +67,4 @@ const TopAnimePage = () => {
   );
 };
 
-export default TopAnimePage;
+export default AnimeByGenrePage;
