@@ -23,7 +23,7 @@ const SideBar = () => {
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 
-          <SideBarMenuItem icon={Bird} label="Animes" />
+          <SideBarMenuItem icon={Bird} label="Animes" link="/animes" />
           <SideBarMenuItem
             icon={Trophy}
             label="Top Animes"
