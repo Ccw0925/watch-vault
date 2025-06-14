@@ -32,7 +32,8 @@ export function TypographyH3({
   children: React.ReactNode;
   className?: string;
 }) {
-  const baseClasses = "scroll-m-20 text-2xl font-semibold tracking-tight font-inter";
+  const baseClasses =
+    "scroll-m-20 text-2xl font-semibold tracking-tight font-inter";
   return <h3 className={twMerge(baseClasses, className)}>{children}</h3>;
 }
 
@@ -43,19 +44,25 @@ export function TypographyH4({
   children: React.ReactNode;
   className?: string;
 }) {
-  const baseClasses = "scroll-m-20 text-xl font-semibold tracking-tight font-inter";
+  const baseClasses =
+    "scroll-m-20 text-xl font-semibold tracking-tight font-inter";
   return <h4 className={twMerge(baseClasses, className)}>{children}</h4>;
 }
 
 export function TypographyP({
   children,
   className,
+  ...props
 }: {
   children: React.ReactNode;
   className?: string;
-}) {
+} & React.ComponentProps<"p">) {
   const baseClasses = "leading-7 [&:not(:first-child)]:mt-6 font-inter";
-  return <p className={twMerge(baseClasses, className)}>{children}</p>;
+  return (
+    <p className={twMerge(baseClasses, className)} {...props}>
+      {children}
+    </p>
+  );
 }
 
 export function TypographyBlockquote({

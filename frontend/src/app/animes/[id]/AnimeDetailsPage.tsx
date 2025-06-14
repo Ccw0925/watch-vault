@@ -27,11 +27,45 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: anime, isLoading } = useAnimeById(id);
+  const [showMore, setShowMore] = useState(false);
+  const [shouldShowMore, setShouldShowMore] = useState(false);
+  const synopsisRef = useRef<HTMLParagraphElement>(null);
+
+  const checkTextOverflow = useCallback(() => {
+    if (synopsisRef.current) {
+      const lineHeight = parseInt(
+        getComputedStyle(synopsisRef.current).lineHeight
+      );
+      const maxHeight = lineHeight * 7;
+      const actualHeight = synopsisRef.current.scrollHeight;
+
+      setShouldShowMore(actualHeight > maxHeight);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkTextOverflow();
+
+    const debouncedCheck = debounce(checkTextOverflow, 200);
+    window.addEventListener("resize", debouncedCheck);
+
+    return () => {
+      window.removeEventListener("resize", debouncedCheck);
+    };
+  }, [checkTextOverflow, anime?.synopsis]);
+
+  const debounce = (func: () => void, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(), wait);
+    };
+  };
 
   return (
     <div className="p-5 lg:p-8 flex flex-col mx-auto w-full max-w-[1850px]">
@@ -53,9 +87,27 @@ const AnimeDetailsPage = () => {
             <AnimeTitleInfo anime={anime} />
             <AnimeStatsBadges anime={anime} />
 
-            <TypographyP className="text-justify whitespace-pre-line">
-              {anime.synopsis}
-            </TypographyP>
+            <div className="flex flex-col gap-2">
+              <TypographyP
+                ref={synopsisRef}
+                className={`text-justify whitespace-pre-line line-clamp-7 ${
+                  showMore && "line-clamp-none"
+                }`}
+              >
+                {anime.synopsis}
+              </TypographyP>
+
+              {shouldShowMore && (
+                <div className="flex flex-col items-center">
+                  <Button
+                    className="font-inter dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-10 rounded-md"
+                    onClick={() => setShowMore(!showMore)}
+                  >
+                    {showMore ? "Show Less" : "Show More"}
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <AnimeInfoCardGroup anime={anime} />
 
