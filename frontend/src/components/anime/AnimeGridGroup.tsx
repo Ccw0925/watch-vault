@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 
 type Props = {
@@ -84,43 +84,13 @@ const AnimeGridGroup = ({
         </div>
       ) : animes && animes.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
-          <div className="col-span-full">
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="ghost"
-                className="cursor-pointer gap-1 font-inter"
-                onClick={() =>
-                  handleSortChange(sort === "asc" ? "desc" : "asc")
-                }
-              >
-                {sort === "asc" ? (
-                  <>
-                    <ArrowUpNarrowWide /> Ascending
-                  </>
-                ) : (
-                  <>
-                    <ArrowDownWideNarrow /> Descending
-                  </>
-                )}
-              </Button>
+          <SortByControl
+            orderBy={orderBy}
+            sort={sort}
+            handleOrderByChange={handleOrderByChange}
+            handleSortChange={handleSortChange}
+          />
 
-              <Select value={orderBy} onValueChange={handleOrderByChange}>
-                <SelectTrigger className="w-[180px] font-inter">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Sort By</SelectLabel>
-                    {Object.entries(sortOptions).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           {animes.map(({ id, ...anime }) => (
             <AnimeGridView key={id} id={id} {...anime} />
           ))}
@@ -145,5 +115,51 @@ const AnimeGridGroup = ({
     </>
   );
 };
+
+const SortByControl = ({
+  sort,
+  orderBy,
+  handleOrderByChange,
+  handleSortChange,
+}: Pick<Props, "orderBy" | "sort"> & {
+  handleOrderByChange: (newSort: string) => void;
+  handleSortChange: (newOrderBy: string) => void;
+}) => (
+  <div className="col-span-full">
+    <div className="flex lg:justify-end justify-center gap-3">
+      <Button
+        variant="ghost"
+        className="cursor-pointer gap-1 font-inter"
+        onClick={() => handleSortChange(sort === "asc" ? "desc" : "asc")}
+      >
+        {sort === "asc" ? (
+          <>
+            <ArrowUpNarrowWide /> Ascending
+          </>
+        ) : (
+          <>
+            <ArrowDownWideNarrow /> Descending
+          </>
+        )}
+      </Button>
+
+      <Select value={orderBy} onValueChange={handleOrderByChange}>
+        <SelectTrigger className="w-[180px] font-inter">
+          <SelectValue placeholder="Sort By" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Sort By</SelectLabel>
+            {Object.entries(sortOptions).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
+  </div>
+);
 
 export default React.memo(AnimeGridGroup);
