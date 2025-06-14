@@ -43,7 +43,9 @@ const AllAnimesPage = () => {
         </Link>
       </div>
 
-      <TypographyH1 className="text-center mb-5">All Animes</TypographyH1>
+      <Link href="/animes?page=1">
+        <TypographyH1 className="text-center mb-5">All Animes</TypographyH1>
+      </Link>
 
       <AnimeGridGroup
         animes={animes}
