@@ -55,6 +55,7 @@ const AnimeGridGroup = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
+  const allParams = Object.fromEntries(searchParams.entries());
 
   const handleSortChange = (newSort: string) => {
     setSort(newSort);
@@ -74,7 +75,7 @@ const AnimeGridGroup = ({
     <CustomPagination
       currentPage={pageInt}
       totalPages={totalPages}
-      additionalParams={{ orderBy, sort }}
+      additionalParams={allParams}
     />
   );
 

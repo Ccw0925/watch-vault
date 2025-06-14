@@ -143,7 +143,10 @@ const ImageComponent = ({
   title: string;
 }) => (
   <div className="flex-4 rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0">
-    <Link href={`/animes/${animeId}`} className="relative block w-full h-full">
+    <Link
+      href={`/animes/${animeId}?name=${title}`}
+      className="relative block w-full h-full"
+    >
       <Image
         src={imageUrl}
         alt={title ?? "Anime Cover"}
@@ -225,7 +228,7 @@ const EpisodesRow = ({ episodes }: Pick<Anime, "episodes">) => (
 
 const TitleRow = ({ id, title }: Pick<Anime, "id" | "title">) => (
   <div className="py-2">
-    <Link href={`/animes/${id}`}>
+    <Link href={`/animes/${id}?name=${title}`}>
       <p
         className="font-inter text-2xl font-bold line-clamp-2 cursor-pointer"
         title={title}
