@@ -70,20 +70,24 @@ const AnimeGridGroup = ({
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const Pagination = () => (
+    <CustomPagination
+      currentPage={pageInt}
+      totalPages={totalPages}
+      additionalParams={{ orderBy, sort }}
+    />
+  );
+
   return (
     <>
-      <CustomPagination
-        currentPage={pageInt}
-        totalPages={totalPages}
-        additionalParams={{ orderBy, sort }}
-      />
+      <Pagination />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 mt-5 mb-5 lg:mt-0 lg:mb-5">
           <AnimeSkeleton />
         </div>
       ) : animes && animes.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 mt-5 mb-5 lg:mt-0 lg:mb-5">
           <SortByControl
             orderBy={orderBy}
             sort={sort}
@@ -107,11 +111,7 @@ const AnimeGridGroup = ({
         </p>
       )}
 
-      <CustomPagination
-        currentPage={pageInt}
-        totalPages={totalPages}
-        additionalParams={{ orderBy, sort }}
-      />
+      <Pagination />
     </>
   );
 };
