@@ -1,20 +1,82 @@
 import React from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AnimeGridView, { AnimeSkeleton } from "@/components/anime/AnimeGridView";
 import CustomPagination from "@/components/CustomPagination";
 import { TypographyH3 } from "@/components/ui/typography";
 import { Anime } from "@/types/anime";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "../ui/button";
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 
 type Props = {
   animes?: Anime[];
   isLoading: boolean;
   pageInt: number;
   totalPages?: number;
+  orderBy: string;
+  sort: string;
+  setOrderBy: (orderBy: string) => void;
+  setSort: (sort: string) => void;
 };
 
-const AnimeGridGroup = ({ animes, isLoading, pageInt, totalPages }: Props) => {
+const sortOptions = {
+  popularity: "Popularity",
+  mal_id: "ID",
+  title: "Title",
+  start_date: "Start Date",
+  end_date: "End Date",
+  episodes: "Episodes",
+  score: "Score",
+  scored_by: "Scored By",
+  rank: "Rank",
+  members: "Members",
+  favorites: "Favorites",
+};
+
+const AnimeGridGroup = ({
+  animes,
+  isLoading,
+  pageInt,
+  totalPages,
+  orderBy,
+  sort,
+  setOrderBy,
+  setSort,
+}: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams.toString());
+
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
+    params.set("sort", newSort);
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleOrderByChange = (newOrderBy: string) => {
+    setOrderBy(newOrderBy);
+    params.set("orderBy", newOrderBy);
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <>
-      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+      <CustomPagination
+        currentPage={pageInt}
+        totalPages={totalPages}
+        additionalParams={{ orderBy, sort }}
+      />
 
       {isLoading ? (
         <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
@@ -22,6 +84,43 @@ const AnimeGridGroup = ({ animes, isLoading, pageInt, totalPages }: Props) => {
         </div>
       ) : animes && animes.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+          <div className="col-span-full">
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="ghost"
+                className="cursor-pointer gap-1 font-inter"
+                onClick={() =>
+                  handleSortChange(sort === "asc" ? "desc" : "asc")
+                }
+              >
+                {sort === "asc" ? (
+                  <>
+                    <ArrowUpNarrowWide /> Ascending
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownWideNarrow /> Descending
+                  </>
+                )}
+              </Button>
+
+              <Select value={orderBy} onValueChange={handleOrderByChange}>
+                <SelectTrigger className="w-[180px] font-inter">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Sort By</SelectLabel>
+                    {Object.entries(sortOptions).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           {animes.map(({ id, ...anime }) => (
             <AnimeGridView key={id} id={id} {...anime} />
           ))}
@@ -38,9 +137,13 @@ const AnimeGridGroup = ({ animes, isLoading, pageInt, totalPages }: Props) => {
         </p>
       )}
 
-      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+      <CustomPagination
+        currentPage={pageInt}
+        totalPages={totalPages}
+        additionalParams={{ orderBy, sort }}
+      />
     </>
   );
 };
 
-export default AnimeGridGroup;
+export default React.memo(AnimeGridGroup);

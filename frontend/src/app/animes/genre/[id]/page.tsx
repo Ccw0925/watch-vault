@@ -6,7 +6,7 @@ import Image from "next/image";
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const AnimeByGenrePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +16,18 @@ const AnimeByGenrePage = () => {
   const pageInt = parseInt(page ?? "1");
   const rating = queryParams.get("rating");
 
-  const { data, isLoading } = useAnimes({ genres: id, page: pageInt, rating });
+  const [sort, setSort] = useState(queryParams.get("sort") ?? "asc");
+  const [orderBy, setOrderBy] = useState(
+    queryParams.get("orderBy") ?? "popularity"
+  );
+
+  const { data, isLoading } = useAnimes({
+    genres: id,
+    page: pageInt,
+    rating,
+    orderBy,
+    sort,
+  });
   const animes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 
@@ -43,6 +54,10 @@ const AnimeByGenrePage = () => {
         isLoading={isLoading}
         pageInt={pageInt}
         totalPages={totalPages}
+        orderBy={orderBy}
+        sort={sort}
+        setOrderBy={setOrderBy}
+        setSort={setSort}
       />
     </div>
   );

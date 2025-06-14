@@ -27,7 +27,7 @@ export const fetchAnimes = async (options?: {
   }
 
   if (options?.orderBy && options?.orderBy !== undefined) {
-    params.append("order_by", options.orderBy);
+    params.append("orderBy", options.orderBy);
   }
 
   if (options?.sort && options?.sort !== undefined) {

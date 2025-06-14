@@ -5,19 +5,22 @@ import { useAnimes } from "@/hooks/api/animeHooks";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const AnimeByRatingPage = () => {
   const { type } = useParams<{ type: string }>();
   const queryParams = useSearchParams();
   const ratingName = queryParams.get("name");
-  const orderBy = queryParams.get("orderBy");
-  const sort = queryParams.get("sort");
+  const genres = queryParams.get("genres");
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
-  const genres = queryParams.get("genres");
 
-  const { data, isLoading } = useAnimes({
+  const [sort, setSort] = useState(queryParams.get("sort") ?? "asc");
+  const [orderBy, setOrderBy] = useState(
+    queryParams.get("orderBy") ?? "popularity"
+  );
+
+  const { data, isLoading, isPlaceholderData } = useAnimes({
     rating: type,
     page: pageInt,
     orderBy,
@@ -47,9 +50,13 @@ const AnimeByRatingPage = () => {
 
       <AnimeGridGroup
         animes={animes}
-        isLoading={isLoading}
+        isLoading={isLoading || isPlaceholderData}
         pageInt={pageInt}
         totalPages={totalPages}
+        orderBy={orderBy}
+        sort={sort}
+        setOrderBy={setOrderBy}
+        setSort={setSort}
       />
     </div>
   );

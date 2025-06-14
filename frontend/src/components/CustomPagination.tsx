@@ -13,9 +13,14 @@ import { Skeleton } from "./ui/skeleton";
 interface PaginationProps {
   currentPage: number;
   totalPages?: number;
+  additionalParams?: Record<string, string>;
 }
 
-const CustomPagination = ({ currentPage, totalPages }: PaginationProps) => {
+const CustomPagination = ({
+  currentPage,
+  totalPages,
+  additionalParams = {},
+}: PaginationProps) => {
   if (!totalPages) {
     return <Skeleton className="w-[400px] h-8 mx-auto" />;
   }
@@ -66,12 +71,22 @@ const CustomPagination = ({ currentPage, totalPages }: PaginationProps) => {
 
   const pageNumbers = getPageNumbers();
 
+  const buildQueryString = (page: number) => {
+    const params = new URLSearchParams({
+      ...additionalParams,
+      page: page.toString(),
+    });
+    return `?${params.toString()}`;
+  };
+
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={currentPage > 1 ? `?page=${currentPage - 1}` : undefined}
+            href={
+              currentPage > 1 ? buildQueryString(currentPage - 1) : undefined
+            }
             className={
               currentPage === 1 ? "pointer-events-none opacity-50" : ""
             }
@@ -84,7 +99,9 @@ const CustomPagination = ({ currentPage, totalPages }: PaginationProps) => {
               <PaginationEllipsis />
             ) : (
               <PaginationLink
-                href={`?page=${page}`}
+                href={
+                  typeof page === "number" ? buildQueryString(page) : undefined
+                }
                 isActive={page === currentPage}
               >
                 {page}
@@ -96,7 +113,9 @@ const CustomPagination = ({ currentPage, totalPages }: PaginationProps) => {
         <PaginationItem>
           <PaginationNext
             href={
-              currentPage < totalPages ? `?page=${currentPage + 1}` : undefined
+              currentPage < totalPages
+                ? buildQueryString(currentPage + 1)
+                : undefined
             }
             className={
               currentPage === totalPages ? "pointer-events-none opacity-50" : ""
