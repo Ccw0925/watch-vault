@@ -14,12 +14,16 @@ interface PaginationProps {
   currentPage: number;
   totalPages?: number;
   additionalParams?: Record<string, string>;
+  setPage?: (page: number) => void;
+  useRouter?: boolean;
 }
 
 const CustomPagination = ({
   currentPage,
   totalPages,
   additionalParams = {},
+  setPage,
+  useRouter = true,
 }: PaginationProps) => {
   if (!totalPages) {
     return <Skeleton className="w-[400px] h-8 mx-auto" />;
@@ -79,17 +83,31 @@ const CustomPagination = ({
     return `?${params.toString()}`;
   };
 
+  const handlePageChange = (page: number) => {
+    if (setPage && !useRouter) {
+      setPage(page);
+    }
+  };
+
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
             href={
-              currentPage > 1 ? buildQueryString(currentPage - 1) : undefined
+              useRouter && currentPage > 1
+                ? buildQueryString(currentPage - 1)
+                : undefined
             }
-            className={
+            onClick={() =>
+              !useRouter &&
+              currentPage > 1 &&
+              setPage &&
+              handlePageChange(currentPage - 1)
+            }
+            className={`cursor-pointer ${
               currentPage === 1 ? "pointer-events-none opacity-50" : ""
-            }
+            }`}
           />
         </PaginationItem>
 
@@ -100,9 +118,18 @@ const CustomPagination = ({
             ) : (
               <PaginationLink
                 href={
-                  typeof page === "number" ? buildQueryString(page) : undefined
+                  useRouter && typeof page === "number"
+                    ? buildQueryString(page)
+                    : undefined
+                }
+                onClick={() =>
+                  !useRouter &&
+                  typeof page === "number" &&
+                  setPage &&
+                  handlePageChange(page)
                 }
                 isActive={page === currentPage}
+                className="cursor-pointer"
               >
                 {page}
               </PaginationLink>
@@ -113,13 +140,19 @@ const CustomPagination = ({
         <PaginationItem>
           <PaginationNext
             href={
-              currentPage < totalPages
+              useRouter && currentPage < totalPages
                 ? buildQueryString(currentPage + 1)
                 : undefined
             }
-            className={
-              currentPage === totalPages ? "pointer-events-none opacity-50" : ""
+            onClick={() =>
+              !useRouter &&
+              currentPage < totalPages &&
+              setPage &&
+              handlePageChange(currentPage + 1)
             }
+            className={`cursor-pointer ${
+              currentPage === totalPages ? "pointer-events-none opacity-50" : ""
+            }`}
           />
         </PaginationItem>
       </PaginationContent>

@@ -78,6 +78,22 @@ type Pagination = {
   };
 };
 
+export type Episode = {
+  mal_id: number;
+  url: string;
+  title: string;
+  aired: string;
+  score: number;
+  filler: boolean;
+  recap: boolean;
+  forumUrl: string;
+};
+
+export type EpisodesResponse = {
+  data: Episode[];
+  pagination: Pick<Pagination, "last_visible_page" | "has_next_page">;
+};
+
 export type AnimesResponse = {
   data: Anime[];
   pagination: Pagination;

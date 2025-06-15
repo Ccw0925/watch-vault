@@ -24,6 +24,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("", handler.ListAllAnime)
 		animeGroup.GET("/top", handler.GetTopAnime)
 		animeGroup.GET("/:id", handler.GetAnimeById)
+		animeGroup.GET("/:id/episodes", handler.GetAnimeEpisodesById)
 	}
 }
 
@@ -84,6 +85,31 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
 		"data":       buildAnimeResponse(response.Data),
+	})
+}
+
+func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
+	page := getPageParam(c)
+
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	episodes, err := h.jikanClient.GetAnimeEpisodesByAnimeId(c.Request.Context(), id, page)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch episodes",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": episodes.Pagination,
+		"data":       episodes.Data,
 	})
 }
 

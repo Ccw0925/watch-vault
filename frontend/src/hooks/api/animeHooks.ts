@@ -1,9 +1,10 @@
 import {
   fetchAnimeById,
+  fetchAnimeEpisodes,
   fetchAnimes,
   fetchTopAnimes,
 } from "@/lib/api/animeService";
-import { Anime, AnimesResponse } from "@/types/anime";
+import { Anime, AnimesResponse, EpisodesResponse } from "@/types/anime";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export const useAnimes = ({
@@ -37,6 +38,20 @@ export const useTopAnimes = ({ page }: { page?: number }) => {
   return useQuery<AnimesResponse, Error>({
     queryKey: ["animes", { page }],
     queryFn: () => fetchTopAnimes({ page }),
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useAnimeEpisodes = ({
+  id,
+  page,
+}: {
+  id: string;
+  page?: number;
+}) => {
+  return useQuery<EpisodesResponse, Error>({
+    queryKey: ["animes", { id, page }],
+    queryFn: () => fetchAnimeEpisodes(id, { page }),
     placeholderData: keepPreviousData,
   });
 };

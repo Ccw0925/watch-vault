@@ -1,4 +1,5 @@
 "use client";
+import AnimeEpisodesGroup from "@/components/anime/AnimeEpisodesGroup";
 import AnimeInfoCard from "@/components/anime/AnimeInfoCard";
 import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
@@ -82,29 +83,33 @@ const AnimeDetailsPage = () => {
       {isLoading || anime === undefined ? (
         <PageSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_350px] gap-5 lg:gap-10 mb-12">
-          <div className="md:col-span-2 space-y-6 order-2 lg:order-none">
-            <AnimeTitleInfo anime={anime} />
-            <AnimeStatsBadges anime={anime} />
-            <AnimeSynopsis
-              synopsis={anime.synopsis}
-              shouldShowMore={shouldShowMore}
-              showMore={showMore}
-              setShowMore={setShowMore}
-              synopsisRef={synopsisRef}
-            />
-            <AnimeInfoCardGroup anime={anime} />
-            <StudiosInfo studios={anime.studios} />
-            <ProducersInfo producers={anime.producers} />
-            <GenresInfo genres={anime.genres} />
-            <ThemesInfo themes={anime.themes} />
-            <DemographicsInfo demographics={anime.demographics} />
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_350px] gap-5 lg:gap-10 mb-8">
+            <div className="md:col-span-2 space-y-6 order-2 lg:order-none">
+              <AnimeTitleInfo anime={anime} />
+              <AnimeStatsBadges anime={anime} />
+              <AnimeSynopsis
+                synopsis={anime.synopsis}
+                shouldShowMore={shouldShowMore}
+                showMore={showMore}
+                setShowMore={setShowMore}
+                synopsisRef={synopsisRef}
+              />
+              <AnimeInfoCardGroup anime={anime} />
+              <StudiosInfo studios={anime.studios} />
+              <ProducersInfo producers={anime.producers} />
+              <GenresInfo genres={anime.genres} />
+              <ThemesInfo themes={anime.themes} />
+              <DemographicsInfo demographics={anime.demographics} />
+            </div>
+
+            <div className="relative order-1 lg:order-none">
+              <ImageInfoGroup images={anime.images} url={anime.url} />
+            </div>
           </div>
 
-          <div className="relative order-1 lg:order-none">
-            <ImageInfoGroup images={anime.images} url={anime.url} />
-          </div>
-        </div>
+          <AnimeEpisodesGroup id={id} />
+        </>
       )}
     </div>
   );

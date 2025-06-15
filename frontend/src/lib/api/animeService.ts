@@ -1,4 +1,4 @@
-import { Anime, AnimesResponse } from "@/types/anime";
+import { Anime, AnimesResponse, EpisodesResponse } from "@/types/anime";
 import axios from "axios";
 
 const api = axios.create({
@@ -60,6 +60,25 @@ export const fetchTopAnimes = async (options?: {
   };
 
   return sortedData;
+};
+
+export const fetchAnimeEpisodes = async (
+  animeId: string,
+  options?: { page?: number }
+): Promise<EpisodesResponse> => {
+  const params = new URLSearchParams();
+
+  if (options?.page !== undefined) {
+    params.append("page", options.page.toString());
+  }
+
+  const response = await api.get<EpisodesResponse>(
+    `/animes/${animeId}/episodes`,
+    {
+      params,
+    }
+  );
+  return response.data;
 };
 
 const sortByRank = (a: { rank: number }, b: { rank: number }) => {

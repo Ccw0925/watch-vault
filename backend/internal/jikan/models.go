@@ -82,6 +82,25 @@ type DemoGraphic struct {
 	URL  string `json:"url"`
 }
 
+type Episode struct {
+	ID       int     `json:"mal_id"`
+	URL      string  `json:"url"`
+	Title    string  `json:"title"`
+	Aired    string  `json:"aired"`
+	Score    float32 `json:"score"`
+	Filler   bool    `json:"filler"`
+	Recap    bool    `json:"recap"`
+	ForumURL string  `json:"forum_url"`
+}
+
+type AnimeEpisodesResponse struct {
+	Pagination struct {
+		LastVisiblePage int  `json:"last_visible_page"`
+		HasNextPage     bool `json:"has_next_page"`
+	} `json:"pagination"`
+	Data []Episode `json:"data"`
+}
+
 type AnimeResponse struct {
 	Data Anime `json:"data"`
 }
