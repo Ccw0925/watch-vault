@@ -248,7 +248,7 @@ const AnimeInfoCardGroup = ({ anime }: { anime: Anime }) => (
     <AnimeInfoCard
       icon={Award}
       cardTitle="Rank"
-      cardDescription={`#${anime.rank}`}
+      cardDescription={anime.rank > 0 ? `#${anime.rank}` : "N/A"}
     />
     <AnimeInfoCard
       icon={Heart}
