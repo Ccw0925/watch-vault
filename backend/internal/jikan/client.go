@@ -173,3 +173,44 @@ func (c *Client) GetAnimeEpisodesByAnimeId(ctx context.Context, id int, page int
 
 	return &result, nil
 }
+
+func (c *Client) GetAnimeTotalEpisodesById(ctx context.Context, id int, lastPage int) (*int, error) {
+	cacheKey := fmt.Sprintf("anime_episodes:%d:%d", id, lastPage)
+
+	if cached, found := c.cache.Get(cacheKey); found {
+		animeEpisodesResponse := cached.(*AnimeEpisodesResponse)
+		totalEpisodes := ((animeEpisodesResponse.Pagination.LastVisiblePage - 1) * 100) + len(animeEpisodesResponse.Data)
+		return &totalEpisodes, nil
+	}
+
+	endpoint := fmt.Sprintf("%s/anime/%d/episodes", c.baseURL, id)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	q := req.URL.Query()
+	q.Add("page", fmt.Sprintf("%d", lastPage))
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result AnimeEpisodesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding response: %w", err)
+	}
+
+	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+
+	totalEpisodes := ((result.Pagination.LastVisiblePage - 1) * 100) + len(result.Data)
+	return &totalEpisodes, nil
+}

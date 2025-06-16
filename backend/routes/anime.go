@@ -107,10 +107,24 @@ func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	var totalEpisodes *int
+	if episodes.Pagination.LastVisiblePage > 1 {
+		totalEpisodes, err = h.jikanClient.GetAnimeTotalEpisodesById(c.Request.Context(), id, episodes.Pagination.LastVisiblePage)
+		if err != nil {
+			totalEpisodes = nil
+		}
+	}
+
+	response := gin.H{
 		"pagination": episodes.Pagination,
 		"data":       episodes.Data,
-	})
+	}
+
+	if totalEpisodes != nil {
+		response["totalCount"] = totalEpisodes
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func getPageParam(c *gin.Context) int {

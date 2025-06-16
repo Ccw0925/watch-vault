@@ -92,6 +92,7 @@ export type Episode = {
 export type EpisodesResponse = {
   data: Episode[];
   pagination: Pick<Pagination, "last_visible_page" | "has_next_page">;
+  totalCount?: number;
 };
 
 export type AnimesResponse = {
