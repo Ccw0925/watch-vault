@@ -34,8 +34,9 @@ func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
 	rating := c.Query("rating")
 	orderBy := c.DefaultQuery("orderBy", "popularity")
 	sort := c.DefaultQuery("sort", "asc")
+	q := c.Query("q")
 
-	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres, rating, orderBy, sort)
+	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres, rating, orderBy, sort, q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch all anime",

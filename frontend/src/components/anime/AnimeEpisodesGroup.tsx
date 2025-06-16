@@ -1,7 +1,7 @@
 "use client";
 import { List } from "lucide-react";
 import React, { useState, useMemo } from "react";
-import { TypographyH3 } from "../ui/typography";
+import { TypographyH3, TypographyMuted } from "../ui/typography";
 import AnimeEpisodeCard, { EpisodesSkeleton } from "./AnimeEpisodeCard";
 import { useAnimeEpisodes } from "@/hooks/api/animeHooks";
 import CustomPagination from "../CustomPagination";
@@ -50,20 +50,26 @@ const AnimeEpisodesGroup = ({ id }: { id: string }) => {
       {isLoading || isPlaceholderData ? (
         <EpisodesSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
-          {displayedEpisodes?.map(({ mal_id, title, aired, filler }) => (
-            <AnimeEpisodeCard
-              key={mal_id}
-              id={mal_id}
-              title={title}
-              aired={aired}
-              filler={filler}
-            />
-          ))}
-        </div>
+        <>
+          {episodes && episodes.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+              {displayedEpisodes?.map(({ mal_id, title, aired, filler }) => (
+                <AnimeEpisodeCard
+                  key={mal_id}
+                  id={mal_id}
+                  title={title}
+                  aired={aired}
+                  filler={filler}
+                />
+              ))}
+            </div>
+          ) : (
+            <TypographyMuted>No episodes found.</TypographyMuted>
+          )}
+        </>
       )}
 
-      {totalPages && totalPages > 1 && (
+      {episodes && episodes.length > 0 && totalPages && totalPages > 1 && (
         <CustomPagination
           currentPage={page}
           totalPages={totalPages}
