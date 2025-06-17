@@ -11,6 +11,7 @@ export const fetchAnimes = async (options?: {
   rating?: string | null;
   orderBy?: string | null;
   sort?: string | null;
+  queryString?: string | null;
 }): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
@@ -32,6 +33,10 @@ export const fetchAnimes = async (options?: {
 
   if (options?.sort && options?.sort !== undefined) {
     params.append("sort", options.sort);
+  }
+
+  if (options?.queryString && options?.queryString !== undefined) {
+    params.append("q", options.queryString);
   }
 
   const response = await api.get<AnimesResponse>("/animes", { params });

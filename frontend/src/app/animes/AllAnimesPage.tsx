@@ -1,5 +1,6 @@
 "use client";
 import AnimeGridGroup from "@/components/anime/AnimeGridGroup";
+import { SearchBar } from "@/components/anime/SearchBar";
 import { TypographyH1 } from "@/components/ui/typography";
 import { useAnimes } from "@/hooks/api/animeHooks";
 import Image from "next/image";
@@ -11,6 +12,7 @@ const AllAnimesPage = () => {
   const queryParams = useSearchParams();
   const rating = queryParams.get("rating");
   const genres = queryParams.get("genres");
+  const queryString = queryParams.get("q");
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
 
@@ -25,6 +27,7 @@ const AllAnimesPage = () => {
     page: pageInt,
     orderBy,
     sort,
+    queryString,
   });
   const animes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
@@ -46,6 +49,10 @@ const AllAnimesPage = () => {
       <Link href="/animes?page=1">
         <TypographyH1 className="text-center mb-5">All Animes</TypographyH1>
       </Link>
+
+      <div className="flex flex-col items-center mb-5">
+        <SearchBar />
+      </div>
 
       <AnimeGridGroup
         animes={animes}

@@ -1,5 +1,6 @@
 "use client";
 import AnimeGridView, { AnimeSkeleton } from "@/components/anime/AnimeGridView";
+import { SearchBar } from "@/components/anime/SearchBar";
 import CustomPagination from "@/components/CustomPagination";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import { useTopAnimes } from "@/hooks/api/animeHooks";
@@ -31,6 +32,10 @@ const TopAnimePage = () => {
       </div>
 
       <TypographyH1 className="text-center mb-5">Top Animes</TypographyH1>
+
+      <div className="flex flex-col items-center mb-5">
+        <SearchBar />
+      </div>
 
       <CustomPagination currentPage={pageInt} totalPages={totalPages} />
 

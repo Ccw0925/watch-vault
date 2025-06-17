@@ -13,16 +13,19 @@ export const useAnimes = ({
   rating,
   orderBy,
   sort,
+  queryString,
 }: {
   page?: number;
   genres?: string | null;
   rating?: string | null;
   orderBy?: string | null;
   sort?: string | null;
+  queryString?: string | null;
 }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["animes", { page, genres, rating, orderBy, sort }],
-    queryFn: () => fetchAnimes({ page, genres, rating, orderBy, sort }),
+    queryKey: ["animes", { page, genres, rating, orderBy, sort, queryString }],
+    queryFn: () =>
+      fetchAnimes({ page, genres, rating, orderBy, sort, queryString }),
     placeholderData: keepPreviousData,
   });
 };
