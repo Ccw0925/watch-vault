@@ -2,8 +2,10 @@ package routes
 
 import (
 	"context"
+	"log"
 
 	"cloud.google.com/go/firestore"
+	"github.com/Ccw0925/watch-vault/internal/movie"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/iterator"
 )
@@ -32,7 +34,7 @@ func RegisterMovieRoutes(r *gin.Engine, client *firestore.Client, ctx context.Co
 }
 
 func (m *MovieHandler) ListMovies(c *gin.Context) {
-	var movies []map[string]interface{}
+	var movies []movie.Movie
 
 	iter := m.client.Collection("movies").Documents(m.ctx)
 	for {
@@ -45,10 +47,14 @@ func (m *MovieHandler) ListMovies(c *gin.Context) {
 			return
 		}
 
-		data := doc.Data()
-		data["id"] = doc.Ref.ID
+		var movie movie.Movie
+		if err := doc.DataTo(&movie); err != nil {
+			log.Printf("Failed to decode movie %s: %v", doc.Ref.ID, err)
+			continue
+		}
 
-		movies = append(movies, data)
+		movie.ID = doc.Ref.ID
+		movies = append(movies, movie)
 	}
 
 	c.JSON(200, movies)

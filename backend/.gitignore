@@ -1,4 +1,4 @@
 .env
 *.db
 uploads/*
-serviceAccount.json
+*.json
