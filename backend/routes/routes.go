@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"database/sql"
+	"context"
 
+	"cloud.google.com/go/firestore"
 	"github.com/Ccw0925/watch-vault/internal/jikan"
 	"github.com/gin-gonic/gin"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 )
 
-func SetupRoutes(db *sql.DB) *gin.Engine {
+func SetupRoutes(client *firestore.Client, ctx context.Context) *gin.Engine {
 	// Initialize Gin router
 	r := gin.Default()
 	r.Use(cors.Default())
@@ -22,7 +23,7 @@ func SetupRoutes(db *sql.DB) *gin.Engine {
 	jikanClient := jikan.NewClient()
 
 	RegisterAnimeRoutes(r, jikanClient)
-	RegisterMovieRoutes(r, db)
+	RegisterMovieRoutes(r, client, ctx)
 
 	return r
 }

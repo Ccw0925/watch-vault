@@ -1,27 +1,32 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"log"
+	"os"
 
+	"github.com/Ccw0925/watch-vault/internal/firebase"
 	"github.com/Ccw0925/watch-vault/routes"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/pressly/goose/v3"
+	"google.golang.org/api/option"
 )
 
 func main() {
-	// Initialize SQLite database
-	db, err := sql.Open("sqlite3", "./watchlist.db")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// Set up Firebase
+	ctx := context.Background()
+	sa := option.WithCredentialsFile(os.Getenv("FIREBASE_SERVICE_ACCOUNT_JSON"))
+	client, err := firebase.NewClient(ctx, sa)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer client.Close()
 
-	if err := goose.Up(db, "./db/migrations"); err != nil {
-		log.Fatal(err)
-	}
-
-	r := routes.SetupRoutes(db)
+	r := routes.SetupRoutes(client, ctx)
 	r.Run(":8080")
 }
