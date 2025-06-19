@@ -1,7 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, KeyboardEvent } from "react";
+import {
+  useState,
+  KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useRef,
+} from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +14,7 @@ import { Button } from "@/components/ui/button";
 export function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -16,15 +22,30 @@ export function SearchBar() {
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }
   };
 
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && !(e.target instanceof HTMLInputElement)) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, []);
+
   return (
     <div className="flex w-full max-w-xs items-center relative font-inter">
       <Input
+        ref={inputRef}
         type="text"
         placeholder="Search animes..."
         value={searchQuery}
