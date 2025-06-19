@@ -68,7 +68,19 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, animeToResponse(&anime.Data))
+	relations, err := h.jikanClient.GetAnimeRelationsById(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch relations",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	animeData := animeToResponse(&anime.Data)
+	animeData["relations"] = relations.Data
+
+	c.JSON(http.StatusOK, animeData)
 }
 
 func (h *AnimeHandler) GetTopAnime(c *gin.Context) {

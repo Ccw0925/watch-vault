@@ -215,3 +215,37 @@ func (c *Client) GetAnimeTotalEpisodesById(ctx context.Context, id int, lastPage
 	totalEpisodes := ((result.Pagination.LastVisiblePage - 1) * 100) + len(result.Data)
 	return &totalEpisodes, nil
 }
+
+func (c *Client) GetAnimeRelationsById(ctx context.Context, id int) (*AnimeRelationsResponse, error) {
+	cacheKey := fmt.Sprintf("anime_relations:%d", id)
+
+	if cached, found := c.cache.Get(cacheKey); found {
+		return cached.(*AnimeRelationsResponse), nil
+	}
+
+	endpoint := fmt.Sprintf("%s/anime/%d/relations", c.baseURL, id)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error making request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result AnimeRelationsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decoding response: %w", err)
+	}
+
+	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+
+	return &result, nil
+}

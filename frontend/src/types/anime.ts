@@ -23,6 +23,7 @@ export type Anime = {
   producers: Producer[];
   themes: Theme[];
   demographics: DemoGraphic[];
+  relations?: Relation[];
 };
 
 type Genre = {
@@ -65,6 +66,16 @@ type DemoGraphic = {
   type: string;
   name: string;
   url: string;
+};
+
+type Relation = {
+  relation: string;
+  entry: {
+    mal_id: number;
+    type: string;
+    name: string;
+    url: string;
+  }[];
 };
 
 type Pagination = {

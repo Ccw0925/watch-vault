@@ -109,3 +109,15 @@ type AnimesListResponse struct {
 	Pagination Pagination `json:"pagination"`
 	Data       []Anime    `json:"data"`
 }
+
+type AnimeRelationsResponse struct {
+	Data []struct {
+		Relation string `json:"relation"`
+		Entry    []struct {
+			ID   int    `json:"mal_id"`
+			Type string `json:"type"`
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"entry"`
+	} `json:"data"`
+}

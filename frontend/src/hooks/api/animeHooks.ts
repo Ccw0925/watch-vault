@@ -53,7 +53,7 @@ export const useAnimeEpisodes = ({
   page?: number;
 }) => {
   return useQuery<EpisodesResponse, Error>({
-    queryKey: ["animes", { id, page }],
+    queryKey: ["animeEpisodes", { id, page }],
     queryFn: () => fetchAnimeEpisodes(id, { page }),
     placeholderData: keepPreviousData,
   });
