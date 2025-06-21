@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -24,193 +25,119 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) ListAllAnime(ctx context.Context, page int, genres string, rating string, orderBy string, sort string, queryString string) (*AnimesListResponse, error) {
-	cacheKey := fmt.Sprintf("all_anime:%d:%s:%s:%s:%s:%s", page, genres, rating, orderBy, sort, queryString)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*AnimesListResponse), nil
-	}
-
-	endpoint := fmt.Sprintf("%s/anime", c.baseURL)
-
+func (c *Client) makeRequest(ctx context.Context, endpoint string, queryParams map[string]string, result interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		return fmt.Errorf("error creating request: %w", err)
 	}
 
-	q := req.URL.Query()
-
-	q.Add("page", fmt.Sprintf("%d", page))
-	q.Add("genres", genres)
-	q.Add("rating", rating)
-	q.Add("order_by", orderBy)
-	q.Add("sort", sort)
-	q.Add("q", queryString)
-
-	req.URL.RawQuery = q.Encode()
+	if queryParams != nil {
+		q := req.URL.Query()
+		for key, value := range queryParams {
+			q.Add(key, value)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
+		return fmt.Errorf("error making request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
+	if err := json.NewDecoder(resp.Body).Decode(result); err != nil {
+		return fmt.Errorf("error decoding response: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) cachedRequest(cacheKey string, result interface{}, fn func() error) error {
+	if cached, found := c.cache.Get(cacheKey); found {
+		reflect.ValueOf(result).Elem().Set(reflect.ValueOf(cached).Elem())
+		return nil
+	}
+
+	if err := fn(); err != nil {
+		return err
+	}
+
+	c.cache.Set(cacheKey, result, cache.DefaultExpiration)
+	return nil
+}
+
+func (c *Client) ListAllAnime(ctx context.Context, page int, genres, rating, orderBy, sort, queryString string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("all_anime:%d:%s:%s:%s:%s:%s", page, genres, rating, orderBy, sort, queryString)
 	var result AnimesListResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime", c.baseURL)
+		queryParams := map[string]string{
+			"page":     fmt.Sprintf("%d", page),
+			"genres":   genres,
+			"rating":   rating,
+			"order_by": orderBy,
+			"sort":     sort,
+			"q":        queryString,
+		}
+		return c.makeRequest(ctx, endpoint, queryParams, &result)
+	})
 
-	return &result, nil
+	return &result, err
 }
 
 func (c *Client) GetAnimeById(ctx context.Context, id int) (*AnimeResponse, error) {
 	cacheKey := fmt.Sprintf("anime:%d", id)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*AnimeResponse), nil
-	}
-
-	endpoint := fmt.Sprintf("%s/anime/%d", c.baseURL, id)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	var result AnimeResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime/%d", c.baseURL, id)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
 
-	return &result, nil
+	return &result, err
 }
 
 func (c *Client) GetTopAnime(ctx context.Context, page int) (*AnimesListResponse, error) {
 	cacheKey := fmt.Sprintf("top_anime:%d", page)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*AnimesListResponse), nil
-	}
-
-	endpoint := fmt.Sprintf("%s/top/anime?page=%d", c.baseURL, page)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	var result AnimesListResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/top/anime?page=%d", c.baseURL, page)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
 
-	return &result, nil
+	return &result, err
 }
 
-func (c *Client) GetAnimeEpisodesByAnimeId(ctx context.Context, id int, page int) (*AnimeEpisodesResponse, error) {
+func (c *Client) GetAnimeEpisodesByAnimeId(ctx context.Context, id, page int) (*AnimeEpisodesResponse, error) {
 	cacheKey := fmt.Sprintf("anime_episodes:%d:%d", id, page)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*AnimeEpisodesResponse), nil
-	}
-
-	endpoint := fmt.Sprintf("%s/anime/%d/episodes", c.baseURL, id)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	q := req.URL.Query()
-	q.Add("page", fmt.Sprintf("%d", page))
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	var result AnimeEpisodesResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime/%d/episodes", c.baseURL, id)
+		return c.makeRequest(ctx, endpoint, map[string]string{"page": fmt.Sprintf("%d", page)}, &result)
+	})
 
-	return &result, nil
+	return &result, err
 }
 
-func (c *Client) GetAnimeTotalEpisodesById(ctx context.Context, id int, lastPage int) (*int, error) {
+func (c *Client) GetAnimeTotalEpisodesById(ctx context.Context, id, lastPage int) (*int, error) {
 	cacheKey := fmt.Sprintf("anime_episodes:%d:%d", id, lastPage)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		animeEpisodesResponse := cached.(*AnimeEpisodesResponse)
-		totalEpisodes := ((animeEpisodesResponse.Pagination.LastVisiblePage - 1) * 100) + len(animeEpisodesResponse.Data)
-		return &totalEpisodes, nil
-	}
-
-	endpoint := fmt.Sprintf("%s/anime/%d/episodes", c.baseURL, id)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	q := req.URL.Query()
-	q.Add("page", fmt.Sprintf("%d", lastPage))
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	var result AnimeEpisodesResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime/%d/episodes", c.baseURL, id)
+		return c.makeRequest(ctx, endpoint, map[string]string{"page": fmt.Sprintf("%d", lastPage)}, &result)
+	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	totalEpisodes := ((result.Pagination.LastVisiblePage - 1) * 100) + len(result.Data)
 	return &totalEpisodes, nil
@@ -218,34 +145,12 @@ func (c *Client) GetAnimeTotalEpisodesById(ctx context.Context, id int, lastPage
 
 func (c *Client) GetAnimeRelationsById(ctx context.Context, id int) (*AnimeRelationsResponse, error) {
 	cacheKey := fmt.Sprintf("anime_relations:%d", id)
-
-	if cached, found := c.cache.Get(cacheKey); found {
-		return cached.(*AnimeRelationsResponse), nil
-	}
-
-	endpoint := fmt.Sprintf("%s/anime/%d/relations", c.baseURL, id)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
 	var result AnimeRelationsResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("error decoding response: %w", err)
-	}
 
-	c.cache.Set(cacheKey, &result, cache.DefaultExpiration)
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime/%d/relations", c.baseURL, id)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
 
-	return &result, nil
+	return &result, err
 }
