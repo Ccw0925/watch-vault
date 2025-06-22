@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"cmp"
 	"net/http"
+	"slices"
 	"strconv"
 
 	"github.com/Ccw0925/watch-vault/internal/jikan"
@@ -25,6 +27,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("/top", handler.GetTopAnime)
 		animeGroup.GET("/:id", handler.GetAnimeById)
 		animeGroup.GET("/:id/episodes", handler.GetAnimeEpisodesById)
+		animeGroup.GET("/:id/characters", handler.GetAnimeCharactersById)
 	}
 }
 
@@ -138,6 +141,30 @@ func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	characters, err := h.jikanClient.GetAnimeCharactersById(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch characters",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	slices.SortFunc(characters.Data, func(a, b jikan.AnimeCharacter) int {
+		return cmp.Compare(b.Favorites, a.Favorites)
+	})
+
+	c.JSON(http.StatusOK, characters.Data)
 }
 
 func getPageParam(c *gin.Context) int {

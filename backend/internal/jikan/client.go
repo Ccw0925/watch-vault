@@ -154,3 +154,15 @@ func (c *Client) GetAnimeRelationsById(ctx context.Context, id int) (*AnimeRelat
 
 	return &result, err
 }
+
+func (c *Client) GetAnimeCharactersById(ctx context.Context, id int) (*AnimeCharactersResponse, error) {
+	cacheKey := fmt.Sprintf("anime_characters:%d", id)
+	var result AnimeCharactersResponse
+
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/anime/%d/characters", c.baseURL, id)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
+
+	return &result, err
+}

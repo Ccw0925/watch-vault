@@ -93,6 +93,38 @@ type Episode struct {
 	ForumURL string  `json:"forum_url"`
 }
 
+type AnimeCharacter struct {
+	Character   Character    `json:"character"`
+	Role        string       `json:"role"`
+	Favorites   int          `json:"favorites"`
+	VoiceActors []VoiceActor `json:"voice_actors"`
+}
+
+type Character struct {
+	ID     int    `json:"mal_id"`
+	Name   string `json:"name"`
+	URL    string `json:"url"`
+	Images struct {
+		Webp struct {
+			ImageURL string `json:"image_url"`
+		} `json:"webp"`
+	} `json:"images"`
+}
+
+type VoiceActor struct {
+	Person struct {
+		ID     int    `json:"mal_id"`
+		Name   string `json:"name"`
+		URL    string `json:"url"`
+		Images struct {
+			Jpg struct {
+				ImageURL string `json:"image_url"`
+			} `json:"jpg"`
+		} `json:"images"`
+	} `json:"person"`
+	Language string `json:"language"`
+}
+
 type AnimeEpisodesResponse struct {
 	Pagination struct {
 		LastVisiblePage int  `json:"last_visible_page"`
@@ -120,4 +152,8 @@ type AnimeRelationsResponse struct {
 			URL  string `json:"url"`
 		} `json:"entry"`
 	} `json:"data"`
+}
+
+type AnimeCharactersResponse struct {
+	Data []AnimeCharacter `json:"data"`
 }
