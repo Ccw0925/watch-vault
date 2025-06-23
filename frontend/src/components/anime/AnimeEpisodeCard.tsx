@@ -11,7 +11,7 @@ type Props = {
 
 const AnimeEpisodeCard = ({ id, title, aired, filler }: Props) => {
   return (
-    <div className="border font-inter p-4 rounded-lg grid grid-rows-subgrid row-span-3">
+    <div className="border font-inter p-4 rounded-lg grid grid-rows-subgrid row-span-3 shadow-sm">
       <div className="flex justify-between">
         <p className="border px-2 rounded-full font-semibold text-sm">
           EP {id}

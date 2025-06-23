@@ -2,16 +2,17 @@ import { AnimeCharacter } from "@/types/anime";
 import Image from "next/image";
 import React from "react";
 import { Skeleton } from "../ui/skeleton";
+import Link from "next/link";
 
 const AnimeCharacterCard = ({
   character,
   role,
-  voice_actors: voiceActors,
+  voice_actors,
 }: Pick<AnimeCharacter, "character" | "role" | "voice_actors">) => {
   return (
     <div
       key={character.mal_id}
-      className="border font-inter p-4 rounded-lg grid grid-rows-subgrid grid-cols-[auto_1fr] gap-3"
+      className="border font-inter p-4 rounded-lg grid grid-rows-subgrid grid-cols-[auto_1fr] gap-3 shadow-sm"
     >
       <div>
         <div className="aspect-[9/14] w-[100px] rounded-lg bg-card relative overflow-hidden">
@@ -27,19 +28,34 @@ const AnimeCharacterCard = ({
       <div>
         <p className="font-inter font-bold">{character.name}</p>
         <p className="font-inter text-muted-foreground">{role}</p>
-        {voiceActors.length > 0 && (
-          <>
-            <p className="font-inter mt-2 text-muted-foreground text-sm">
-              Voice Actor/Actress:{" "}
-            </p>
-            <p className="font-inter">
-              {voiceActors.find((va) => va.language === "Japanese")?.person
-                .name ?? voiceActors[0].person.name}
-            </p>
-          </>
+        {voice_actors.length > 0 && (
+          <VoiceActorsInfo voice_actors={voice_actors} />
         )}
       </div>
     </div>
+  );
+};
+
+const VoiceActorsInfo = ({
+  voice_actors: voiceActors,
+}: Pick<AnimeCharacter, "voice_actors">) => {
+  const displayedVA =
+    voiceActors.find((va) => va.language === "Japanese")?.person ??
+    voiceActors[0].person;
+
+  return (
+    <>
+      <p className="font-inter mt-2 text-muted-foreground text-sm">
+        Voice Actor/Actress:{" "}
+      </p>
+      <Link
+        href={displayedVA.url}
+        target="_blank"
+        className="hover:text-blue-500"
+      >
+        <p className="font-inter">{displayedVA.name}</p>
+      </Link>
+    </>
   );
 };
 
@@ -66,4 +82,4 @@ export const CharactersSkeleton = () => (
   </div>
 );
 
-export default AnimeCharacterCard;
+export default React.memo(AnimeCharacterCard);

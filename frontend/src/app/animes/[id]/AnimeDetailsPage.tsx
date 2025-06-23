@@ -86,6 +86,7 @@ const AnimeDetailsPage = () => {
           <Bookmark /> Save to Watchlist
         </Button>
       </div>
+
       {isLoading || anime === undefined ? (
         <PageSkeleton />
       ) : (
@@ -96,7 +97,7 @@ const AnimeDetailsPage = () => {
               classname="lg:hidden grid"
             />
 
-            <div className="md:col-span-2 space-y-6 order-2 lg:order-none">
+            <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
               <AnimePrequelSequelGroup
                 relations={anime.relations}
                 classname="hidden lg:grid"
@@ -147,7 +148,7 @@ const AnimeDetailsPage = () => {
 
 const PageSkeleton = () => (
   <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_350px] gap-8 mb-12">
-    <div className="md:col-span-2 space-y-6 order-2 lg:order-none">
+    <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
       <Skeleton className="h-9 w-[25%]" />
       <Skeleton className="h-5 w-[15%]" />
       <Skeleton className="h-5 w-[20%]" />
