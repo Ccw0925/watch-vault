@@ -42,7 +42,7 @@ const AnimeEpisodesGroup = ({ id }: { id: string }) => {
 
   return (
     <div>
-      <div className="flex gap-2 items-center mb-5">
+      <div className="flex gap-2 items-center mb-5 mt-2">
         <List />
         <TypographyH3>Episodes</TypographyH3>
       </div>

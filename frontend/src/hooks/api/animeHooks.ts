@@ -1,10 +1,16 @@
 import {
   fetchAnimeById,
+  fetchAnimeCharactersById,
   fetchAnimeEpisodes,
   fetchAnimes,
   fetchTopAnimes,
 } from "@/lib/api/animeService";
-import { Anime, AnimesResponse, EpisodesResponse } from "@/types/anime";
+import {
+  Anime,
+  AnimeCharacter,
+  AnimesResponse,
+  EpisodesResponse,
+} from "@/types/anime";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export const useAnimes = ({
@@ -56,5 +62,12 @@ export const useAnimeEpisodes = ({
     queryKey: ["animeEpisodes", { id, page }],
     queryFn: () => fetchAnimeEpisodes(id, { page }),
     placeholderData: keepPreviousData,
+  });
+};
+
+export const useAnimeCharacters = (id: string) => {
+  return useQuery<AnimeCharacter[], Error>({
+    queryKey: ["animeCharacters", id],
+    queryFn: () => fetchAnimeCharactersById(id),
   });
 };

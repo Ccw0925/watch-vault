@@ -1,4 +1,5 @@
 "use client";
+import AnimeCharactersGroup from "@/components/anime/AnimeCharactersGroup";
 import AnimeEpisodesGroup from "@/components/anime/AnimeEpisodesGroup";
 import AnimeInfoCard from "@/components/anime/AnimeInfoCard";
 import BackButton from "@/components/BackButton";
@@ -20,6 +21,7 @@ import {
   ChevronRight,
   Clock,
   Heart,
+  List,
   Play,
   SquareArrowOutUpRight,
   Star,
@@ -32,6 +34,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -120,7 +123,22 @@ const AnimeDetailsPage = () => {
             </div>
           </div>
 
-          <AnimeEpisodesGroup id={id} />
+          <Tabs defaultValue="episodes">
+            <TabsList className="w-full">
+              <TabsTrigger value="episodes" className="cursor-pointer">
+                <List /> Episodes
+              </TabsTrigger>
+              <TabsTrigger value="characters" className="cursor-pointer">
+                <Users /> Characters
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="episodes">
+              <AnimeEpisodesGroup id={id} />
+            </TabsContent>
+            <TabsContent value="characters">
+              <AnimeCharactersGroup id={id} />
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>

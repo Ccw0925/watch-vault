@@ -1,4 +1,9 @@
-import { Anime, AnimesResponse, EpisodesResponse } from "@/types/anime";
+import {
+  Anime,
+  AnimeCharacter,
+  AnimesResponse,
+  EpisodesResponse,
+} from "@/types/anime";
 import axios from "axios";
 
 const api = axios.create({
@@ -83,6 +88,13 @@ export const fetchAnimeEpisodes = async (
       params,
     }
   );
+  return response.data;
+};
+
+export const fetchAnimeCharactersById = async (
+  id: string
+): Promise<AnimeCharacter[]> => {
+  const response = await api.get<AnimeCharacter[]>(`/animes/${id}/characters`);
   return response.data;
 };
 

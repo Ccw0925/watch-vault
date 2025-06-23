@@ -32,7 +32,7 @@ type Genre = {
   url: string;
 };
 
-export type Images = {
+type Images = {
   webp: { large_image_url: string };
 };
 
@@ -89,7 +89,7 @@ type Pagination = {
   };
 };
 
-export type Episode = {
+type Episode = {
   mal_id: number;
   url: string;
   title: string;
@@ -109,4 +109,36 @@ export type EpisodesResponse = {
 export type AnimesResponse = {
   data: Anime[];
   pagination: Pagination;
+};
+
+type Character = {
+  mal_id: number;
+  name: string;
+  url: string;
+  images: {
+    webp: {
+      image_url: string;
+    };
+  };
+};
+
+type VoiceActor = {
+  person: {
+    mal_id: number;
+    name: string;
+    url: string;
+    images: {
+      jpg: {
+        image_url: string;
+      };
+    };
+  };
+  language: string;
+};
+
+export type AnimeCharacter = {
+  character: Character;
+  role: string;
+  favorites: number;
+  voice_actors: VoiceActor[];
 };
