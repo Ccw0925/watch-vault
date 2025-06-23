@@ -161,6 +161,14 @@ func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 	}
 
 	slices.SortFunc(characters.Data, func(a, b jikan.AnimeCharacter) int {
+		if a.Role != b.Role {
+			if a.Role == "Main" {
+				return -1
+			} else if b.Role == "Main" {
+				return 1
+			}
+		}
+
 		return cmp.Compare(b.Favorites, a.Favorites)
 	})
 
