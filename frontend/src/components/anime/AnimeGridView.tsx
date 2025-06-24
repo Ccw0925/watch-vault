@@ -88,7 +88,7 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] lg:border rounded-2xl lg:p-3 transform-3d lg:shadow-xl"
+      className="h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] md:border rounded-2xl md:p-3 transform-3d lg:shadow-xl"
     >
       <motion.div
         initial={{ opacity: 0, x: -10 }}
@@ -227,7 +227,7 @@ const InfoComponent = ({
         </span>
       </p>
       <GenresRow genres={genres} />
-      <div className="flex-1 flex items-end md:items-start md:mt-2">
+      <div className="flex-1 flex items-end md:items-start">
         <Button variant="outline" className="rounded-xl gap-1 md:h-10 h-8">
           <Bookmark /> Save to Watchlist
         </Button>
