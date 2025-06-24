@@ -84,11 +84,11 @@ const AnimeGridGroup = ({
       <Pagination />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
+        <div className="grid grid-cols-[minmax(auto,700px)] lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 my-5">
           <AnimeSkeleton />
         </div>
       ) : animes && animes.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 mt-5 mb-5 lg:mt-0 lg:mb-5">
+        <div className="grid grid-cols-[minmax(auto,700px)] lg:grid-cols-[repeat(auto-fill,550px)] justify-center gap-5 mt-5 mb-5 lg:mt-0 lg:mb-5">
           <SortByControl
             orderBy={orderBy}
             sort={sort}

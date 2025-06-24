@@ -20,6 +20,7 @@ import {
 } from "motion/react";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -87,7 +88,7 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[200px] lg:h-[350px] w-full lg:w-[550px] border rounded-2xl p-3 transform-3d shadow-xl"
+      className="h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] lg:border rounded-2xl lg:p-3 transform-3d lg:shadow-xl"
     >
       <motion.div
         initial={{ opacity: 0, x: -10 }}
@@ -120,13 +121,13 @@ export const AnimeSkeleton = () =>
   [...Array(5)].map((_, i) => (
     <div
       key={i}
-      className="h-[200px] lg:h-[350px] w-full lg:w-[550px] border rounded-2xl flex p-3 gap-4"
+      className="h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] lg:border rounded-2xl flex lg:p-3 gap-4"
     >
-      <div className="flex-4 rounded-2xl">
-        <Skeleton className="w-full h-full" />
+      <div className="lg:flex-4 rounded-2xl">
+        <Skeleton className="lg:w-full h-full md:w-[200px] w-[150px]" />
       </div>
       <div className="flex-5 flex flex-col gap-5">
-        <Skeleton className="h-12 w-[50%]" />
+        <Skeleton className="lg:h-12 h-8 w-[50%]" />
         <Skeleton className="h-6 w-[35%]" />
         <Skeleton className="h-8 w-[80%] my-2" />
       </div>
@@ -142,10 +143,10 @@ const ImageComponent = ({
   imageUrl: string;
   title: string;
 }) => (
-  <div className="flex-4 rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0">
+  <div className="rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0">
     <Link
       href={`/animes/${animeId}?name=${title}`}
-      className="relative block w-full h-full"
+      className="relative block aspect-[2/3] h-full"
     >
       <Image
         src={imageUrl}
@@ -179,13 +180,60 @@ const InfoComponent = ({
   | "rank"
   | "genres"
 >) => (
-  <div className="flex-5 flex gap-4 flex-col overflow-y-auto lg:overflow-visible">
-    <StatusRow status={status} />
-    <EpisodesRow episodes={episodes} />
-    <TitleRow id={id} title={title} />
-    <RatingAndRankingRow score={score} scoredBy={scoredBy} rank={rank} />
-    <GenresRow genres={genres} />
-  </div>
+  <>
+    <div className="flex-5 hidden gap-4 flex-col overflow-y-auto lg:overflow-visible lg:flex">
+      <StatusRow status={status} />
+      <EpisodesRow episodes={episodes} />
+      <TitleRow id={id} title={title} />
+      <RatingAndRankingRow score={score} scoredBy={scoredBy} rank={rank} />
+      <GenresRow genres={genres} />
+    </div>
+    <div className="lg:hidden flex flex-col gap-1 md:gap-2 flex-5">
+      <StatusRow status={status} />
+      <Link href={`/animes/${id}?name=${title}`}>
+        <p className="font-inter font-bold line-clamp-1 md:line-clamp-2 md:text-lg">
+          {title}
+        </p>
+      </Link>
+      <p className="font-inter text-sm md:text-base">
+        <span className="text-muted-foreground">Score: </span>
+        <span className="font-semibold">
+          {scoredBy <= 0 ? "--" : score}{" "}
+          <span className="text-muted-foreground text-xs md:text-sm">
+            ({scoredBy.toLocaleString()})
+          </span>
+        </span>
+      </p>
+      <p className="font-inter text-sm md:text-base">
+        <span className="text-muted-foreground">Rank: </span>
+        <span className="font-semibold">{`${rank > 0 ? rank : "N/A"}`}</span>
+      </p>
+      <p className="font-inter text-sm md:text-base md:hidden">
+        <span className="text-muted-foreground">Status:</span>{" "}
+        <span className="font-semibold">{status}</span>
+      </p>
+      <p className="font-inter text-sm md:text-base">
+        <span className="text-muted-foreground">Episodes: </span>
+        <span className="font-semibold">{episodes > 0 ? episodes : "N/A"}</span>
+      </p>
+      <p className="font-inter text-sm md:hidden line-clamp-2">
+        <span className="text-muted-foreground">Genres: </span>
+        <span className="font-semibold text-xs">
+          {genres
+            .slice(0, 2)
+            .map((genre) => genre.name)
+            .join(", ")}{" "}
+          {genres.length > 2 && " etc."}
+        </span>
+      </p>
+      <GenresRow genres={genres} />
+      <div className="flex-1 flex items-end md:items-start md:mt-2">
+        <Button variant="outline" className="rounded-xl gap-1 md:h-10 h-8">
+          <Bookmark /> Save to Watchlist
+        </Button>
+      </div>
+    </div>
+  </>
 );
 
 const StatusRow = ({ status }: Pick<Anime, "status">) => {
@@ -199,7 +247,7 @@ const StatusRow = ({ status }: Pick<Anime, "status">) => {
     "dark:text-orange-300 text-orange-500";
 
   return (
-    <div className="flex lg:justify-between lg:gap-0 gap-1">
+    <div className="md:flex hidden lg:justify-between lg:gap-0">
       <p
         className={`font-inter p-2 rounded-xl font-semibold border-2 truncate ${styling}`}
       >
@@ -208,7 +256,7 @@ const StatusRow = ({ status }: Pick<Anime, "status">) => {
 
       <Tooltip>
         <TooltipTrigger>
-          <div className="flex items-center p-2 border-2 rounded-xl cursor-pointer">
+          <div className="lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
             <Bookmark />
           </div>
         </TooltipTrigger>
@@ -266,7 +314,7 @@ const RatingAndRankingRow = ({
 );
 
 const GenresRow = ({ genres }: Pick<Anime, "genres">) => (
-  <div className="flex flex-wrap gap-2">
+  <div className="md:flex hidden flex-wrap gap-2">
     {genres.slice(0, 2).map((genre) => (
       <Link
         key={genre.mal_id}
