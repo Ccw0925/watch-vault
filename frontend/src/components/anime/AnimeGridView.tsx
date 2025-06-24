@@ -188,44 +188,51 @@ const InfoComponent = ({
       <RatingAndRankingRow score={score} scoredBy={scoredBy} rank={rank} />
       <GenresRow genres={genres} />
     </div>
-    <div className="lg:hidden flex flex-col gap-1 md:gap-2 flex-5">
-      <StatusRow status={status} />
-      <Link href={`/animes/${id}?name=${title}`}>
+    <div className="lg:hidden flex-5 flex flex-col gap-1 md:gap-2">
+      <Link
+        href={`/animes/${id}?name=${title}`}
+        className="flex flex-col gap-1 md:gap-2 "
+      >
+        <StatusRow status={status} />
         <p className="font-inter font-bold line-clamp-1 md:line-clamp-2 md:text-lg">
           {title}
         </p>
-      </Link>
-      <p className="font-inter text-sm md:text-base">
-        <span className="text-muted-foreground">Score: </span>
-        <span className="font-semibold">
-          {scoredBy <= 0 ? "--" : score}{" "}
-          <span className="text-muted-foreground text-xs md:text-sm">
-            ({scoredBy.toLocaleString()})
+        <p className="font-inter text-sm md:text-base">
+          <span className="text-muted-foreground">Score: </span>
+          <span className="font-semibold">
+            {scoredBy <= 0 ? "--" : score}{" "}
+            <span className="text-muted-foreground text-xs md:text-sm">
+              ({scoredBy.toLocaleString()})
+            </span>
           </span>
-        </span>
-      </p>
-      <p className="font-inter text-sm md:text-base">
-        <span className="text-muted-foreground">Rank: </span>
-        <span className="font-semibold">{`${rank > 0 ? rank : "N/A"}`}</span>
-      </p>
-      <p className="font-inter text-sm md:text-base md:hidden">
-        <span className="text-muted-foreground">Status:</span>{" "}
-        <span className="font-semibold">{status}</span>
-      </p>
-      <p className="font-inter text-sm md:text-base">
-        <span className="text-muted-foreground">Episodes: </span>
-        <span className="font-semibold">{episodes > 0 ? episodes : "N/A"}</span>
-      </p>
-      <p className="font-inter text-sm md:hidden line-clamp-2">
-        <span className="text-muted-foreground">Genres: </span>
-        <span className="font-semibold text-xs">
-          {genres
-            .slice(0, 2)
-            .map((genre) => genre.name)
-            .join(", ")}{" "}
-          {genres.length > 2 && " etc."}
-        </span>
-      </p>
+        </p>
+        <p className="font-inter text-sm md:text-base">
+          <span className="text-muted-foreground">Rank: </span>
+          <span className="font-semibold">{`${rank > 0 ? rank : "N/A"}`}</span>
+        </p>
+        <p className="font-inter text-sm md:text-base md:hidden">
+          <span className="text-muted-foreground">Status:</span>{" "}
+          <span className="font-semibold">{status}</span>
+        </p>
+        <p className="font-inter text-sm md:text-base">
+          <span className="text-muted-foreground">Episodes: </span>
+          <span className="font-semibold">
+            {episodes > 0 ? episodes : "N/A"}
+          </span>
+        </p>
+        {genres.length > 0 && (
+          <p className="font-inter text-sm md:hidden line-clamp-2">
+            <span className="text-muted-foreground">Genres: </span>
+            <span className="font-semibold text-xs">
+              {genres
+                .slice(0, 2)
+                .map((genre) => genre.name)
+                .join(", ")}{" "}
+              {genres.length > 2 && " etc."}
+            </span>
+          </p>
+        )}
+      </Link>
       <GenresRow genres={genres} />
       <div className="flex-1 flex items-end md:items-start">
         <Button

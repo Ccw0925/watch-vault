@@ -203,7 +203,7 @@ const AnimePrequelSequelGroup = ({
               <p className="font-inter text-muted-foreground text-sm">
                 Prequel
               </p>
-              <p className="font-inter group-hover:underline">
+              <p className="font-inter group-hover:underline md:text-base text-sm truncate">
                 {prequel.entry[0].name}
               </p>
             </div>
@@ -226,7 +226,7 @@ const AnimePrequelSequelGroup = ({
               <p className="font-inter text-muted-foreground text-sm text-right">
                 Sequel
               </p>
-              <p className="font-inter text-right group-hover:underline">
+              <p className="font-inter text-right group-hover:underline md:text-base text-sm truncate">
                 {sequel.entry[0].name}
               </p>
             </div>
