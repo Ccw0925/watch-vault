@@ -143,10 +143,10 @@ const ImageComponent = ({
   imageUrl: string;
   title: string;
 }) => (
-  <div className="rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0">
+  <div className="rounded-2xl lg:relative overflow-hidden cursor-pointer transform-3d sticky top-0 aspect-[2/3]">
     <Link
       href={`/animes/${animeId}?name=${title}`}
-      className="relative block aspect-[2/3] h-full"
+      className="relative block h-full"
     >
       <Image
         src={imageUrl}
