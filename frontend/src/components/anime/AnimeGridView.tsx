@@ -228,7 +228,10 @@ const InfoComponent = ({
       </p>
       <GenresRow genres={genres} />
       <div className="flex-1 flex items-end md:items-start">
-        <Button variant="outline" className="rounded-xl gap-1 md:h-10 h-8">
+        <Button
+          variant="outline"
+          className="rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
+        >
           <Bookmark /> Save to Watchlist
         </Button>
       </div>
