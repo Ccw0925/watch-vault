@@ -28,11 +28,19 @@ import {
   Swords,
   Tag,
   Users,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -41,6 +49,7 @@ const AnimeDetailsPage = () => {
   const { data: anime, isLoading } = useAnimeById(id);
   const [showMore, setShowMore] = useState(false);
   const [shouldShowMore, setShouldShowMore] = useState(false);
+  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const synopsisRef = useRef<HTMLParagraphElement>(null);
 
   const checkTextOverflow = useCallback(() => {
@@ -120,7 +129,12 @@ const AnimeDetailsPage = () => {
             </div>
 
             <div className="relative order-1 lg:order-none">
-              <ImageInfoGroup images={anime.images} url={anime.url} />
+              <ImageInfoGroup
+                images={anime.images}
+                url={anime.url}
+                trailer={anime.trailer}
+                setIsTrailerModalOpen={setIsTrailerModalOpen}
+              />
             </div>
           </div>
 
@@ -140,6 +154,12 @@ const AnimeDetailsPage = () => {
               <AnimeCharactersGroup id={id} />
             </TabsContent>
           </Tabs>
+
+          <TrailerModal
+            trailer={anime.trailer}
+            isOpen={isTrailerModalOpen}
+            setIsOpen={setIsTrailerModalOpen}
+          />
         </>
       )}
     </div>
@@ -475,7 +495,14 @@ const DemographicsInfo = ({ demographics }: Pick<Anime, "demographics">) => {
   );
 };
 
-const ImageInfoGroup = ({ images, url }: Pick<Anime, "images" | "url">) => (
+const ImageInfoGroup = ({
+  images,
+  url,
+  trailer,
+  setIsTrailerModalOpen,
+}: Pick<Anime, "images" | "url" | "trailer"> & {
+  setIsTrailerModalOpen: Dispatch<SetStateAction<boolean>>;
+}) => (
   <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
     <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
       <Image
@@ -488,12 +515,17 @@ const ImageInfoGroup = ({ images, url }: Pick<Anime, "images" | "url">) => (
       />
     </div>
     <div className="flex gap-3">
-      <div className="flex-1">
-        <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
-          <Play />
-          Watch Trailer
-        </Button>
-      </div>
+      {trailer.youtube_id && (
+        <div className="flex-1">
+          <Button
+            className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl"
+            onClick={() => setIsTrailerModalOpen(true)}
+          >
+            <Play />
+            Watch Trailer
+          </Button>
+        </div>
+      )}
       <div className="flex-1">
         <Link href={url} target="_blank">
           <Button className="font-inter w-full dark:bg-input/30 dark:hover:bg-input/50 font-medium text-white cursor-pointer h-12 rounded-xl">
@@ -505,5 +537,35 @@ const ImageInfoGroup = ({ images, url }: Pick<Anime, "images" | "url">) => (
     </div>
   </div>
 );
+
+const TrailerModal = ({
+  trailer,
+  setIsOpen,
+  isOpen,
+}: Pick<Anime, "trailer"> & {
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+  isOpen: boolean;
+}) =>
+  isOpen && (
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+      onClick={() => setIsOpen(false)}
+    >
+      <div className="relative w-full sm:max-w-[760px] max-w-[90%]">
+        <X
+          className="absolute right-1 top-1 h-5 w-5 text-gray-300 hover:text-white cursor-pointer"
+          onClick={() => setIsOpen(false)}
+        />
+        <div className="aspect-video rounded-lg overflow-hidden">
+          <iframe
+            src={`https://www.youtube.com/embed/${trailer.youtube_id}?autoplay=1&enablejsapi=1`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          />
+        </div>
+      </div>
+    </div>
+  );
 
 export default AnimeDetailsPage;

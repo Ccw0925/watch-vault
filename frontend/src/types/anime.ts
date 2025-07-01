@@ -24,6 +24,7 @@ export type Anime = {
   themes: Theme[];
   demographics: DemoGraphic[];
   relations?: Relation[];
+  trailer: Trailer;
 };
 
 type Genre = {
@@ -76,6 +77,10 @@ type Relation = {
     name: string;
     url: string;
   }[];
+};
+
+type Trailer = {
+  youtube_id: string;
 };
 
 type Pagination = {
