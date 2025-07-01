@@ -545,8 +545,26 @@ const TrailerModal = ({
 }: Pick<Anime, "trailer"> & {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
-}) =>
-  isOpen && (
+}) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, setIsOpen]);
+
+  if (!isOpen) return null;
+
+  return (
     <div
       className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
       onClick={() => setIsOpen(false)}
@@ -567,5 +585,6 @@ const TrailerModal = ({
       </div>
     </div>
   );
+};
 
 export default AnimeDetailsPage;
