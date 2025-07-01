@@ -6,6 +6,7 @@ import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  TypographyH1,
   TypographyH3,
   TypographyMuted,
   TypographyP,
@@ -83,6 +84,16 @@ const AnimeDetailsPage = () => {
       timeout = setTimeout(() => func(), wait);
     };
   };
+
+  if (!anime)
+    return (
+      <div className="mt-5">
+        <TypographyH1 className="text-center">Anime not found.</TypographyH1>
+        <Link href="/animes" className="flex justify-center mt-5">
+          <Button className="font-inter text-white cursor-pointer">Back to Anime List</Button>
+        </Link>
+      </div>
+    );
 
   return (
     <div className="p-5 lg:p-8 flex flex-col mx-auto w-full max-w-[1850px]">

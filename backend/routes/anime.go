@@ -64,6 +64,11 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 
 	anime, err := h.jikanClient.GetAnimeById(c.Request.Context(), id)
 	if err != nil {
+		if jikan.IsNotFound(err) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Anime not found"})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch anime",
 			"details": err.Error(),

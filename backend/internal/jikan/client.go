@@ -46,6 +46,10 @@ func (c *Client) makeRequest(ctx context.Context, endpoint string, queryParams m
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return ErrNotFound
+		}
+
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
