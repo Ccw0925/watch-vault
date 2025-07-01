@@ -4,6 +4,7 @@ import SideBarMenuItem from "./SideBarMenuItem";
 import {
   Bird,
   Bookmark,
+  Calendar,
   Clapperboard,
   House,
   Popcorn,
@@ -23,11 +24,18 @@ const SideBar = () => {
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 
-          <SideBarMenuItem icon={Bird} label="Animes" link="/animes" />
+          <p className="text-lg text-center font-bold underline underline-offset-2">Animes</p>
+
+          <SideBarMenuItem icon={Bird} label="All Animes" link="/animes" />
           <SideBarMenuItem
             icon={Trophy}
             label="Top Animes"
             link="/animes/top"
+          />
+          <SideBarMenuItem
+            icon={Calendar}
+            label="Upcoming"
+            link="/animes/upcoming"
           />
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />

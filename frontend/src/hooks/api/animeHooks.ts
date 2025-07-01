@@ -4,6 +4,7 @@ import {
   fetchAnimeEpisodes,
   fetchAnimes,
   fetchTopAnimes,
+  fetchUpcomingAnimes,
 } from "@/lib/api/animeService";
 import {
   Anime,
@@ -45,7 +46,7 @@ export const useAnimeById = (id: string) => {
 
 export const useTopAnimes = ({ page }: { page?: number }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["animes", { page }],
+    queryKey: ["topAnimes", { page }],
     queryFn: () => fetchTopAnimes({ page }),
     placeholderData: keepPreviousData,
   });
@@ -69,5 +70,13 @@ export const useAnimeCharacters = (id: string) => {
   return useQuery<AnimeCharacter[], Error>({
     queryKey: ["animeCharacters", id],
     queryFn: () => fetchAnimeCharactersById(id),
+  });
+};
+
+export const useUpcomingAnimes = ({ page }: { page?: number }) => {
+  return useQuery<AnimesResponse, Error>({
+    queryKey: ["upcomingAnimes", { page }],
+    queryFn: () => fetchUpcomingAnimes({ page }),
+    placeholderData: keepPreviousData,
   });
 };

@@ -85,12 +85,14 @@ const AnimeDetailsPage = () => {
     };
   };
 
-  if (!anime)
+  if (!isLoading && !anime)
     return (
       <div className="mt-5">
         <TypographyH1 className="text-center">Anime not found.</TypographyH1>
         <Link href="/animes" className="flex justify-center mt-5">
-          <Button className="font-inter text-white cursor-pointer">Back to Anime List</Button>
+          <Button className="font-inter text-white cursor-pointer">
+            Back to Anime List
+          </Button>
         </Link>
       </div>
     );

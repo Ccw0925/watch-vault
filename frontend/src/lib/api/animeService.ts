@@ -98,6 +98,22 @@ export const fetchAnimeCharactersById = async (
   return response.data;
 };
 
+export const fetchUpcomingAnimes = async (options?: {
+  page?: number;
+}): Promise<AnimesResponse> => {
+  const params = new URLSearchParams();
+
+  if (options?.page !== undefined) {
+    params.append("page", options.page.toString());
+  }
+
+  const response = await api.get<AnimesResponse>("/animes/upcoming", {
+    params,
+  });
+
+  return response.data;
+};
+
 const sortByRank = (a: { rank: number }, b: { rank: number }) => {
   if (a.rank === 0) return 1;
   if (b.rank === 0) return -1;
