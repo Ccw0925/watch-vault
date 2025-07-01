@@ -28,6 +28,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("/:id", handler.GetAnimeById)
 		animeGroup.GET("/:id/episodes", handler.GetAnimeEpisodesById)
 		animeGroup.GET("/:id/characters", handler.GetAnimeCharactersById)
+		animeGroup.GET("/upcoming", handler.GetUpcomingAnimes)
 	}
 }
 
@@ -178,6 +179,24 @@ func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 	})
 
 	c.JSON(http.StatusOK, characters.Data)
+}
+
+func (h *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
+	page := getPageParam(c)
+
+	response, err := h.jikanClient.GetUpcomingAnimes(c.Request.Context(), page)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch upcoming anime",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": response.Pagination,
+		"data":       buildAnimeResponse(response.Data),
+	})
 }
 
 func getPageParam(c *gin.Context) int {
