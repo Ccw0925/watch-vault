@@ -225,5 +225,6 @@ func animeToResponse(anime *jikan.Anime) gin.H {
 		"themes":        anime.Themes,
 		"producers":     anime.Producers,
 		"demographics":  anime.Demographics,
+		"trailer":       anime.Trailer,
 	}
 }

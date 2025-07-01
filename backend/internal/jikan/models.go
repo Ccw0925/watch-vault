@@ -36,6 +36,7 @@ type Anime struct {
 	Themes       []Theme       `json:"themes"`
 	Producers    []Producer    `json:"producers"`
 	Demographics []DemoGraphic `json:"demographics"`
+	Trailer      Trailer       `json:"trailer"`
 }
 
 type Genre struct {
@@ -125,6 +126,9 @@ type VoiceActor struct {
 	Language string `json:"language"`
 }
 
+type Trailer struct {
+	YoutubeID string `json:"youtube_id"`
+}
 type AnimeEpisodesResponse struct {
 	Pagination struct {
 		LastVisiblePage int  `json:"last_visible_page"`
