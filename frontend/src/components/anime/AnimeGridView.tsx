@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
+import { twMerge } from "tailwind-merge";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -33,7 +34,7 @@ type AnimeGridViewProps = Pick<
   | "genres"
   | "status"
   | "images"
->;
+> & { gridContainerClassName?: string };
 
 const ROTATION_RANGE = 16;
 const HALF_ROTATION_RANGE = 16 / 2;
@@ -48,6 +49,7 @@ const AnimeGridView = ({
   genres,
   status,
   images,
+  gridContainerClassName,
 }: AnimeGridViewProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -88,7 +90,10 @@ const AnimeGridView = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transform }}
-      className="h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] md:border rounded-2xl md:p-3 transform-3d lg:shadow-xl"
+      className={twMerge(
+        "h-[200px] lg:h-[350px] md:h-[300px] w-full lg:w-[550px] md:border md:rounded-2xl md:p-3 transform-3d lg:shadow-xl",
+        gridContainerClassName
+      )}
     >
       <motion.div
         initial={{ opacity: 0, x: -10 }}

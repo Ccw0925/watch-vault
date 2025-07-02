@@ -34,8 +34,8 @@ const SideBar = () => {
           />
           <SideBarMenuItem
             icon={Calendar}
-            label="Upcoming"
-            link="/animes/upcoming"
+            label="Seasonal"
+            link="/animes/seasons/now"
           />
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />

@@ -129,6 +129,12 @@ type VoiceActor struct {
 type Trailer struct {
 	YoutubeID string `json:"youtube_id"`
 }
+
+type Season struct {
+	Year    int      `json:"year"`
+	Seasons []string `json:"seasons"`
+}
+
 type AnimeEpisodesResponse struct {
 	Pagination struct {
 		LastVisiblePage int  `json:"last_visible_page"`
@@ -160,4 +166,12 @@ type AnimeRelationsResponse struct {
 
 type AnimeCharactersResponse struct {
 	Data []AnimeCharacter `json:"data"`
+}
+
+type SeasonListResponse struct {
+	Data       []Season `json:"data"`
+	Pagination struct {
+		LastVisiblePage int  `json:"last_visible_page"`
+		HasNextPage     bool `json:"has_next_page"`
+	} `json:"pagination"`
 }

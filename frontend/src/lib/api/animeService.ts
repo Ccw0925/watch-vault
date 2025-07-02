@@ -3,6 +3,7 @@ import {
   AnimeCharacter,
   AnimesResponse,
   EpisodesResponse,
+  SeasonalAnimesResponse,
 } from "@/types/anime";
 import axios from "axios";
 
@@ -118,14 +119,14 @@ export const fetchSeasonalAnimes = async (
   year: number,
   season: string,
   options?: { page?: number }
-) => {
+): Promise<SeasonalAnimesResponse> => {
   const params = new URLSearchParams();
 
   if (options?.page !== undefined) {
     params.append("page", options.page.toString());
   }
 
-  const response = await api.get<AnimesResponse>(
+  const response = await api.get<SeasonalAnimesResponse>(
     `/animes/seasons/${year}/${season}`,
     {
       params,

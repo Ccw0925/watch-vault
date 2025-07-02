@@ -194,3 +194,15 @@ func (c *Client) GetSeasonalAnime(ctx context.Context, year int, season string, 
 
 	return &result, err
 }
+
+func (c *Client) GetSeasonList(ctx context.Context) (*SeasonListResponse, error) {
+	cacheKey := "season_list"
+	var result SeasonListResponse
+
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/seasons", c.baseURL)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
+
+	return &result, err
+}

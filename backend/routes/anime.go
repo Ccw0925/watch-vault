@@ -220,9 +220,22 @@ func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 		return
 	}
 
+	seasonsResponse, err := h.jikanClient.GetSeasonList(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch seasons",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	upcomingSeasons, previousSeasons := getSurroundingSeasons(seasonsResponse.Data, year, season)
+
 	c.JSON(http.StatusOK, gin.H{
-		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data),
+		"pagination":      response.Pagination,
+		"data":            buildAnimeResponse(response.Data),
+		"upcomingSeasons": upcomingSeasons,
+		"previousSeasons": previousSeasons,
 	})
 }
 
@@ -278,4 +291,64 @@ func animeToResponse(anime *jikan.Anime) gin.H {
 		"demographics":  anime.Demographics,
 		"trailer":       anime.Trailer,
 	}
+}
+
+func getSurroundingSeasons(seasonsList []jikan.Season, targetYear int, targetSeason string) ([]gin.H, []gin.H) {
+	var reversedSeasons []struct {
+		Year    int
+		Seasons []string
+	}
+
+	for _, yearEntry := range seasonsList {
+		reversed := slices.Clone(yearEntry.Seasons)
+		slices.Reverse(reversed)
+
+		reversedSeasons = append(reversedSeasons, struct {
+			Year    int
+			Seasons []string
+		}{yearEntry.Year, reversed})
+	}
+
+	type seasonPair struct {
+		year   int
+		season string
+	}
+
+	var allSeasons []seasonPair
+
+	for _, yearEntry := range reversedSeasons {
+		for _, season := range yearEntry.Seasons {
+			allSeasons = append(allSeasons, seasonPair{yearEntry.Year, season})
+		}
+	}
+
+	var targetIndex int = -1
+	for i, pair := range allSeasons {
+		if pair.year == targetYear && pair.season == targetSeason {
+			targetIndex = i
+			break
+		}
+	}
+
+	if targetIndex == -1 {
+		return []gin.H{}, []gin.H{}
+	}
+
+	upcoming := make([]gin.H, 0, 3)
+	for i := targetIndex - 1; i >= 0 && len(upcoming) < 3; i-- {
+		upcoming = append(upcoming, gin.H{
+			"year":   allSeasons[i].year,
+			"season": allSeasons[i].season,
+		})
+	}
+
+	previous := make([]gin.H, 0, 3)
+	for i := targetIndex + 1; i < len(allSeasons) && len(previous) < 3; i++ {
+		previous = append(previous, gin.H{
+			"year":   allSeasons[i].year,
+			"season": allSeasons[i].season,
+		})
+	}
+
+	return upcoming, previous
 }

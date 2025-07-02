@@ -12,6 +12,7 @@ import {
   AnimeCharacter,
   AnimesResponse,
   EpisodesResponse,
+  SeasonalAnimesResponse,
 } from "@/types/anime";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
@@ -91,7 +92,7 @@ export const useSeasonalAnimes = ({
   season: string;
   page?: number;
 }) => {
-  return useQuery<AnimesResponse, Error>({
+  return useQuery<SeasonalAnimesResponse, Error>({
     queryKey: ["seasonalAnimes", { year, season, page }],
     queryFn: () => fetchSeasonalAnimes(year, season, { page }),
     placeholderData: keepPreviousData,

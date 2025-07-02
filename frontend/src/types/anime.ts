@@ -105,16 +105,26 @@ type Episode = {
   forumUrl: string;
 };
 
+export type Season = {
+  year: number;
+  season: string;
+};
+
 export type EpisodesResponse = {
   data: Episode[];
   pagination: Pick<Pagination, "last_visible_page" | "has_next_page">;
   totalCount?: number;
 };
 
-export type AnimesResponse = {
+export interface AnimesResponse {
   data: Anime[];
   pagination: Pagination;
-};
+}
+
+export interface SeasonalAnimesResponse extends AnimesResponse {
+  previousSeasons: Season[];
+  upcomingSeasons: Season[];
+}
 
 type Character = {
   mal_id: number;

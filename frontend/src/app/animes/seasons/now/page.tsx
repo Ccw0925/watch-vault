@@ -1,11 +1,11 @@
+import SeasonalAnimePage from "@/components/anime/SeasonalAnimePage";
 import { Metadata } from "next";
 import React from "react";
-import UpcomingAnimePage from "./UpcomingAnimePage";
 
 export const metadata: Metadata = {
   title: "Upcoming Animes",
 };
 
-const page = async () => <UpcomingAnimePage />;
+const page = async () => <SeasonalAnimePage />;
 
 export default page;
