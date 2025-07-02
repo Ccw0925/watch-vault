@@ -114,6 +114,27 @@ export const fetchUpcomingAnimes = async (options?: {
   return response.data;
 };
 
+export const fetchSeasonalAnimes = async (
+  year: number,
+  season: string,
+  options?: { page?: number }
+) => {
+  const params = new URLSearchParams();
+
+  if (options?.page !== undefined) {
+    params.append("page", options.page.toString());
+  }
+
+  const response = await api.get<AnimesResponse>(
+    `/animes/seasons/${year}/${season}`,
+    {
+      params,
+    }
+  );
+
+  return response.data;
+};
+
 const sortByRank = (a: { rank: number }, b: { rank: number }) => {
   if (a.rank === 0) return 1;
   if (b.rank === 0) return -1;

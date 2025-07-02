@@ -182,3 +182,15 @@ func (c *Client) GetUpcomingAnimes(ctx context.Context, page int) (*AnimesListRe
 
 	return &result, err
 }
+
+func (c *Client) GetSeasonalAnime(ctx context.Context, year int, season string, page int) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("seasonal_anime:%d:%s:%d", year, season, page)
+	var result AnimesListResponse
+
+	err := c.cachedRequest(cacheKey, &result, func() error {
+		endpoint := fmt.Sprintf("%s/seasons/%4d/%s?page=%d", c.baseURL, year, season, page)
+		return c.makeRequest(ctx, endpoint, nil, &result)
+	})
+
+	return &result, err
+}

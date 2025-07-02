@@ -24,7 +24,7 @@ const SideBar = () => {
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 
-          <p className="text-lg text-center font-bold underline underline-offset-2">Animes</p>
+          <p className="text-xl text-center font-bold mb-1">Animes</p>
 
           <SideBarMenuItem icon={Bird} label="All Animes" link="/animes" />
           <SideBarMenuItem

@@ -3,7 +3,8 @@ import AnimeGridView, { AnimeSkeleton } from "@/components/anime/AnimeGridView";
 import { SearchBar } from "@/components/anime/SearchBar";
 import CustomPagination from "@/components/CustomPagination";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
-import { useUpcomingAnimes } from "@/hooks/api/animeHooks";
+import { useSeasonalAnimes } from "@/hooks/api/animeHooks";
+import { getCurrentSeasonInJapan } from "@/lib/date/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -13,7 +14,13 @@ const UpcomingAnimePage = () => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
-  const { data, isLoading } = useUpcomingAnimes({ page: pageInt });
+  const currentYear = new Date().getFullYear();
+  const currentJapanSeason = getCurrentSeasonInJapan();
+  const { data, isLoading } = useSeasonalAnimes({
+    year: currentYear,
+    season: currentJapanSeason,
+    page: pageInt,
+  });
   const upcomingAnimes = data?.data;
   const totalPages = data?.pagination.last_visible_page;
 

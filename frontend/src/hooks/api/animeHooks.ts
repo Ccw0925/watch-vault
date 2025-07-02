@@ -3,6 +3,7 @@ import {
   fetchAnimeCharactersById,
   fetchAnimeEpisodes,
   fetchAnimes,
+  fetchSeasonalAnimes,
   fetchTopAnimes,
   fetchUpcomingAnimes,
 } from "@/lib/api/animeService";
@@ -77,6 +78,22 @@ export const useUpcomingAnimes = ({ page }: { page?: number }) => {
   return useQuery<AnimesResponse, Error>({
     queryKey: ["upcomingAnimes", { page }],
     queryFn: () => fetchUpcomingAnimes({ page }),
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useSeasonalAnimes = ({
+  year,
+  season,
+  page,
+}: {
+  year: number;
+  season: string;
+  page?: number;
+}) => {
+  return useQuery<AnimesResponse, Error>({
+    queryKey: ["seasonalAnimes", { year, season, page }],
+    queryFn: () => fetchSeasonalAnimes(year, season, { page }),
     placeholderData: keepPreviousData,
   });
 };

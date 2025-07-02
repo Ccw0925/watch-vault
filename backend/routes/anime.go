@@ -29,6 +29,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("/:id/episodes", handler.GetAnimeEpisodesById)
 		animeGroup.GET("/:id/characters", handler.GetAnimeCharactersById)
 		animeGroup.GET("/upcoming", handler.GetUpcomingAnimes)
+		animeGroup.GET("/seasons/:year/:season", handler.GetSeasonalAnime)
 	}
 }
 
@@ -188,6 +189,32 @@ func (h *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch upcoming anime",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": response.Pagination,
+		"data":       buildAnimeResponse(response.Data),
+	})
+}
+
+func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
+	page := getPageParam(c)
+
+	year, err := strconv.Atoi(c.Param("year"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
+		return
+	}
+
+	season := c.Param("season")
+
+	response, err := h.jikanClient.GetSeasonalAnime(c.Request.Context(), year, season, page)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch seasonal anime",
 			"details": err.Error(),
 		})
 		return
