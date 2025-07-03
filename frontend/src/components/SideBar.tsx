@@ -11,10 +11,11 @@ import {
   Trophy,
 } from "lucide-react";
 import { Separator } from "./ui/separator";
+import { twMerge } from "tailwind-merge";
 
-const SideBar = () => {
+const SideBar = ({ className }: { className?: string }) => {
   return (
-    <div className="w-[275px] h-full px-5 py-8">
+    <div className={twMerge("w-[275px] h-full px-5 py-8", className)}>
       <div className="dark:bg-[#22262c] bg-gray-200 py-5 px-6 rounded-2xl">
         <TypographyH4 className="mb-5 text-center">Menu</TypographyH4>
 

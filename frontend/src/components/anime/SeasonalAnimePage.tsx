@@ -6,7 +6,6 @@ import CustomPagination from "@/components/CustomPagination";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import { useSeasonalAnimes } from "@/hooks/api/animeHooks";
 import { getCurrentSeasonInJapan } from "@/lib/date/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
@@ -34,18 +33,6 @@ const SeasonalAnimePage = () => {
 
   return (
     <div className="p-5 relative">
-      <div className="absolute top-3 left-5 hidden sm:block h-[90px] w-[160px]">
-        <Link href="/">
-          <Image
-            src="/logo-transparent.png"
-            alt="Logo"
-            width={160}
-            height={90}
-            priority
-          />
-        </Link>
-      </div>
-
       <Link href="/animes/seasons/now">
         <TypographyH1 className="text-center mb-5">
           Seasonal Animes

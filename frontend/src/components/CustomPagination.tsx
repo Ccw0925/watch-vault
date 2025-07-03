@@ -26,7 +26,7 @@ const CustomPagination = ({
   useRouter = true,
 }: PaginationProps) => {
   if (!totalPages) {
-    return <Skeleton className="w-[400px] max-w-full h-8 mx-auto" />;
+    return <Skeleton className="w-[400px] max-w-[full] h-8 mx-auto" />;
   }
 
   const getPageNumbers = () => {
@@ -91,7 +91,7 @@ const CustomPagination = ({
 
   return (
     <Pagination>
-      <PaginationContent>
+      <PaginationContent className="md:gap-1 gap-0">
         <PaginationItem>
           <PaginationPrevious
             href={

@@ -1,10 +1,7 @@
 "use client";
 import AnimeGridGroup from "@/components/anime/AnimeGridGroup";
 import { SearchBar } from "@/components/anime/SearchBar";
-import { TypographyH1 } from "@/components/ui/typography";
 import { useAnimes } from "@/hooks/api/animeHooks";
-import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 
@@ -34,22 +31,6 @@ const AllAnimesPage = () => {
 
   return (
     <div className="p-5 relative">
-      <div className="absolute top-3 left-5 hidden sm:block h-[90px] w-[160px]">
-        <Link href="/">
-          <Image
-            src="/logo-transparent.png"
-            alt="Logo"
-            width={160}
-            height={90}
-            priority
-          />
-        </Link>
-      </div>
-
-      <Link href="/animes?page=1">
-        <TypographyH1 className="text-center mb-5">All Animes</TypographyH1>
-      </Link>
-
       <div className="flex flex-col items-center mb-5">
         <SearchBar />
       </div>

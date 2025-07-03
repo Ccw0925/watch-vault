@@ -4,8 +4,6 @@ import { SearchBar } from "@/components/anime/SearchBar";
 import CustomPagination from "@/components/CustomPagination";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
 import { useTopAnimes } from "@/hooks/api/animeHooks";
-import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React from "react";
 
@@ -19,18 +17,6 @@ const TopAnimePage = () => {
 
   return (
     <div className="p-5 relative">
-      <div className="absolute top-3 left-5 hidden sm:block h-[90px] w-[160px]">
-        <Link href="/">
-          <Image
-            src="/logo-transparent.png"
-            alt="Logo"
-            width={160}
-            height={90}
-            priority
-          />
-        </Link>
-      </div>
-
       <TypographyH1 className="text-center mb-5">Top Animes</TypographyH1>
 
       <div className="flex flex-col items-center mb-5">
