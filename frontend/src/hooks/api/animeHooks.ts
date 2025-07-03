@@ -18,6 +18,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export const useAnimes = ({
   page,
+  limit,
   genres,
   rating,
   orderBy,
@@ -25,6 +26,7 @@ export const useAnimes = ({
   queryString,
 }: {
   page?: number;
+  limit?: number;
   genres?: string | null;
   rating?: string | null;
   orderBy?: string | null;
@@ -32,9 +34,12 @@ export const useAnimes = ({
   queryString?: string | null;
 }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["animes", { page, genres, rating, orderBy, sort, queryString }],
+    queryKey: [
+      "animes",
+      { page, limit, genres, rating, orderBy, sort, queryString },
+    ],
     queryFn: () =>
-      fetchAnimes({ page, genres, rating, orderBy, sort, queryString }),
+      fetchAnimes({ page, limit, genres, rating, orderBy, sort, queryString }),
     placeholderData: keepPreviousData,
   });
 };
@@ -46,10 +51,16 @@ export const useAnimeById = (id: string) => {
   });
 };
 
-export const useTopAnimes = ({ page }: { page?: number }) => {
+export const useTopAnimes = ({
+  page,
+  limit,
+}: {
+  page?: number;
+  limit?: number;
+}) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["topAnimes", { page }],
-    queryFn: () => fetchTopAnimes({ page }),
+    queryKey: ["topAnimes", { page, limit }],
+    queryFn: () => fetchTopAnimes({ page, limit }),
     placeholderData: keepPreviousData,
   });
 };

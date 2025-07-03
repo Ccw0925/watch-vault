@@ -35,13 +35,14 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 
 func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
 	page := getPageParam(c)
+	limit := c.DefaultQuery("limit", "25")
 	genres := c.Query("genres")
 	rating := c.Query("rating")
 	orderBy := c.DefaultQuery("orderBy", "popularity")
 	sort := c.DefaultQuery("sort", "asc")
 	q := c.Query("q")
 
-	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, genres, rating, orderBy, sort, q)
+	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, limit, genres, rating, orderBy, sort, q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch all anime",
@@ -95,8 +96,9 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 
 func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 	page := getPageParam(c)
+	limit := c.DefaultQuery("limit", "25")
 
-	response, err := h.jikanClient.GetTopAnime(c.Request.Context(), page)
+	response, err := h.jikanClient.GetTopAnime(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch top anime",

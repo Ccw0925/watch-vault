@@ -21,7 +21,7 @@ const SideBar = ({ className }: { className?: string }) => {
 
         <div className="font-inter flex flex-col">
           <SideBarMenuItem icon={House} label="Home" />
-          <SideBarMenuItem icon={Bookmark} label="Favorites" />
+          <SideBarMenuItem icon={Bookmark} label="My Watchlist" />
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 

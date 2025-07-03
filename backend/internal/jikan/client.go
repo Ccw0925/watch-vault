@@ -74,14 +74,15 @@ func (c *Client) cachedRequest(cacheKey string, result interface{}, fn func() er
 	return nil
 }
 
-func (c *Client) ListAllAnime(ctx context.Context, page int, genres, rating, orderBy, sort, queryString string) (*AnimesListResponse, error) {
-	cacheKey := fmt.Sprintf("all_anime:%d:%s:%s:%s:%s:%s", page, genres, rating, orderBy, sort, queryString)
+func (c *Client) ListAllAnime(ctx context.Context, page int, limit, genres, rating, orderBy, sort, queryString string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("all_anime:%d:%s:%s:%s:%s:%s:%s", page, limit, genres, rating, orderBy, sort, queryString)
 	var result AnimesListResponse
 
 	err := c.cachedRequest(cacheKey, &result, func() error {
 		endpoint := fmt.Sprintf("%s/anime", c.baseURL)
 		queryParams := map[string]string{
 			"page":     fmt.Sprintf("%d", page),
+			"limit":    limit,
 			"genres":   genres,
 			"rating":   rating,
 			"order_by": orderBy,
@@ -106,13 +107,16 @@ func (c *Client) GetAnimeById(ctx context.Context, id int) (*AnimeResponse, erro
 	return &result, err
 }
 
-func (c *Client) GetTopAnime(ctx context.Context, page int) (*AnimesListResponse, error) {
-	cacheKey := fmt.Sprintf("top_anime:%d", page)
+func (c *Client) GetTopAnime(ctx context.Context, page int, limit string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("top_anime:%d:%s", page, limit)
 	var result AnimesListResponse
 
 	err := c.cachedRequest(cacheKey, &result, func() error {
 		endpoint := fmt.Sprintf("%s/top/anime?page=%d", c.baseURL, page)
-		return c.makeRequest(ctx, endpoint, nil, &result)
+		queryParams := map[string]string{
+			"limit": limit,
+		}
+		return c.makeRequest(ctx, endpoint, queryParams, &result)
 	})
 
 	return &result, err

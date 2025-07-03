@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: "cdn.myanimelist.net",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {

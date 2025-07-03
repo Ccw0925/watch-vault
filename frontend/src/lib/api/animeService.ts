@@ -13,6 +13,7 @@ const api = axios.create({
 
 export const fetchAnimes = async (options?: {
   page?: number;
+  limit?: number;
   genres?: string | null;
   rating?: string | null;
   orderBy?: string | null;
@@ -23,6 +24,10 @@ export const fetchAnimes = async (options?: {
 
   if (options?.page !== undefined) {
     params.append("page", options.page.toString());
+  }
+
+  if (options?.limit && options?.limit !== undefined) {
+    params.append("limit", options.limit.toString());
   }
 
   if (options?.genres && options?.genres !== undefined) {
@@ -56,11 +61,16 @@ export const fetchAnimeById = async (id: string): Promise<Anime> => {
 
 export const fetchTopAnimes = async (options?: {
   page?: number;
+  limit?: number;
 }): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
   if (options?.page !== undefined) {
     params.append("page", options.page.toString());
+  }
+
+  if (options?.limit && options?.limit !== undefined) {
+    params.append("limit", options.limit.toString());
   }
 
   const response = await api.get<AnimesResponse>("/animes/top", { params });
