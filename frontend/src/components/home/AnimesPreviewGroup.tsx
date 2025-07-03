@@ -18,7 +18,7 @@ const AnimesPreviewGroup = ({ title, link, animes, isLoading }: Props) => {
     <div className="font-inter">
       <Header title={title} link={link} />
 
-      <div className="flex gap-5 overflow-x-auto scrollbar-hover p-3">
+      <div className="flex gap-5 overflow-x-auto scrollbar-hover pt-3 px-3 md:pb-3">
         {isLoading ? <ContentSkeleton /> : <Content animes={animes ?? []} />}
       </div>
     </div>

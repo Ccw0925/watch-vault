@@ -6,9 +6,7 @@ import UpcomingAnimesPreviewGroup from "./UpcomingAnimesPreviewGroup";
 
 const Dashboard = ({ className }: { className?: string }) => {
   return (
-    <div
-      className={twMerge("p-5 overflow-y-auto flex flex-col gap-5", className)}
-    >
+    <div className={twMerge("py-5 md:px-5 flex flex-col gap-5", className)}>
       <HighlightsBanner />
       <TopAnimesPreviewGroup />
       <UpcomingAnimesPreviewGroup />
