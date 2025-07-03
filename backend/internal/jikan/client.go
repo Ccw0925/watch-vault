@@ -175,13 +175,16 @@ func (c *Client) GetAnimeCharactersById(ctx context.Context, id int) (*AnimeChar
 	return &result, err
 }
 
-func (c *Client) GetUpcomingAnimes(ctx context.Context, page int) (*AnimesListResponse, error) {
-	cacheKey := fmt.Sprintf("upcoming_anime:%d", page)
+func (c *Client) GetUpcomingAnimes(ctx context.Context, page int, limit string) (*AnimesListResponse, error) {
+	cacheKey := fmt.Sprintf("upcoming_anime:%d:%s", page, limit)
 	var result AnimesListResponse
 
 	err := c.cachedRequest(cacheKey, &result, func() error {
 		endpoint := fmt.Sprintf("%s/seasons/upcoming?page=%d", c.baseURL, page)
-		return c.makeRequest(ctx, endpoint, nil, &result)
+		queryParams := map[string]string{
+			"limit": limit,
+		}
+		return c.makeRequest(ctx, endpoint, queryParams, &result)
 	})
 
 	return &result, err

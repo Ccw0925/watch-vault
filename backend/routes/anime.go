@@ -186,8 +186,9 @@ func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 
 func (h *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 	page := getPageParam(c)
+	limit := c.DefaultQuery("limit", "25")
 
-	response, err := h.jikanClient.GetUpcomingAnimes(c.Request.Context(), page)
+	response, err := h.jikanClient.GetUpcomingAnimes(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch upcoming anime",

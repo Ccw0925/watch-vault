@@ -86,10 +86,16 @@ export const useAnimeCharacters = (id: string) => {
   });
 };
 
-export const useUpcomingAnimes = ({ page }: { page?: number }) => {
+export const useUpcomingAnimes = ({
+  page,
+  limit,
+}: {
+  page?: number;
+  limit?: number;
+}) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["upcomingAnimes", { page }],
-    queryFn: () => fetchUpcomingAnimes({ page }),
+    queryKey: ["upcomingAnimes", { page, limit }],
+    queryFn: () => fetchUpcomingAnimes({ page, limit }),
     placeholderData: keepPreviousData,
   });
 };

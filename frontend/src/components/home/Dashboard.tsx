@@ -2,6 +2,7 @@ import React from "react";
 import HighlightsBanner from "./HighlightsBanner";
 import { twMerge } from "tailwind-merge";
 import TopAnimesPreviewGroup from "./TopAnimesPreviewGroup";
+import UpcomingAnimesPreviewGroup from "./UpcomingAnimesPreviewGroup";
 
 const Dashboard = ({ className }: { className?: string }) => {
   return (
@@ -10,6 +11,7 @@ const Dashboard = ({ className }: { className?: string }) => {
     >
       <HighlightsBanner />
       <TopAnimesPreviewGroup />
+      <UpcomingAnimesPreviewGroup />
     </div>
   );
 };

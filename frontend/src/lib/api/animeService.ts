@@ -111,11 +111,16 @@ export const fetchAnimeCharactersById = async (
 
 export const fetchUpcomingAnimes = async (options?: {
   page?: number;
+  limit?: number;
 }): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
   if (options?.page !== undefined) {
     params.append("page", options.page.toString());
+  }
+
+  if (options?.limit && options?.limit !== undefined) {
+    params.append("limit", options.limit.toString());
   }
 
   const response = await api.get<AnimesResponse>("/animes/upcoming", {
