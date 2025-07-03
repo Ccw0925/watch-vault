@@ -53,7 +53,9 @@ const SeasonalAnimePage = () => {
       )}
 
       <div
-        className={`dark:bg-gray-900 bg-gray-300 p-5 ${
+        className={`dark:bg-gray-900 bg-gray-300 p-5 rounded-b-2xl ${
+          isLoading && "rounded-t-2xl"
+        } ${
           previousSeasons && previousSeasons.length > 0 && "rounded-tl-2xl"
         } ${upcomingSeasons && upcomingSeasons.length > 0 && "rounded-tr-2xl"}`}
       >
