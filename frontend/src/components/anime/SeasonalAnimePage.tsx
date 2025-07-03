@@ -46,7 +46,11 @@ const SeasonalAnimePage = () => {
         </Link>
       </div>
 
-      <TypographyH1 className="text-center mb-5">Seasonal Animes</TypographyH1>
+      <Link href="/animes/seasons/now">
+        <TypographyH1 className="text-center mb-5">
+          Seasonal Animes
+        </TypographyH1>
+      </Link>
 
       <div className="flex flex-col items-center mb-5">
         <SearchBar />
