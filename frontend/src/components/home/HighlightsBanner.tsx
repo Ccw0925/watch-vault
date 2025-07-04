@@ -160,7 +160,7 @@ const HighlightsBanner = () => {
         </div>
       </div>
 
-      {/* MOBILE VIEW */}
+      {/* Mobile View */}
       {isLoading ? (
         <Skeleton className="w-full h-[600px] md:hidden block rounded-3xl" />
       ) : (
