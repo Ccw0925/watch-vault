@@ -5,13 +5,25 @@ import { useDeveloperRecomendations } from "@/hooks/api/animeHooks";
 import { Skeleton } from "../ui/skeleton";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useMotionValue } from "motion/react";
+import { Anime } from "@/types/anime";
+
+const DRAG_BUFFER = 50;
+
+const SPRING_OPTIONS = {
+  type: "spring",
+  mass: 3,
+  stiffness: 400,
+  damping: 50,
+};
 
 const HighlightsBanner = () => {
   const { data: animes, isLoading } = useDeveloperRecomendations();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+
+  const dragX = useMotionValue(0);
 
   const images = [
     "/fullmetal-alchemist.jpg",
@@ -40,6 +52,16 @@ const HighlightsBanner = () => {
     const interval = setInterval(goNext, 5000);
     return () => clearInterval(interval);
   }, [goNext, isHovered]);
+
+  const onDragEnd = () => {
+    const x = dragX.get();
+
+    if (x <= -DRAG_BUFFER && currentIndex < images.length - 1) {
+      setCurrentIndex((pv) => pv + 1);
+    } else if (x >= DRAG_BUFFER && currentIndex > 0) {
+      setCurrentIndex((pv) => pv - 1);
+    }
+  };
 
   return (
     <div
@@ -145,35 +167,24 @@ const HighlightsBanner = () => {
       ) : (
         <div>
           <div className="relative md:hidden block rounded-3xl overflow-hidden mb-1">
-            <Link
-              href={`/animes/${animes?.[currentIndex]?.id}`}
-              className="block"
+            <motion.div
+              drag="x"
+              dragConstraints={{
+                left: 0,
+                right: 0,
+              }}
+              style={{
+                x: dragX,
+              }}
+              animate={{
+                translateX: `-${currentIndex * 100}%`,
+              }}
+              transition={SPRING_OPTIONS}
+              onDragEnd={onDragEnd}
+              className="flex cursor-grab active:cursor-grabbing"
             >
-              <Image
-                src={animes?.[currentIndex]?.images.webp.large_image_url ?? ""}
-                alt={animes?.[currentIndex]?.title ?? "Anime Cover"}
-                height={600}
-                width={400}
-                className="object-cover"
-                priority
-              />
-
-              <div className="absolute flex items-center gap-1 top-5 left-5 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-2 px-4 bg-gray-900/25 rounded-xl">
-                <Star fill="yellow" className="text-yellow-200 h-4 w-4" />
-                <p className="font-semibold">
-                  {animes?.[currentIndex]?.score.toFixed(2)}
-                </p>
-              </div>
-
-              <div className="absolute w-full text-center bottom-0 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-3 px-2 bg-gray-900/25">
-                <p className="font-bold">{animes?.[currentIndex]?.title}</p>
-                <p>
-                  {animes &&
-                    animes?.[currentIndex]?.year > 0 &&
-                    animes?.[currentIndex]?.year}
-                </p>
-              </div>
-            </Link>
+              <Images animes={animes ?? []} />
+            </motion.div>
           </div>
 
           {!isLoading && animes && animes.length > 0 && (
@@ -195,6 +206,35 @@ const HighlightsBanner = () => {
       )}
     </div>
   );
+};
+
+const Images = ({ animes }: { animes: Anime[] }) => {
+  return animes.map((anime) => (
+    <Link
+      key={anime.id}
+      href={`/animes/${anime.id}`}
+      className="block relative shrink-0 w-full"
+    >
+      <Image
+        src={anime.images.webp.large_image_url ?? ""}
+        alt={anime.title ?? "Anime Cover"}
+        height={600}
+        width={400}
+        className="object-cover"
+        priority
+      />
+
+      <div className="absolute flex items-center gap-1 top-5 left-5 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-2 px-4 bg-gray-900/25 rounded-xl">
+        <Star fill="yellow" className="text-yellow-200 h-4 w-4" />
+        <p className="font-semibold">{anime.score.toFixed(2)}</p>
+      </div>
+
+      <div className="absolute w-full text-center bottom-0 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-3 px-2 bg-gray-900/25">
+        <p className="font-bold">{anime.title}</p>
+        <p>{animes && anime.year > 0 && anime.year}</p>
+      </div>
+    </Link>
+  ));
 };
 
 export default HighlightsBanner;
