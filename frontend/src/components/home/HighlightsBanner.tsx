@@ -11,10 +11,9 @@ import { Anime } from "@/types/anime";
 const DRAG_BUFFER = 50;
 
 const SPRING_OPTIONS = {
-  type: "spring",
   mass: 3,
-  stiffness: 400,
-  damping: 50,
+  stiffness: 500,
+  damping: 10,
 };
 
 const HighlightsBanner = () => {
@@ -169,6 +168,7 @@ const HighlightsBanner = () => {
           <div className="relative md:hidden block rounded-3xl overflow-hidden mb-1">
             <motion.div
               drag="x"
+              dragElastic={1}
               dragConstraints={{
                 left: 0,
                 right: 0,
