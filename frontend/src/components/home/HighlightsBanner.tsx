@@ -3,7 +3,7 @@ import Image from "next/image";
 import { TypographyH3 } from "../ui/typography";
 import { useDeveloperRecomendations } from "@/hooks/api/animeHooks";
 import { Skeleton } from "../ui/skeleton";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -105,7 +105,7 @@ const HighlightsBanner = () => {
           )}
 
           {!isLoading && animes && animes.length > 0 && (
-            <div className="flex gap-2 absolute bottom-2 left-[50%] p-2">
+            <div className="gap-2 absolute bottom-2 left-[50%] p-2 lg:flex hidden">
               {animes.map((anime, index) => (
                 <div
                   onClick={() => setCurrentIndex(index)}
@@ -139,17 +139,59 @@ const HighlightsBanner = () => {
         </div>
       </div>
 
+      {/* MOBILE VIEW */}
       {isLoading ? (
         <Skeleton className="w-full h-[600px] md:hidden block rounded-3xl" />
       ) : (
-        <Image
-          src={animes?.[currentIndex]?.images.webp.large_image_url ?? ""}
-          alt={animes?.[currentIndex]?.title ?? "Anime Cover"}
-          height={600}
-          width={400}
-          className="object-cover md:hidden block rounded-3xl"
-          priority
-        />
+        <div>
+          <div className="relative md:hidden block rounded-3xl overflow-hidden mb-1">
+            <Link
+              href={`/animes/${animes?.[currentIndex]?.id}`}
+              className="block"
+            >
+              <Image
+                src={animes?.[currentIndex]?.images.webp.large_image_url ?? ""}
+                alt={animes?.[currentIndex]?.title ?? "Anime Cover"}
+                height={600}
+                width={400}
+                className="object-cover"
+                priority
+              />
+
+              <div className="absolute flex items-center gap-1 top-5 left-5 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-2 px-4 bg-gray-900/25 rounded-xl">
+                <Star fill="yellow" className="text-yellow-200 h-4 w-4" />
+                <p className="font-semibold">
+                  {animes?.[currentIndex]?.score.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="absolute w-full text-center bottom-0 text-white font-inter bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 py-3 px-2 bg-gray-900/25">
+                <p className="font-bold">{animes?.[currentIndex]?.title}</p>
+                <p>
+                  {animes &&
+                    animes?.[currentIndex]?.year > 0 &&
+                    animes?.[currentIndex]?.year}
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          {!isLoading && animes && animes.length > 0 && (
+            <div className="gap-2 bottom-2 left-[50%] p-2 md:hidden flex justify-center">
+              {animes.map((anime, index) => (
+                <div
+                  onClick={() => setCurrentIndex(index)}
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    currentIndex === index
+                      ? "bg-white"
+                      : "bg-white/25 cursor-pointer"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
