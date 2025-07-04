@@ -115,7 +115,7 @@ const HighlightsBanner = () => {
           )}
 
           {!isLoading && animes && animes.length > 0 && (
-            <div className="w-[500px] max-w-[50%] absolute bottom-0 left-0 font-inter rounded-3xl bg-clip-padding backdrop-filter text-white backdrop-blur-2xl bg-opacity-10 py-4 px-6 bg-gray-900/25">
+            <div className="w-[500px] max-w-[50%] absolute bottom-0 left-0 font-inter rounded-3xl bg-clip-padding backdrop-filter text-white backdrop-blur-2xl bg-opacity-10 py-5 px-8 bg-gray-900/25">
               <p className="font-bold underline underline-offset-2 text-lg text-center">
                 {animes[currentIndex].title}
               </p>
