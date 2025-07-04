@@ -262,7 +262,7 @@ func (h *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
 	}
 
 	result, err, _ := h.group.Do(cacheKey, func() (interface{}, error) {
-		animeIds := []int{5114, 9253, 16498, 18689, 24405}
+		animeIds := []int{5114, 9253, 16498, 18689, 24405, 41457}
 		animes := make([]jikan.Anime, 0, len(animeIds))
 
 		for _, animeId := range animeIds {

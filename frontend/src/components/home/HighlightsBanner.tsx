@@ -1,10 +1,52 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { TypographyH3 } from "../ui/typography";
+import { useDeveloperRecomendations } from "@/hooks/api/animeHooks";
+import { Skeleton } from "../ui/skeleton";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 
 const HighlightsBanner = () => {
+  const { data: animes, isLoading } = useDeveloperRecomendations();
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const images = [
+    "/fullmetal-alchemist.jpg",
+    "/steins-gate.jpg",
+    "/attack-on-titans.jpg",
+    "/diamond-no-ace.jpg",
+    "/world-trigger.jpg",
+    "/86.jpeg",
+  ];
+
+  const goPrevious = () => {
+    const isFirstSlide = currentIndex === 0;
+    const newIndex = isFirstSlide ? images.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+  };
+
+  const goNext = useCallback(() => {
+    const isLastSlide = currentIndex === images.length - 1;
+    const newIndex = isLastSlide ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+  }, [currentIndex, images.length]);
+
+  useEffect(() => {
+    if (isHovered) return;
+
+    const interval = setInterval(goNext, 5000);
+    return () => clearInterval(interval);
+  }, [goNext, isHovered]);
+
   return (
-    <div className="flex flex-col items-center justify-center gap-3">
+    <div
+      className="flex flex-col items-center justify-center gap-3"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <TypographyH3 className="text-center md:hidden block">
         Developer&apos;s Recommendations
       </TypographyH3>
@@ -22,25 +64,93 @@ const HighlightsBanner = () => {
         </div>
 
         <div className="relative h-full w-full rounded-b-3xl rounded-tr-3xl overflow-hidden md:block hidden">
-          <Image
-            src="/testing-banner.jpg"
-            alt="Movie highlight"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 85vw"
-            priority
-          />
+          {isLoading ? (
+            <Skeleton className="w-full h-full" />
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0"
+              >
+                <Link
+                  href={`/animes/${animes?.[currentIndex].id}`}
+                  className="block relative h-full w-full"
+                >
+                  <Image
+                    src={images[currentIndex]}
+                    alt={animes?.[currentIndex].title ?? "Anime Cover"}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 85vw"
+                    priority
+                  />
+                </Link>
+              </motion.div>
+            </AnimatePresence>
+          )}
+
+          {!isLoading && animes && animes.length > 0 && (
+            <div className="w-[500px] max-w-[50%] absolute bottom-0 left-0 font-inter rounded-3xl bg-clip-padding backdrop-filter text-white backdrop-blur-2xl bg-opacity-10 py-4 px-6 bg-gray-900/25">
+              <p className="font-bold underline underline-offset-2 text-lg text-center">
+                {animes[currentIndex].title}
+              </p>
+              <p className="text-justify mt-1 line-clamp-16">
+                {animes[currentIndex].synopsis}
+              </p>
+            </div>
+          )}
+
+          {!isLoading && animes && animes.length > 0 && (
+            <div className="flex gap-2 absolute bottom-2 left-[50%] p-2">
+              {animes.map((anime, index) => (
+                <div
+                  onClick={() => setCurrentIndex(index)}
+                  key={index}
+                  className={`w-10 h-2 rounded-full ${
+                    currentIndex === index
+                      ? "bg-white"
+                      : "bg-white/25 cursor-pointer"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+
+          {!isLoading && animes && animes.length > 0 && (
+            <div className="absolute bottom-5 right-5 flex gap-3">
+              <div
+                onClick={goPrevious}
+                className="select-none hover:bg-white/70 hover:text-black cursor-pointer rounded-full bg-clip-padding backdrop-filter text-white backdrop-blur-2xl bg-opacity-10 p-4 bg-white/25"
+              >
+                <ChevronLeft />
+              </div>
+              <div
+                onClick={goNext}
+                className="select-none hover:bg-white/70 hover:text-black cursor-pointer rounded-full bg-clip-padding backdrop-filter text-white backdrop-blur-2xl bg-opacity-10 p-4 bg-white/25"
+              >
+                <ChevronRight />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <Image
-        src={"https://cdn.myanimelist.net/images/anime/1079/138100l.webp"}
-        alt={"title"}
-        height={600}
-        width={400}
-        className="object-cover md:hidden block rounded-3xl"
-        priority
-      />
+      {isLoading ? (
+        <Skeleton className="w-full h-[600px] md:hidden block rounded-3xl" />
+      ) : (
+        <Image
+          src={animes?.[currentIndex]?.images.webp.large_image_url ?? ""}
+          alt={animes?.[currentIndex]?.title ?? "Anime Cover"}
+          height={600}
+          width={400}
+          className="object-cover md:hidden block rounded-3xl"
+          priority
+        />
+      )}
     </div>
   );
 };
