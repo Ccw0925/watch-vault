@@ -151,6 +151,11 @@ export const fetchSeasonalAnimes = async (
   return response.data;
 };
 
+export const fetchDeveloperRecommendations = async (): Promise<Anime[]> => {
+  const response = await api.get<Anime[]>("/animes/developer-recomendations");
+  return response.data;
+};
+
 const sortByRank = (a: { rank: number }, b: { rank: number }) => {
   if (a.rank === 0) return 1;
   if (b.rank === 0) return -1;

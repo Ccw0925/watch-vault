@@ -3,6 +3,7 @@ import {
   fetchAnimeCharactersById,
   fetchAnimeEpisodes,
   fetchAnimes,
+  fetchDeveloperRecommendations,
   fetchSeasonalAnimes,
   fetchTopAnimes,
   fetchUpcomingAnimes,
@@ -113,5 +114,12 @@ export const useSeasonalAnimes = ({
     queryKey: ["seasonalAnimes", { year, season, page }],
     queryFn: () => fetchSeasonalAnimes(year, season, { page }),
     placeholderData: keepPreviousData,
+  });
+};
+
+export const useDeveloperRecomendations = () => {
+  return useQuery<Anime[], Error>({
+    queryKey: ["developerRecomendations"],
+    queryFn: () => fetchDeveloperRecommendations(),
   });
 };
