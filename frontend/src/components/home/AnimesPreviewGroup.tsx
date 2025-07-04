@@ -65,7 +65,7 @@ const Content = ({ animes }: { animes: Anime[] }) =>
 
 const ContentSkeleton = () => (
   <div className="flex gap-5 overflow-x-auto scrollbar-hover pb-3">
-    {[...Array(5)].map((_, i) => (
+    {[...Array(8)].map((_, i) => (
       <div key={i} className="flex flex-col gap-1 items-center">
         <Skeleton className="w-[216px] aspect-[2/3] rounded-2xl"></Skeleton>
         <Skeleton className="w-[45%] h-5"></Skeleton>

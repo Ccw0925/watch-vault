@@ -5,17 +5,26 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/Ccw0925/watch-vault/internal/jikan"
 	"github.com/gin-gonic/gin"
+	"github.com/patrickmn/go-cache"
+	"golang.org/x/sync/singleflight"
 )
 
 type AnimeHandler struct {
 	jikanClient *jikan.Client
+	cache       *cache.Cache
+	group       singleflight.Group
 }
 
 func NewAnimeHandler(jikanClient *jikan.Client) *AnimeHandler {
-	return &AnimeHandler{jikanClient: jikanClient}
+	return &AnimeHandler{
+		jikanClient: jikanClient,
+		cache:       cache.New(30*time.Minute, 15*time.Minute),
+		group:       singleflight.Group{},
+	}
 }
 
 func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
@@ -30,6 +39,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("/:id/characters", handler.GetAnimeCharactersById)
 		animeGroup.GET("/upcoming", handler.GetUpcomingAnimes)
 		animeGroup.GET("/seasons/:year/:season", handler.GetSeasonalAnime)
+		animeGroup.GET("/developer-recomendations", handler.GetDeveloperRecommendations)
 	}
 }
 
@@ -240,6 +250,42 @@ func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 		"upcomingSeasons": upcomingSeasons,
 		"previousSeasons": previousSeasons,
 	})
+}
+
+func (h *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
+	cacheKey := "developer_recommendations"
+
+	if cached, found := h.cache.Get(cacheKey); found {
+		c.Header("Cache-Control", "public, max-age=3600")
+		c.JSON(http.StatusOK, cached)
+		return
+	}
+
+	result, err, _ := h.group.Do(cacheKey, func() (interface{}, error) {
+		animeIds := []int{21, 5114, 9253, 16498, 24405}
+		animes := make([]jikan.Anime, 0, len(animeIds))
+
+		for _, animeId := range animeIds {
+			time.Sleep(350 * time.Millisecond)
+			anime, err := h.jikanClient.GetAnimeById(c.Request.Context(), animeId)
+			if err != nil {
+				return nil, err
+			}
+			animes = append(animes, anime.Data)
+		}
+
+		response := buildAnimeResponse(animes)
+		h.cache.Set(cacheKey, response, 12*time.Hour)
+		return response, nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Cache-Control", "public, max-age=3600")
+	c.JSON(http.StatusOK, result)
 }
 
 func getPageParam(c *gin.Context) int {
