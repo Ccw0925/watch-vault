@@ -181,7 +181,7 @@ const HighlightsBanner = () => {
               }}
               transition={SPRING_OPTIONS}
               onDragEnd={onDragEnd}
-              className="flex cursor-grab active:cursor-grabbing"
+              className="flex cursor-grab active:cursor-grabbing w-full max-w-[400px]"
             >
               <Images animes={animes ?? []} />
             </motion.div>
