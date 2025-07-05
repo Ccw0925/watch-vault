@@ -26,7 +26,7 @@ const CustomPagination = ({
   useRouter = true,
 }: PaginationProps) => {
   if (!totalPages) {
-    return <Skeleton className="w-[350px] max-w-[full] h-8 mx-auto" />;
+    return <Skeleton className="w-[310px] max-w-[full] h-8 mx-auto" />;
   }
 
   const getPageNumbers = () => {
