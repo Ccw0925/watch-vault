@@ -22,6 +22,7 @@ import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { twMerge } from "tailwind-merge";
+import FeatureUnderDevelopmentDialog from "../FeatureUnderDevelopmentDialog";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -240,12 +241,14 @@ const InfoComponent = ({
       </Link>
       <GenresRow genres={genres} />
       <div className="flex-1 flex items-end md:items-start">
-        <Button
-          variant="outline"
-          className="rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
-        >
-          <Bookmark /> Save to Watchlist
-        </Button>
+        <FeatureUnderDevelopmentDialog>
+          <Button
+            variant="outline"
+            className="rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
+          >
+            <Bookmark /> Save to Watchlist
+          </Button>
+        </FeatureUnderDevelopmentDialog>
       </div>
     </div>
   </>
@@ -271,9 +274,11 @@ const StatusRow = ({ status }: Pick<Anime, "status">) => {
 
       <Tooltip>
         <TooltipTrigger>
-          <div className="lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
-            <Bookmark />
-          </div>
+          <FeatureUnderDevelopmentDialog>
+            <div className="lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
+              <Bookmark />
+            </div>
+          </FeatureUnderDevelopmentDialog>
         </TooltipTrigger>
         <TooltipContent>
           <p className="font-inter text-white">Save to Watchlist</p>
