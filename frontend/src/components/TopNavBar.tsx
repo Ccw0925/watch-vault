@@ -13,6 +13,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Bird, Calendar, Trophy } from "lucide-react";
+import { twMerge } from "tailwind-merge";
 
 const TopNavBar = () => {
   return (
@@ -36,13 +37,18 @@ const TopNavBar = () => {
               <NavigationMenuItem className="sm:hidden flex">
                 <NavigationMenuLink
                   asChild
-                  className={navigationMenuTriggerStyle()}
+                  className={twMerge(
+                    navigationMenuTriggerStyle(),
+                    "bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10"
+                  )}
                 >
                   <Link href="/">Home</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Animes</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10">
+                  Animes
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[200px] gap-4">
                     <li>
