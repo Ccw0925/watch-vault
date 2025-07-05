@@ -152,7 +152,7 @@ export const fetchSeasonalAnimes = async (
 };
 
 export const fetchDeveloperRecommendations = async (): Promise<Anime[]> => {
-  const response = await api.get<Anime[]>("/animes/developer-recomendations");
+  const response = await api.get<Anime[]>("/animes/developer-recommendations");
   return response.data;
 };
 
