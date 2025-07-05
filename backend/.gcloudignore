@@ -1,0 +1,9 @@
+# .gcloudignore
+
+.gcloudignore
+.git
+.gitignore
+
+# Include all gitignore rules
+
+:include:.gitignore
