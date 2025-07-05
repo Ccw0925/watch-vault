@@ -1,6 +1,6 @@
 "use client";
 import { TypographyH1, TypographyH3 } from "@/components/ui/typography";
-import React from "react";
+import React, { Suspense } from "react";
 import { useMovies } from "@/hooks/api/movieHooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import MovieGridView from "@/components/movie/MovieGridView";
@@ -8,6 +8,14 @@ import { useSearchParams } from "next/navigation";
 import CustomPagination from "@/components/CustomPagination";
 
 const MoviesPage = () => {
+  return (
+    <Suspense>
+      <MoviePageContent />
+    </Suspense>
+  );
+};
+
+const MoviePageContent = () => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");

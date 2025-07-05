@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import TopAnimePage from "./TopAnimePage";
 import { Metadata } from "next";
 
@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "Top Animes",
 };
 
-const page = async () => <TopAnimePage />;
+const page = async () => (
+  <Suspense>
+    <TopAnimePage />
+  </Suspense>
+);
 
 export default page;
