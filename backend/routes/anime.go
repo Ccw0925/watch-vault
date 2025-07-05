@@ -39,7 +39,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
 		animeGroup.GET("/:id/characters", handler.GetAnimeCharactersById)
 		animeGroup.GET("/upcoming", handler.GetUpcomingAnimes)
 		animeGroup.GET("/seasons/:year/:season", handler.GetSeasonalAnime)
-		animeGroup.GET("/developer-recomendations", handler.GetDeveloperRecommendations)
+		animeGroup.GET("/developer-recommendations", handler.GetDeveloperRecommendations)
 	}
 }
 
