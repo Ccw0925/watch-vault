@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { twMerge } from "tailwind-merge";
+import FeatureUnderDevelopmentDialog from "./FeatureUnderDevelopmentDialog";
 
 const SideBar = ({ className }: { className?: string }) => {
   return (
@@ -21,7 +22,12 @@ const SideBar = ({ className }: { className?: string }) => {
 
         <div className="font-inter flex flex-col">
           <SideBarMenuItem icon={House} label="Home" />
-          <SideBarMenuItem icon={Bookmark} label="My Watchlist" />
+          {/* <SideBarMenuItem icon={Bookmark} label="My Watchlist" /> */}
+          <FeatureUnderDevelopmentDialog>
+            <div className="flex gap-3 cursor-pointer dark:hover:bg-gray-700 py-[10px] px-3 rounded-xl hover:bg-gray-100">
+              <Bookmark /> My Watchlist
+            </div>
+          </FeatureUnderDevelopmentDialog>
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 
@@ -41,8 +47,18 @@ const SideBar = ({ className }: { className?: string }) => {
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 
-          <SideBarMenuItem icon={Popcorn} label="Movies" link="/movies" />
-          <SideBarMenuItem icon={Clapperboard} label="Series" />
+          {/* <SideBarMenuItem icon={Popcorn} label="Movies" link="/movies" /> */}
+          <FeatureUnderDevelopmentDialog>
+            <div className="flex gap-3 cursor-pointer dark:hover:bg-gray-700 py-[10px] px-3 rounded-xl hover:bg-gray-100">
+              <Popcorn /> Movies
+            </div>
+          </FeatureUnderDevelopmentDialog>
+          {/* <SideBarMenuItem icon={Clapperboard} label="Series" /> */}
+          <FeatureUnderDevelopmentDialog>
+            <div className="flex gap-3 cursor-pointer dark:hover:bg-gray-700 py-[10px] px-3 rounded-xl hover:bg-gray-100">
+              <Clapperboard /> Series
+            </div>
+          </FeatureUnderDevelopmentDialog>
         </div>
       </div>
     </div>

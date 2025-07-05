@@ -45,6 +45,7 @@ import React, {
 import { twMerge } from "tailwind-merge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatePresence, motion } from "motion/react";
+import FeatureUnderDevelopmentDialog from "@/components/FeatureUnderDevelopmentDialog";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,13 +102,22 @@ const AnimeDetailsPage = () => {
     <div className="p-5 lg:p-8 flex flex-col mx-auto w-full max-w-[1850px]">
       <div className="flex mb-8 justify-between">
         <BackButton redirectUrl="/animes/top" />
-        <Button
+        <FeatureUnderDevelopmentDialog>
+          <Button
+            variant="outline"
+            className="cursor-pointer font-inter"
+            disabled={isLoading || anime === undefined}
+          >
+            <Bookmark /> Save to Watchlist
+          </Button>
+        </FeatureUnderDevelopmentDialog>
+        {/* <Button
           variant="outline"
           className="cursor-pointer font-inter"
           disabled={isLoading || anime === undefined}
         >
           <Bookmark /> Save to Watchlist
-        </Button>
+        </Button> */}
       </div>
 
       {isLoading || anime === undefined ? (
