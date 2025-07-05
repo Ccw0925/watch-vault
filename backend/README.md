@@ -1,2 +1,2 @@
 # To deploy backend
-gcloud run deploy --source . --region=asia-southeast1
+gcloud run deploy watch-vault --source . --region=asia-southeast1
