@@ -6,4 +6,7 @@
 
 # Include all gitignore rules
 
-:include:.gitignore
+.env
+*.db
+uploads/*
+*.json
