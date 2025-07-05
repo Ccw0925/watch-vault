@@ -5,7 +5,7 @@ import { Metadata } from "next";
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { name: string };
+  searchParams: Promise<{ name: string }>;
 }): Promise<Metadata> {
   const { name } = await searchParams;
 
