@@ -7,7 +7,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
   searchParams: { name: string };
 }): Promise<Metadata> {
   const { name } = await searchParams;
