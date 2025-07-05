@@ -22,6 +22,10 @@ func SetupRoutes(client *firestore.Client, ctx context.Context) *gin.Engine {
 
 	jikanClient := jikan.NewClient()
 
+	r.GET("", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	RegisterAnimeRoutes(r, jikanClient)
 	RegisterMovieRoutes(r, client, ctx)
 
