@@ -17,7 +17,7 @@ const ThemeButton = () => {
       <Button
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         className={`cursor-pointer ${
-          theme === "dark" ? "bg-black hover:bg-slate-300" : ""
+          theme !== "light" ? "bg-black hover:bg-slate-300" : ""
         }`}
       >
         {theme === "light" ? (
