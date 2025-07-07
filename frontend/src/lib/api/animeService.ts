@@ -6,9 +6,13 @@ import {
   SeasonalAnimesResponse,
 } from "@/types/anime";
 import axios from "axios";
+import { getGuestId } from "../guest/utils";
 
 const api = axios.create({
   baseURL: "/api",
+  headers: {
+    "X-Guest-ID": getGuestId(),
+  },
 });
 
 export const fetchAnimes = async (options?: {
