@@ -25,12 +25,12 @@ const HighlightsBanner = () => {
   const dragX = useMotionValue(0);
 
   const images = [
-    "/fullmetal-alchemist.jpg",
-    "/steins-gate.jpg",
+    "/fullmetal-alchemist.webp",
+    "/steins-gate.webp",
     "/attack-on-titans.jpg",
-    "/diamond-no-ace.jpg",
-    "/world-trigger.jpg",
-    "/86.jpeg",
+    "/diamond-no-ace.webp",
+    "/world-trigger.webp",
+    "/86.webp",
   ];
 
   const goPrevious = () => {
