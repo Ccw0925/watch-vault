@@ -2,11 +2,15 @@ package routes
 
 import (
 	"cmp"
+	"context"
+	"fmt"
+	"log"
 	"net/http"
 	"slices"
 	"strconv"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/Ccw0925/watch-vault/internal/jikan"
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
@@ -14,21 +18,25 @@ import (
 )
 
 type AnimeHandler struct {
-	jikanClient *jikan.Client
-	cache       *cache.Cache
-	group       singleflight.Group
+	jikanClient     *jikan.Client
+	firestoreClient *firestore.Client
+	cache           *cache.Cache
+	group           singleflight.Group
+	ctx             context.Context
 }
 
-func NewAnimeHandler(jikanClient *jikan.Client) *AnimeHandler {
+func NewAnimeHandler(jikanClient *jikan.Client, firestoreClient *firestore.Client, ctx context.Context) *AnimeHandler {
 	return &AnimeHandler{
-		jikanClient: jikanClient,
-		cache:       cache.New(30*time.Minute, 15*time.Minute),
-		group:       singleflight.Group{},
+		jikanClient:     jikanClient,
+		firestoreClient: firestoreClient,
+		cache:           cache.New(30*time.Minute, 15*time.Minute),
+		group:           singleflight.Group{},
+		ctx:             ctx,
 	}
 }
 
-func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client) {
-	handler := NewAnimeHandler(jikanClient)
+func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client, firestoreClient *firestore.Client, ctx context.Context) {
+	handler := NewAnimeHandler(jikanClient, firestoreClient, ctx)
 
 	animeGroup := r.Group("/animes")
 	{
@@ -400,4 +408,13 @@ func getSurroundingSeasons(seasonsList []jikan.Season, targetYear int, targetSea
 	}
 
 	return upcoming, previous
+}
+
+func (h *AnimeHandler) addAnimeAsMap(anime *jikan.Anime) error {
+	_, err := h.firestoreClient.Collection("animes").Doc(fmt.Sprintf("%d", anime.ID)).Set(h.ctx, anime)
+	if err != nil {
+		log.Printf("An error has occurred: %s", err)
+	}
+
+	return err
 }

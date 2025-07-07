@@ -33,7 +33,7 @@ func SetupRoutes(client *firestore.Client, ctx context.Context) *gin.Engine {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	RegisterAnimeRoutes(r, jikanClient)
+	RegisterAnimeRoutes(r, jikanClient, client, ctx)
 	RegisterMovieRoutes(r, client, ctx)
 
 	return r
