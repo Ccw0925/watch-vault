@@ -3,8 +3,6 @@ package routes
 import (
 	"cmp"
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"slices"
@@ -12,6 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	animeService "github.com/Ccw0925/watch-vault/internal/anime"
 	"github.com/Ccw0925/watch-vault/internal/jikan"
 	watchlistService "github.com/Ccw0925/watch-vault/internal/watchlist"
 	"github.com/gin-gonic/gin"
@@ -124,7 +123,7 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 		}
 	}
 
-	animeData := animeToResponse(&anime.Data)
+	animeData := animeService.AnimeToResponse(&anime.Data)
 	animeData["relations"] = relations.Data
 
 	if watchlistMap != nil {
@@ -364,7 +363,7 @@ func buildAnimeResponse(data []jikan.Anime, watchlistMap map[int]bool) []gin.H {
 		}
 		seen[anime.ID] = true
 
-		animeData := animeToResponse(&anime)
+		animeData := animeService.AnimeToResponse(&anime)
 		if watchlistMap != nil {
 			animeData["inWatchlist"] = watchlistMap[anime.ID]
 		}
@@ -372,36 +371,6 @@ func buildAnimeResponse(data []jikan.Anime, watchlistMap map[int]bool) []gin.H {
 	}
 
 	return animeList
-}
-
-func animeToResponse(anime *jikan.Anime) gin.H {
-	return gin.H{
-		"id":            anime.ID,
-		"url":           anime.Url,
-		"title":         anime.Name,
-		"englishTitle":  anime.EnglishName,
-		"japaneseTitle": anime.JapaneseName,
-		"season":        anime.Season,
-		"year":          anime.Year,
-		"genres":        anime.Genres,
-		"rank":          anime.Rank,
-		"score":         anime.Score,
-		"scoredBy":      anime.ScoredBy,
-		"episodes":      anime.Episodes,
-		"status":        anime.Status,
-		"rating":        anime.Rating,
-		"synopsis":      anime.Sypnosis,
-		"images":        anime.Images,
-		"aired":         anime.Aired,
-		"duration":      anime.Duration,
-		"members":       anime.Members,
-		"favourites":    anime.Favourites,
-		"studios":       anime.Studios,
-		"themes":        anime.Themes,
-		"producers":     anime.Producers,
-		"demographics":  anime.Demographics,
-		"trailer":       anime.Trailer,
-	}
 }
 
 func getSurroundingSeasons(seasonsList []jikan.Season, targetYear int, targetSeason string) ([]gin.H, []gin.H) {
@@ -462,24 +431,6 @@ func getSurroundingSeasons(seasonsList []jikan.Season, targetYear int, targetSea
 	}
 
 	return upcoming, previous
-}
-
-func (a *AnimeHandler) addAnimeAsMap(anime *jikan.Anime, ctx context.Context) error {
-	var animeMap map[string]interface{}
-	animeBytes, err := json.Marshal(anime)
-	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(animeBytes, &animeMap); err != nil {
-		return err
-	}
-
-	_, err = a.firestoreClient.Collection("animes").Doc(fmt.Sprintf("%d", anime.ID)).Set(ctx, animeMap)
-	if err != nil {
-		log.Printf("An error has occurred: %s", err)
-	}
-
-	return err
 }
 
 func (a *AnimeHandler) getWatchlistStatus(ctx context.Context, guestId string) (map[int]bool, error) {

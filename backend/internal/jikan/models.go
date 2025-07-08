@@ -40,47 +40,47 @@ type Anime struct {
 }
 
 type Genre struct {
-	ID   int    `json:"mal_id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID   int    `json:"mal_id" firestore:"mal_id"`
+	Name string `json:"name" firestore:"name"`
+	URL  string `json:"url" firestore:"url"`
 }
 
 type Images struct {
 	Webp struct {
-		LargeImageUrl string `json:"large_image_url"`
-	} `json:"webp"`
+		LargeImageUrl string `json:"large_image_url" firestore:"large_image_url"`
+	} `json:"webp" firestore:"webp"`
 }
 
 type Aired struct {
-	String string `json:"string"`
+	String string `json:"string" firestore:"string"`
 }
 
 type Studio struct {
-	ID   int    `json:"mal_id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID   int    `json:"mal_id" firestore:"mal_id"`
+	Type string `json:"type" firestore:"type"`
+	Name string `json:"name" firestore:"name"`
+	URL  string `json:"url" firestore:"url"`
 }
 
 type Producer struct {
-	ID   int    `json:"mal_id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID   int    `json:"mal_id" firestore:"mal_id"`
+	Type string `json:"type" firestore:"type"`
+	Name string `json:"name" firestore:"name"`
+	URL  string `json:"url" firestore:"url"`
 }
 
 type Theme struct {
-	ID   int    `json:"mal_id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID   int    `json:"mal_id" firestore:"mal_id"`
+	Type string `json:"type" firestore:"type"`
+	Name string `json:"name" firestore:"name"`
+	URL  string `json:"url" firestore:"url"`
 }
 
 type DemoGraphic struct {
-	ID   int    `json:"mal_id"`
-	Type string `json:"type"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID   int    `json:"mal_id" firestore:"mal_id"`
+	Type string `json:"type" firestore:"type"`
+	Name string `json:"name" firestore:"name"`
+	URL  string `json:"url" firestore:"url"`
 }
 
 type Episode struct {
@@ -127,7 +127,7 @@ type VoiceActor struct {
 }
 
 type Trailer struct {
-	YoutubeID string `json:"youtube_id"`
+	YoutubeID string `json:"youtube_id" firestore:"youtube_id"`
 }
 
 type Season struct {

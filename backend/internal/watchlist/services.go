@@ -6,18 +6,22 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
+	animeService "github.com/Ccw0925/watch-vault/internal/anime"
+	"github.com/Ccw0925/watch-vault/internal/jikan"
 	"github.com/patrickmn/go-cache"
 )
 
 var c = cache.New(5*time.Minute, 10*time.Minute)
 
 type WatchlistService struct {
-	repo *WatchlistRepository
+	repo        *WatchlistRepository
+	jikanClient *jikan.Client
 }
 
 func NewWatchlistService(client *firestore.Client) *WatchlistService {
 	return &WatchlistService{
-		repo: NewWatchlistRepository(client),
+		repo:        NewWatchlistRepository(client),
+		jikanClient: jikan.NewClient(),
 	}
 }
 
@@ -31,7 +35,7 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 			idsList := make([]int, 0, len(watchlist))
 			for _, item := range watchlist {
 				if anime, ok := item["anime"].(map[string]interface{}); ok {
-					if malID, ok := anime["mal_id"].(float64); ok {
+					if malID, ok := anime["id"].(int64); ok {
 						idsList = append(idsList, int(malID))
 					}
 				}
@@ -53,7 +57,7 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 		idsList := make([]int, 0, len(watchlist))
 		for _, item := range watchlist {
 			if anime, ok := item["anime"].(map[string]interface{}); ok {
-				if malID, ok := anime["mal_id"].(float64); ok {
+				if malID, ok := anime["id"].(int64); ok {
 					idsList = append(idsList, int(malID))
 				}
 			}
@@ -62,4 +66,21 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 	}
 
 	return watchlist, nil
+}
+
+func (s *WatchlistService) AddAnimeToWatchlist(ctx context.Context, guestId string, animeId int) error {
+	anime, err := s.jikanClient.GetAnimeById(ctx, animeId)
+	if err != nil {
+		return err
+	}
+
+	err = animeService.AddAnimeAsMap(&anime.Data, ctx, s.repo.client)
+	if err != nil {
+		return err
+	}
+
+	cacheKey := fmt.Sprintf("watchlist_%s", guestId)
+	c.Delete(cacheKey)
+
+	return s.repo.AddAnimeToWatchlist(ctx, guestId, animeId)
 }
