@@ -114,7 +114,7 @@ const AnimeDetailsPage = () => {
                   ? "group-hover:fill-none fill-white"
                   : "group-hover:fill-white fill-none"
               }
-            />{" "}
+            />
             {anime?.inWatchlist ? "Saved" : "Add to Watchlist"}
           </Button>
         </FeatureUnderDevelopmentDialog>
