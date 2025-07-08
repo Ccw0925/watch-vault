@@ -3,44 +3,36 @@ package watchlist
 import (
 	"context"
 	"fmt"
-	"log"
+	"time"
 
 	"cloud.google.com/go/firestore"
-	"google.golang.org/api/iterator"
+	"github.com/patrickmn/go-cache"
 )
 
-func GetGuestWatchlist(client *firestore.Client, ctx context.Context, guestId string) ([]map[string]interface{}, error) {
-	var watchlist []map[string]interface{}
+var c = cache.New(5*time.Minute, 10*time.Minute)
 
-	iter := client.Collection("guests").Doc(guestId).Collection("watchlist").Documents(ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("error iterating watchlist: %v", err)
-		}
+type WatchlistService struct {
+	repo *WatchlistRepository
+}
 
-		data := doc.Data()
-		item := make(map[string]interface{})
+func NewWatchlistService(client *firestore.Client) *WatchlistService {
+	return &WatchlistService{
+		repo: NewWatchlistRepository(client),
+	}
+}
 
-		for k, v := range data {
-			item[k] = v
-		}
+func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string) ([]map[string]interface{}, error) {
+	cacheKey := fmt.Sprintf("watchlist_%s", guestId)
 
-		if ref, ok := data["animeRef"].(*firestore.DocumentRef); ok {
-			animeDoc, err := ref.Get(ctx)
-			if err != nil {
-				log.Printf("Warning: could not fetch anime %s: %v", ref.ID, err)
-				continue
-			}
-			item["anime"] = animeDoc.Data()
-		}
-
-		delete(item, "animeRef")
-		watchlist = append(watchlist, item)
+	if cached, found := c.Get(cacheKey); found {
+		return cached.([]map[string]interface{}), nil
 	}
 
+	watchlist, err := s.repo.GetAll(ctx, guestId)
+	if err != nil {
+		return nil, err
+	}
+
+	c.SetDefault(cacheKey, watchlist)
 	return watchlist, nil
 }

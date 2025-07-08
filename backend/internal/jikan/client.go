@@ -70,7 +70,7 @@ func (c *Client) cachedRequest(cacheKey string, result interface{}, fn func() er
 		return err
 	}
 
-	c.cache.Set(cacheKey, result, cache.DefaultExpiration)
+	c.cache.SetDefault(cacheKey, result)
 	return nil
 }
 

@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/firestore"
-	service "github.com/Ccw0925/watch-vault/internal/watchlist"
+	"github.com/Ccw0925/watch-vault/internal/watchlist"
 	"github.com/gin-gonic/gin"
 )
 
 type WatchlistHandler struct {
-	client *firestore.Client
+	service *watchlist.WatchlistService
 }
 
 func NewWatchlistHandler(client *firestore.Client) *WatchlistHandler {
-	return &WatchlistHandler{client: client}
+	return &WatchlistHandler{
+		service: watchlist.NewWatchlistService(client),
+	}
 }
 
 func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
@@ -30,7 +32,7 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		return
 	}
 
-	watchlist, err := service.GetGuestWatchlist(w.client, c.Request.Context(), guestId)
+	watchlist, err := w.service.GetGuestWatchlist(c.Request.Context(), guestId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch watchlist",
