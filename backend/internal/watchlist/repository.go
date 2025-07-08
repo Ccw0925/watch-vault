@@ -60,3 +60,8 @@ func (w *WatchlistRepository) AddAnimeToWatchlist(ctx context.Context, guestId s
 	})
 	return err
 }
+
+func (w *WatchlistRepository) RemoveAnimeFromWatchlist(ctx context.Context, guestId string, animeId int) error {
+	_, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(fmt.Sprintf("%d", animeId)).Delete(ctx)
+	return err
+}

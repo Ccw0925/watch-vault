@@ -26,6 +26,7 @@ func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 	{
 		watchlistGroup.GET("", handler.getWatchlist)
 		watchlistGroup.POST("/:id", handler.addAnimeToWatchlist)
+		watchlistGroup.DELETE("/:id", handler.removeAnimeFromWatchlist)
 	}
 }
 
@@ -68,6 +69,32 @@ func (w *WatchlistHandler) addAnimeToWatchlist(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to add anime to watchlist",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (w *WatchlistHandler) removeAnimeFromWatchlist(c *gin.Context) {
+	animeIdStr := c.Param("id")
+	animeId, err := strconv.Atoi(animeIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Anime ID"})
+		return
+	}
+
+	guestId := c.GetHeader("X-Guest-ID")
+	if guestId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
+		return
+	}
+
+	err = w.service.RemoveAnimeFromWatchlist(c.Request.Context(), guestId, animeId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to remove anime from watchlist",
 			"details": err.Error(),
 		})
 		return
