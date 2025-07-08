@@ -21,18 +21,22 @@ func NewWatchlistHandler(client *firestore.Client) *WatchlistHandler {
 func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 	handler := NewWatchlistHandler(client)
 
-	r.GET("/watchlist", handler.getWatchlist)
+	watchlistGroup := r.Group("/watchlist")
+	{
+		watchlistGroup.GET("", handler.getWatchlist)
+	}
 }
 
 func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 	guestId := c.GetHeader("X-Guest-ID")
+	showIdsOnly := c.Query("showIdsOnly")
 
 	if guestId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
 		return
 	}
 
-	watchlist, err := w.service.GetGuestWatchlist(c.Request.Context(), guestId)
+	watchlist, err := w.service.GetGuestWatchlist(c.Request.Context(), guestId, showIdsOnly == "true")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch watchlist",

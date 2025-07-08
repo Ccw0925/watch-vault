@@ -21,11 +21,25 @@ func NewWatchlistService(client *firestore.Client) *WatchlistService {
 	}
 }
 
-func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string) ([]map[string]interface{}, error) {
+func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string, showIdsOnly bool) (interface{}, error) {
 	cacheKey := fmt.Sprintf("watchlist_%s", guestId)
 
 	if cached, found := c.Get(cacheKey); found {
-		return cached.([]map[string]interface{}), nil
+		watchlist := cached.([]map[string]interface{})
+
+		if showIdsOnly {
+			idsList := make([]int, 0, len(watchlist))
+			for _, item := range watchlist {
+				if anime, ok := item["anime"].(map[string]interface{}); ok {
+					if malID, ok := anime["mal_id"].(float64); ok {
+						idsList = append(idsList, int(malID))
+					}
+				}
+			}
+			return idsList, nil
+		}
+
+		return watchlist, nil
 	}
 
 	watchlist, err := s.repo.GetAll(ctx, guestId)
@@ -34,5 +48,18 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 	}
 
 	c.SetDefault(cacheKey, watchlist)
+
+	if showIdsOnly {
+		idsList := make([]int, 0, len(watchlist))
+		for _, item := range watchlist {
+			if anime, ok := item["anime"].(map[string]interface{}); ok {
+				if malID, ok := anime["mal_id"].(float64); ok {
+					idsList = append(idsList, int(malID))
+				}
+			}
+		}
+		return idsList, nil
+	}
+
 	return watchlist, nil
 }

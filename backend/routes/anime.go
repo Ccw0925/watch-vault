@@ -13,6 +13,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/Ccw0925/watch-vault/internal/jikan"
+	watchlistService "github.com/Ccw0925/watch-vault/internal/watchlist"
 	"github.com/gin-gonic/gin"
 	"github.com/patrickmn/go-cache"
 	"golang.org/x/sync/singleflight"
@@ -68,9 +69,18 @@ func (a *AnimeHandler) ListAllAnime(c *gin.Context) {
 		return
 	}
 
+	guestId := c.GetHeader("X-Guest-ID")
+	var watchlistMap map[int]bool
+	if guestId != "" {
+		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data),
+		"data":       buildAnimeResponse(response.Data, watchlistMap),
 	})
 }
 
@@ -126,7 +136,7 @@ func (a *AnimeHandler) GetTopAnime(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data),
+		"data":       buildAnimeResponse(response.Data, nil),
 	})
 }
 
@@ -216,7 +226,7 @@ func (a *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data),
+		"data":       buildAnimeResponse(response.Data, nil),
 	})
 }
 
@@ -253,7 +263,7 @@ func (a *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"pagination":      response.Pagination,
-		"data":            buildAnimeResponse(response.Data),
+		"data":            buildAnimeResponse(response.Data, nil),
 		"upcomingSeasons": upcomingSeasons,
 		"previousSeasons": previousSeasons,
 	})
@@ -281,7 +291,7 @@ func (a *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
 			animes = append(animes, anime.Data)
 		}
 
-		response := buildAnimeResponse(animes)
+		response := buildAnimeResponse(animes, nil)
 		a.cache.Set(cacheKey, response, 12*time.Hour)
 		return response, nil
 	})
@@ -304,7 +314,7 @@ func getPageParam(c *gin.Context) int {
 	return page
 }
 
-func buildAnimeResponse(data []jikan.Anime) []gin.H {
+func buildAnimeResponse(data []jikan.Anime, watchlistMap map[int]bool) []gin.H {
 	seen := make(map[int]bool)
 	animeList := make([]gin.H, 0, len(data))
 
@@ -313,7 +323,12 @@ func buildAnimeResponse(data []jikan.Anime) []gin.H {
 			continue
 		}
 		seen[anime.ID] = true
-		animeList = append(animeList, animeToResponse(&anime))
+
+		animeData := animeToResponse(&anime)
+		if watchlistMap != nil {
+			animeData["inWatchlist"] = watchlistMap[anime.ID]
+		}
+		animeList = append(animeList, animeData)
 	}
 
 	return animeList
@@ -425,4 +440,25 @@ func (a *AnimeHandler) addAnimeAsMap(anime *jikan.Anime, ctx context.Context) er
 	}
 
 	return err
+}
+
+func (a *AnimeHandler) getWatchlistStatus(ctx context.Context, guestId string) (map[int]bool, error) {
+	if guestId == "" {
+		return nil, nil
+	}
+
+	service := watchlistService.NewWatchlistService(a.firestoreClient)
+	watchlist, err := service.GetGuestWatchlist(ctx, guestId, true)
+	if err != nil {
+		return nil, err
+	}
+
+	watchlistMap := make(map[int]bool)
+	if ids, ok := watchlist.([]int); ok {
+		for _, id := range ids {
+			watchlistMap[id] = true
+		}
+	}
+
+	return watchlistMap, nil
 }
