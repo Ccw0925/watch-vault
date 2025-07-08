@@ -1,5 +1,5 @@
 import { Anime } from "@/types/anime";
-import { Bookmark, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import Image from "next/image";
 import React, { useRef } from "react";
 import {
@@ -8,11 +8,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   motion,
   useMotionTemplate,
   useMotionValue,
@@ -20,9 +15,8 @@ import {
 } from "motion/react";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
-import { Button } from "../ui/button";
 import { twMerge } from "tailwind-merge";
-import FeatureUnderDevelopmentDialog from "../FeatureUnderDevelopmentDialog";
+import WatchlistButton from "./WatchlistButton";
 
 type AnimeGridViewProps = Pick<
   Anime,
@@ -193,7 +187,7 @@ const InfoComponent = ({
 >) => (
   <>
     <div className="flex-5 hidden gap-4 flex-col overflow-y-auto lg:overflow-visible lg:flex">
-      <StatusRow status={status} inWatchlist={inWatchlist} />
+      <StatusRow id={id} status={status} inWatchlist={inWatchlist} />
       <EpisodesRow episodes={episodes} />
       <TitleRow id={id} title={title} />
       <RatingAndRankingRow score={score} scoredBy={scoredBy} rank={rank} />
@@ -204,7 +198,7 @@ const InfoComponent = ({
         href={`/animes/${id}?name=${title}`}
         className="flex flex-col gap-1 md:gap-2 "
       >
-        <StatusRow status={status} inWatchlist={inWatchlist} />
+        <StatusRow id={id} status={status} inWatchlist={inWatchlist} />
         <p className="font-inter font-bold line-clamp-1 md:line-clamp-2 md:text-lg">
           {title}
         </p>
@@ -246,30 +240,17 @@ const InfoComponent = ({
       </Link>
       <GenresRow genres={genres} />
       <div className="flex-1 flex items-end md:items-start md:pt-1">
-        <FeatureUnderDevelopmentDialog>
-          <Button
-            variant="outline"
-            className="group rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
-          >
-            <Bookmark
-              className={
-                inWatchlist
-                  ? "group-hover:fill-none fill-white"
-                  : "group-hover:fill-white fill-none"
-              }
-            />{" "}
-            {inWatchlist ? "Saved" : "Add to Watchlist"}
-          </Button>
-        </FeatureUnderDevelopmentDialog>
+        <WatchlistButton id={id} inWatchlist={inWatchlist} disabled={false} />
       </div>
     </div>
   </>
 );
 
 const StatusRow = ({
+  id,
   status,
   inWatchlist,
-}: Pick<Anime, "status" | "inWatchlist">) => {
+}: Pick<Anime, "id" | "status" | "inWatchlist">) => {
   const statusStyling = {
     "Finished Airing": "dark:text-blue-300 text-blue-500",
     "Currently Airing": "dark:text-green-300 text-green-500",
@@ -287,26 +268,12 @@ const StatusRow = ({
         {status}
       </p>
 
-      <Tooltip>
-        <TooltipTrigger>
-          <FeatureUnderDevelopmentDialog>
-            <div className="group lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
-              <Bookmark
-                className={
-                  inWatchlist
-                    ? "group-hover:fill-none fill-white"
-                    : "group-hover:fill-white fill-none"
-                }
-              />
-            </div>
-          </FeatureUnderDevelopmentDialog>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-inter text-white">
-            {inWatchlist ? "Remove from Watchlist" : "Save to Watchlist"}
-          </p>
-        </TooltipContent>
-      </Tooltip>
+      <WatchlistButton
+        variant="iconBtn"
+        id={id}
+        inWatchlist={inWatchlist}
+        disabled={false}
+      />
     </div>
   );
 };

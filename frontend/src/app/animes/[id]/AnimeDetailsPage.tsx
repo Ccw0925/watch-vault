@@ -16,7 +16,6 @@ import { getRatingKey } from "@/lib/anime/rating/utils";
 import { Anime } from "@/types/anime";
 import {
   Award,
-  Bookmark,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -45,7 +44,7 @@ import React, {
 import { twMerge } from "tailwind-merge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatePresence, motion } from "motion/react";
-import FeatureUnderDevelopmentDialog from "@/components/FeatureUnderDevelopmentDialog";
+import WatchlistButton from "@/components/anime/WatchlistButton";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -102,22 +101,13 @@ const AnimeDetailsPage = () => {
     <div className="p-5 lg:p-8 flex flex-col mx-auto w-full max-w-[1850px]">
       <div className="flex mb-8 justify-between">
         <BackButton redirectUrl="/animes/top" />
-        <FeatureUnderDevelopmentDialog>
-          <Button
-            variant="outline"
-            className="group cursor-pointer font-inter"
-            disabled={isLoading || anime === undefined}
-          >
-            <Bookmark
-              className={
-                anime?.inWatchlist
-                  ? "group-hover:fill-none fill-white"
-                  : "group-hover:fill-white fill-none"
-              }
-            />
-            {anime?.inWatchlist ? "Saved" : "Add to Watchlist"}
-          </Button>
-        </FeatureUnderDevelopmentDialog>
+        {anime && (
+          <WatchlistButton
+            id={anime.id}
+            inWatchlist={anime.inWatchlist}
+            disabled={isLoading}
+          />
+        )}
       </div>
 
       {isLoading || anime === undefined ? (
