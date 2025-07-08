@@ -105,19 +105,19 @@ const AnimeDetailsPage = () => {
         <FeatureUnderDevelopmentDialog>
           <Button
             variant="outline"
-            className="cursor-pointer font-inter"
+            className="group cursor-pointer font-inter"
             disabled={isLoading || anime === undefined}
           >
-            <Bookmark /> Save to Watchlist
+            <Bookmark
+              className={
+                anime?.inWatchlist
+                  ? "group-hover:fill-none fill-white"
+                  : "group-hover:fill-white fill-none"
+              }
+            />{" "}
+            {anime?.inWatchlist ? "Saved" : "Add to Watchlist"}
           </Button>
         </FeatureUnderDevelopmentDialog>
-        {/* <Button
-          variant="outline"
-          className="cursor-pointer font-inter"
-          disabled={isLoading || anime === undefined}
-        >
-          <Bookmark /> Save to Watchlist
-        </Button> */}
       </div>
 
       {isLoading || anime === undefined ? (

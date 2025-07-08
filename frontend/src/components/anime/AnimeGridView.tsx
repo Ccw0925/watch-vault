@@ -35,6 +35,7 @@ type AnimeGridViewProps = Pick<
   | "genres"
   | "status"
   | "images"
+  | "inWatchlist"
 > & { gridContainerClassName?: string };
 
 const ROTATION_RANGE = 16;
@@ -50,6 +51,7 @@ const AnimeGridView = ({
   genres,
   status,
   images,
+  inWatchlist,
   gridContainerClassName,
 }: AnimeGridViewProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -117,6 +119,7 @@ const AnimeGridView = ({
           scoredBy={scoredBy}
           rank={rank}
           genres={genres}
+          inWatchlist={inWatchlist}
         />
       </motion.div>
     </motion.div>
@@ -175,6 +178,7 @@ const InfoComponent = ({
   scoredBy,
   rank,
   genres,
+  inWatchlist,
 }: Pick<
   Anime,
   | "status"
@@ -185,10 +189,11 @@ const InfoComponent = ({
   | "scoredBy"
   | "rank"
   | "genres"
+  | "inWatchlist"
 >) => (
   <>
     <div className="flex-5 hidden gap-4 flex-col overflow-y-auto lg:overflow-visible lg:flex">
-      <StatusRow status={status} />
+      <StatusRow status={status} inWatchlist={inWatchlist} />
       <EpisodesRow episodes={episodes} />
       <TitleRow id={id} title={title} />
       <RatingAndRankingRow score={score} scoredBy={scoredBy} rank={rank} />
@@ -199,7 +204,7 @@ const InfoComponent = ({
         href={`/animes/${id}?name=${title}`}
         className="flex flex-col gap-1 md:gap-2 "
       >
-        <StatusRow status={status} />
+        <StatusRow status={status} inWatchlist={inWatchlist} />
         <p className="font-inter font-bold line-clamp-1 md:line-clamp-2 md:text-lg">
           {title}
         </p>
@@ -240,13 +245,20 @@ const InfoComponent = ({
         )}
       </Link>
       <GenresRow genres={genres} />
-      <div className="flex-1 flex items-end md:items-start">
+      <div className="flex-1 flex items-end md:items-start md:pt-1">
         <FeatureUnderDevelopmentDialog>
           <Button
             variant="outline"
-            className="rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
+            className="group rounded-xl gap-1 md:h-10 h-8 cursor-pointer"
           >
-            <Bookmark /> Save to Watchlist
+            <Bookmark
+              className={
+                inWatchlist
+                  ? "group-hover:fill-none fill-white"
+                  : "group-hover:fill-white fill-none"
+              }
+            />{" "}
+            {inWatchlist ? "Saved" : "Add to Watchlist"}
           </Button>
         </FeatureUnderDevelopmentDialog>
       </div>
@@ -254,7 +266,10 @@ const InfoComponent = ({
   </>
 );
 
-const StatusRow = ({ status }: Pick<Anime, "status">) => {
+const StatusRow = ({
+  status,
+  inWatchlist,
+}: Pick<Anime, "status" | "inWatchlist">) => {
   const statusStyling = {
     "Finished Airing": "dark:text-blue-300 text-blue-500",
     "Currently Airing": "dark:text-green-300 text-green-500",
@@ -275,13 +290,21 @@ const StatusRow = ({ status }: Pick<Anime, "status">) => {
       <Tooltip>
         <TooltipTrigger>
           <FeatureUnderDevelopmentDialog>
-            <div className="lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
-              <Bookmark />
+            <div className="group lg:flex hidden items-center p-2 border-2 rounded-xl cursor-pointer">
+              <Bookmark
+                className={
+                  inWatchlist
+                    ? "group-hover:fill-none fill-white"
+                    : "group-hover:fill-white fill-none"
+                }
+              />
             </div>
           </FeatureUnderDevelopmentDialog>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-inter text-white">Save to Watchlist</p>
+          <p className="font-inter text-white">
+            {inWatchlist ? "Remove from Watchlist" : "Save to Watchlist"}
+          </p>
         </TooltipContent>
       </Tooltip>
     </div>

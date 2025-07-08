@@ -25,6 +25,7 @@ export type Anime = {
   demographics: DemoGraphic[];
   relations?: Relation[];
   trailer: Trailer;
+  inWatchlist?: boolean;
 };
 
 type Genre = {
