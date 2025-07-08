@@ -115,8 +115,21 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
+	guestId := c.GetHeader("X-Guest-ID")
+	var watchlistMap map[int]bool
+	if guestId != "" {
+		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		}
+	}
+
 	animeData := animeToResponse(&anime.Data)
 	animeData["relations"] = relations.Data
+
+	if watchlistMap != nil {
+		animeData["inWatchlist"] = watchlistMap[anime.Data.ID]
+	}
 
 	c.JSON(http.StatusOK, animeData)
 }
@@ -134,9 +147,18 @@ func (a *AnimeHandler) GetTopAnime(c *gin.Context) {
 		return
 	}
 
+	guestId := c.GetHeader("X-Guest-ID")
+	var watchlistMap map[int]bool
+	if guestId != "" {
+		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data, nil),
+		"data":       buildAnimeResponse(response.Data, watchlistMap),
 	})
 }
 
@@ -224,9 +246,18 @@ func (a *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 		return
 	}
 
+	guestId := c.GetHeader("X-Guest-ID")
+	var watchlistMap map[int]bool
+	if guestId != "" {
+		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"pagination": response.Pagination,
-		"data":       buildAnimeResponse(response.Data, nil),
+		"data":       buildAnimeResponse(response.Data, watchlistMap),
 	})
 }
 
@@ -261,9 +292,18 @@ func (a *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 
 	upcomingSeasons, previousSeasons := getSurroundingSeasons(seasonsResponse.Data, year, season)
 
+	guestId := c.GetHeader("X-Guest-ID")
+	var watchlistMap map[int]bool
+	if guestId != "" {
+		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"pagination":      response.Pagination,
-		"data":            buildAnimeResponse(response.Data, nil),
+		"data":            buildAnimeResponse(response.Data, watchlistMap),
 		"upcomingSeasons": upcomingSeasons,
 		"previousSeasons": previousSeasons,
 	})
