@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"cloud.google.com/go/firestore"
@@ -12,15 +11,14 @@ import (
 
 type MovieHandler struct {
 	client *firestore.Client
-	ctx    context.Context
 }
 
-func NewMovieHandler(client *firestore.Client, ctx context.Context) *MovieHandler {
-	return &MovieHandler{client: client, ctx: ctx}
+func NewMovieHandler(client *firestore.Client) *MovieHandler {
+	return &MovieHandler{client: client}
 }
 
-func RegisterMovieRoutes(r *gin.Engine, client *firestore.Client, ctx context.Context) {
-	handler := NewMovieHandler(client, ctx)
+func RegisterMovieRoutes(r *gin.Engine, client *firestore.Client) {
+	handler := NewMovieHandler(client)
 
 	moviesGroup := r.Group("/movies")
 	{
@@ -36,7 +34,7 @@ func RegisterMovieRoutes(r *gin.Engine, client *firestore.Client, ctx context.Co
 func (m *MovieHandler) ListMovies(c *gin.Context) {
 	var movies []movie.Movie
 
-	iter := m.client.Collection("movies").Documents(m.ctx)
+	iter := m.client.Collection("movies").Documents(c.Request.Context())
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {

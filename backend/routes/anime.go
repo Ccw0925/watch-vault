@@ -3,6 +3,7 @@ package routes
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,21 +23,19 @@ type AnimeHandler struct {
 	firestoreClient *firestore.Client
 	cache           *cache.Cache
 	group           singleflight.Group
-	ctx             context.Context
 }
 
-func NewAnimeHandler(jikanClient *jikan.Client, firestoreClient *firestore.Client, ctx context.Context) *AnimeHandler {
+func NewAnimeHandler(jikanClient *jikan.Client, firestoreClient *firestore.Client) *AnimeHandler {
 	return &AnimeHandler{
 		jikanClient:     jikanClient,
 		firestoreClient: firestoreClient,
 		cache:           cache.New(30*time.Minute, 15*time.Minute),
 		group:           singleflight.Group{},
-		ctx:             ctx,
 	}
 }
 
-func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client, firestoreClient *firestore.Client, ctx context.Context) {
-	handler := NewAnimeHandler(jikanClient, firestoreClient, ctx)
+func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client, firestoreClient *firestore.Client) {
+	handler := NewAnimeHandler(jikanClient, firestoreClient)
 
 	animeGroup := r.Group("/animes")
 	{
@@ -51,7 +50,7 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client, firestoreClie
 	}
 }
 
-func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
+func (a *AnimeHandler) ListAllAnime(c *gin.Context) {
 	page := getPageParam(c)
 	limit := c.DefaultQuery("limit", "25")
 	genres := c.Query("genres")
@@ -60,7 +59,7 @@ func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
 	sort := c.DefaultQuery("sort", "asc")
 	q := c.Query("q")
 
-	response, err := h.jikanClient.ListAllAnime(c.Request.Context(), page, limit, genres, rating, orderBy, sort, q)
+	response, err := a.jikanClient.ListAllAnime(c.Request.Context(), page, limit, genres, rating, orderBy, sort, q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch all anime",
@@ -75,7 +74,7 @@ func (h *AnimeHandler) ListAllAnime(c *gin.Context) {
 	})
 }
 
-func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
+func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -83,7 +82,7 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
-	anime, err := h.jikanClient.GetAnimeById(c.Request.Context(), id)
+	anime, err := a.jikanClient.GetAnimeById(c.Request.Context(), id)
 	if err != nil {
 		if jikan.IsNotFound(err) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Anime not found"})
@@ -97,7 +96,7 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
-	relations, err := h.jikanClient.GetAnimeRelationsById(c.Request.Context(), id)
+	relations, err := a.jikanClient.GetAnimeRelationsById(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch relations",
@@ -112,11 +111,11 @@ func (h *AnimeHandler) GetAnimeById(c *gin.Context) {
 	c.JSON(http.StatusOK, animeData)
 }
 
-func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
+func (a *AnimeHandler) GetTopAnime(c *gin.Context) {
 	page := getPageParam(c)
 	limit := c.DefaultQuery("limit", "25")
 
-	response, err := h.jikanClient.GetTopAnime(c.Request.Context(), page, limit)
+	response, err := a.jikanClient.GetTopAnime(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch top anime",
@@ -131,7 +130,7 @@ func (h *AnimeHandler) GetTopAnime(c *gin.Context) {
 	})
 }
 
-func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
+func (a *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 	page := getPageParam(c)
 
 	idStr := c.Param("id")
@@ -141,7 +140,7 @@ func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 		return
 	}
 
-	episodes, err := h.jikanClient.GetAnimeEpisodesByAnimeId(c.Request.Context(), id, page)
+	episodes, err := a.jikanClient.GetAnimeEpisodesByAnimeId(c.Request.Context(), id, page)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch episodes",
@@ -152,7 +151,7 @@ func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 
 	var totalEpisodes *int
 	if episodes.Pagination.LastVisiblePage > 1 {
-		totalEpisodes, err = h.jikanClient.GetAnimeTotalEpisodesById(c.Request.Context(), id, episodes.Pagination.LastVisiblePage)
+		totalEpisodes, err = a.jikanClient.GetAnimeTotalEpisodesById(c.Request.Context(), id, episodes.Pagination.LastVisiblePage)
 		if err != nil {
 			totalEpisodes = nil
 		}
@@ -170,7 +169,7 @@ func (h *AnimeHandler) GetAnimeEpisodesById(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
+func (a *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -178,7 +177,7 @@ func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 		return
 	}
 
-	characters, err := h.jikanClient.GetAnimeCharactersById(c.Request.Context(), id)
+	characters, err := a.jikanClient.GetAnimeCharactersById(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch characters",
@@ -202,11 +201,11 @@ func (h *AnimeHandler) GetAnimeCharactersById(c *gin.Context) {
 	c.JSON(http.StatusOK, characters.Data)
 }
 
-func (h *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
+func (a *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 	page := getPageParam(c)
 	limit := c.DefaultQuery("limit", "25")
 
-	response, err := h.jikanClient.GetUpcomingAnimes(c.Request.Context(), page, limit)
+	response, err := a.jikanClient.GetUpcomingAnimes(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch upcoming anime",
@@ -221,7 +220,7 @@ func (h *AnimeHandler) GetUpcomingAnimes(c *gin.Context) {
 	})
 }
 
-func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
+func (a *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 	page := getPageParam(c)
 
 	year, err := strconv.Atoi(c.Param("year"))
@@ -232,7 +231,7 @@ func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 
 	season := c.Param("season")
 
-	response, err := h.jikanClient.GetSeasonalAnime(c.Request.Context(), year, season, page)
+	response, err := a.jikanClient.GetSeasonalAnime(c.Request.Context(), year, season, page)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch seasonal anime",
@@ -241,7 +240,7 @@ func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 		return
 	}
 
-	seasonsResponse, err := h.jikanClient.GetSeasonList(c.Request.Context())
+	seasonsResponse, err := a.jikanClient.GetSeasonList(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch seasons",
@@ -260,22 +259,22 @@ func (h *AnimeHandler) GetSeasonalAnime(c *gin.Context) {
 	})
 }
 
-func (h *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
+func (a *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
 	cacheKey := "developer_recommendations"
 
-	if cached, found := h.cache.Get(cacheKey); found {
+	if cached, found := a.cache.Get(cacheKey); found {
 		c.Header("Cache-Control", "public, max-age=3600")
 		c.JSON(http.StatusOK, cached)
 		return
 	}
 
-	result, err, _ := h.group.Do(cacheKey, func() (interface{}, error) {
+	result, err, _ := a.group.Do(cacheKey, func() (interface{}, error) {
 		animeIds := []int{5114, 9253, 16498, 18689, 24405, 41457}
 		animes := make([]jikan.Anime, 0, len(animeIds))
 
 		for _, animeId := range animeIds {
 			time.Sleep(350 * time.Millisecond)
-			anime, err := h.jikanClient.GetAnimeById(c.Request.Context(), animeId)
+			anime, err := a.jikanClient.GetAnimeById(c.Request.Context(), animeId)
 			if err != nil {
 				return nil, err
 			}
@@ -283,7 +282,7 @@ func (h *AnimeHandler) GetDeveloperRecommendations(c *gin.Context) {
 		}
 
 		response := buildAnimeResponse(animes)
-		h.cache.Set(cacheKey, response, 12*time.Hour)
+		a.cache.Set(cacheKey, response, 12*time.Hour)
 		return response, nil
 	})
 
@@ -410,8 +409,17 @@ func getSurroundingSeasons(seasonsList []jikan.Season, targetYear int, targetSea
 	return upcoming, previous
 }
 
-func (h *AnimeHandler) addAnimeAsMap(anime *jikan.Anime) error {
-	_, err := h.firestoreClient.Collection("animes").Doc(fmt.Sprintf("%d", anime.ID)).Set(h.ctx, anime)
+func (a *AnimeHandler) addAnimeAsMap(anime *jikan.Anime, ctx context.Context) error {
+	var animeMap map[string]interface{}
+	animeBytes, err := json.Marshal(anime)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(animeBytes, &animeMap); err != nil {
+		return err
+	}
+
+	_, err = a.firestoreClient.Collection("animes").Doc(fmt.Sprintf("%d", anime.ID)).Set(ctx, animeMap)
 	if err != nil {
 		log.Printf("An error has occurred: %s", err)
 	}

@@ -13,7 +13,7 @@ import (
 	"github.com/gin-contrib/cors"
 )
 
-func SetupRoutes(client *firestore.Client, ctx context.Context) *gin.Engine {
+func SetupRoutes(firestoreClient *firestore.Client, ctx context.Context) *gin.Engine {
 	// Initialize Gin router
 	if os.Getenv("DEBUG") == "true" {
 		gin.SetMode(gin.DebugMode)
@@ -33,8 +33,9 @@ func SetupRoutes(client *firestore.Client, ctx context.Context) *gin.Engine {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	RegisterAnimeRoutes(r, jikanClient, client, ctx)
-	RegisterMovieRoutes(r, client, ctx)
+	RegisterAnimeRoutes(r, jikanClient, firestoreClient)
+	RegisterMovieRoutes(r, firestoreClient)
+	RegisterWatchlistRoutes(r, firestoreClient)
 
 	return r
 }
