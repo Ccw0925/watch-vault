@@ -55,7 +55,7 @@ func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map
 
 func (w *WatchlistRepository) AddAnimeToWatchlist(ctx context.Context, guestId string, animeId int) error {
 	_, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(fmt.Sprintf("%d", animeId)).Set(ctx, map[string]interface{}{
-		"status":   "PLAN_TO_WATCH",
+		"status":   PlanToWatch,
 		"animeRef": w.client.Collection("animes").Doc(fmt.Sprintf("%d", animeId)),
 	})
 	return err
