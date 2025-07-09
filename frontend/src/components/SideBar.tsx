@@ -22,12 +22,11 @@ const SideBar = ({ className }: { className?: string }) => {
 
         <div className="font-inter flex flex-col">
           <SideBarMenuItem icon={House} label="Home" />
-          {/* <SideBarMenuItem icon={Bookmark} label="My Watchlist" /> */}
-          <FeatureUnderDevelopmentDialog>
-            <div className="flex gap-3 cursor-pointer dark:hover:bg-gray-700 py-[10px] px-3 rounded-xl hover:bg-gray-100">
-              <Bookmark /> My Watchlist
-            </div>
-          </FeatureUnderDevelopmentDialog>
+          <SideBarMenuItem
+            icon={Bookmark}
+            label="My Watchlist"
+            link="/watchlist"
+          />
 
           <Separator className="my-4 bg-gray-500 dark:bg-border" />
 

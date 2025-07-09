@@ -3,12 +3,12 @@ import {
   fetchAnimeWatchlist,
   removeAnimeFromWatchlist,
 } from "@/lib/api/watchlistService";
-import { Anime } from "@/types/anime";
+import { WatchlistResponse } from "@/types/watchlist";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useAnimeWatchlist = () => {
-  return useQuery<Anime[], Error>({
+  return useQuery<WatchlistResponse, Error>({
     queryKey: ["animeWatchlist"],
     queryFn: () => fetchAnimeWatchlist(),
   });

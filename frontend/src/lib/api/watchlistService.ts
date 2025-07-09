@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getGuestId } from "../guest/utils";
-import { Response } from "@/types/watchlist";
-import { Anime } from "@/types/anime";
+import { MutationResponse, WatchlistResponse } from "@/types/watchlist";
 
 const api = axios.create({
   baseURL: "/api",
@@ -10,21 +9,21 @@ const api = axios.create({
   },
 });
 
-export const fetchAnimeWatchlist = async (): Promise<Anime[]> => {
-  const response = await api.get<Anime[]>("/watchlist");
+export const fetchAnimeWatchlist = async (): Promise<WatchlistResponse> => {
+  const response = await api.get<WatchlistResponse>("/watchlist");
   return response.data;
 };
 
 export const addAnimeToWatchlist = async (
   animeId: number
-): Promise<Response> => {
-  const response = await api.post<Response>(`/watchlist/${animeId}`);
+): Promise<MutationResponse> => {
+  const response = await api.post<MutationResponse>(`/watchlist/${animeId}`);
   return response.data;
 };
 
 export const removeAnimeFromWatchlist = async (
   animeId: number
-): Promise<Response> => {
-  const response = await api.delete<Response>(`/watchlist/${animeId}`);
+): Promise<MutationResponse> => {
+  const response = await api.delete<MutationResponse>(`/watchlist/${animeId}`);
   return response.data;
 };

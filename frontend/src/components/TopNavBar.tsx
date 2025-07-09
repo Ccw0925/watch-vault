@@ -46,6 +46,17 @@ const TopNavBar = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className={twMerge(
+                    navigationMenuTriggerStyle(),
+                    "bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10"
+                  )}
+                >
+                  <Link href="/watchlist">Watchlist</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10">
                   Animes
                 </NavigationMenuTrigger>
