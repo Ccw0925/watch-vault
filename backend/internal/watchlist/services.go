@@ -91,3 +91,10 @@ func (s *WatchlistService) RemoveAnimeFromWatchlist(ctx context.Context, guestId
 
 	return s.repo.RemoveAnimeFromWatchlist(ctx, guestId, animeId)
 }
+
+func (s *WatchlistService) UpdateAnimeStatus(ctx context.Context, guestId string, animeId int, updateData map[string]interface{}) error {
+	cacheKey := fmt.Sprintf("watchlist_%s", guestId)
+	c.Delete(cacheKey)
+
+	return s.repo.UpdateAnimeStatus(ctx, guestId, animeId, updateData)
+}

@@ -65,3 +65,8 @@ func (w *WatchlistRepository) RemoveAnimeFromWatchlist(ctx context.Context, gues
 	_, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(fmt.Sprintf("%d", animeId)).Delete(ctx)
 	return err
 }
+
+func (w *WatchlistRepository) UpdateAnimeStatus(ctx context.Context, guestId string, animeId int, updateData map[string]interface{}) error {
+	_, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(fmt.Sprintf("%d", animeId)).Set(ctx, updateData, firestore.MergeAll)
+	return err
+}

@@ -27,6 +27,7 @@ func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 		watchlistGroup.GET("", handler.getWatchlist)
 		watchlistGroup.POST("/:id", handler.addAnimeToWatchlist)
 		watchlistGroup.DELETE("/:id", handler.removeAnimeFromWatchlist)
+		watchlistGroup.PATCH("/:id", handler.updateAnimeStatus)
 	}
 }
 
@@ -95,6 +96,55 @@ func (w *WatchlistHandler) removeAnimeFromWatchlist(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to remove anime from watchlist",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (w *WatchlistHandler) updateAnimeStatus(c *gin.Context) {
+	animeIdStr := c.Param("id")
+	animeId, err := strconv.Atoi(animeIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Anime ID"})
+		return
+	}
+
+	guestId := c.GetHeader("X-Guest-ID")
+	if guestId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
+		return
+	}
+
+	var requestBody struct {
+		Status   watchlist.WatchStatus `json:"status"`
+		Progress *int                  `json:"progress,omitempty"`
+	}
+
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	updateData := make(map[string]interface{})
+	updateData["status"] = requestBody.Status
+
+	if requestBody.Progress != nil {
+		if *requestBody.Progress < 1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Progress must be at least 1"})
+			return
+		}
+		updateData["progress"] = *requestBody.Progress
+	} else if requestBody.Status == watchlist.Watching {
+		updateData["progress"] = 1
+	}
+
+	err = w.service.UpdateAnimeStatus(c.Request.Context(), guestId, animeId, updateData)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to update anime status",
 			"details": err.Error(),
 		})
 		return
