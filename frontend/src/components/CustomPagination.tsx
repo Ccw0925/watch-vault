@@ -97,7 +97,7 @@ const CustomPagination = ({
             href={
               useRouter && currentPage > 1
                 ? buildQueryString(currentPage - 1)
-                : undefined
+                : ""
             }
             onClick={() =>
               !useRouter &&
@@ -120,7 +120,7 @@ const CustomPagination = ({
                 href={
                   useRouter && typeof page === "number"
                     ? buildQueryString(page)
-                    : undefined
+                    : ""
                 }
                 onClick={() =>
                   !useRouter &&
@@ -142,7 +142,7 @@ const CustomPagination = ({
             href={
               useRouter && currentPage < totalPages
                 ? buildQueryString(currentPage + 1)
-                : undefined
+                : ""
             }
             onClick={() =>
               !useRouter &&
