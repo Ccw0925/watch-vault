@@ -59,7 +59,7 @@ const Content = ({ anime, status, progress }: WatchlistItem) => (
         <p className="text-center font-semibold line-clamp-3 md:line-clamp-none">
           {anime.title}
         </p>
-        {anime.year && (
+        {anime.year > 0 && (
           <p className="text-center text-sm text-muted-foreground">
             {anime.year}
           </p>
