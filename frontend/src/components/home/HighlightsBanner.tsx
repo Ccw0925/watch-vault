@@ -27,7 +27,7 @@ const HighlightsBanner = () => {
   const images = [
     "/fullmetal-alchemist.webp",
     "/steins-gate.webp",
-    "/attack-on-titans.jpg",
+    "/attack-on-titans.webp",
     "/diamond-no-ace.webp",
     "/world-trigger.webp",
     "/86.webp",
