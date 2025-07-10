@@ -29,7 +29,7 @@ export type Anime = {
   trailer: Trailer;
   inWatchlist?: boolean;
   watchlistStatus?: WatchStatus;
-  progress?: number;
+  watchlistProgress?: number;
 };
 
 type Genre = {

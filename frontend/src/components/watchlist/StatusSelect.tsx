@@ -13,21 +13,30 @@ interface StatusSelectProps {
   animeId: number;
   currentStatus?: WatchStatus;
   currentProgress?: number;
+  onChange: (newStatus: WatchStatus) => void;
 }
 
 const StatusSelect = ({
   animeId,
   currentStatus,
   currentProgress,
+  onChange,
 }: StatusSelectProps) => {
   const { mutate: updateStatus } = useUpdateWatchlistStatus();
 
   const handleStatusChange = (newStatus: WatchStatus) => {
-    updateStatus({
-      animeId,
-      status: newStatus,
-      progress: currentProgress,
-    });
+    updateStatus(
+      {
+        animeId,
+        status: newStatus,
+        progress: currentProgress,
+      },
+      {
+        onSuccess: () => {
+          onChange(newStatus);
+        },
+      }
+    );
   };
 
   return (
@@ -35,12 +44,16 @@ const StatusSelect = ({
       value={currentStatus}
       onValueChange={(value) => handleStatusChange(value as WatchStatus)}
     >
-      <SelectTrigger className="w-full rounded-xl">
+      <SelectTrigger className="w-full rounded-xl font-inter" size="lg">
         <SelectValue placeholder="Select status" />
       </SelectTrigger>
       <SelectContent>
         {ALL_STATUSES.map((statusOption) => (
-          <SelectItem key={statusOption} value={statusOption}>
+          <SelectItem
+            key={statusOption}
+            value={statusOption}
+            className="font-inter cursor-pointer"
+          >
             {StatusDisplayMap[statusOption]}
           </SelectItem>
         ))}

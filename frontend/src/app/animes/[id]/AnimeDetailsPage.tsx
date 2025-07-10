@@ -46,6 +46,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatePresence, motion } from "motion/react";
 import WatchlistButton from "@/components/anime/WatchlistButton";
 import StatusSelect from "@/components/watchlist/StatusSelect";
+import { WatchStatus } from "@/types/watchlist";
+import ProgressField from "@/components/watchlist/ProgressField";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,6 +56,42 @@ const AnimeDetailsPage = () => {
   const [shouldShowMore, setShouldShowMore] = useState(false);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const synopsisRef = useRef<HTMLParagraphElement>(null);
+  const [inWatchlist, setInWatchlist] = useState(anime?.inWatchlist ?? false);
+  const [watchlistStatus, setWatchlistStatus] = useState(
+    anime?.watchlistStatus ?? WatchStatus.PlanToWatch
+  );
+  const [watchlistProgress, setWatchlistProgress] = useState(
+    anime?.watchlistProgress ?? 1
+  );
+
+  useEffect(() => {
+    setInWatchlist(anime?.inWatchlist ?? false);
+    setWatchlistStatus(anime?.watchlistStatus ?? WatchStatus.PlanToWatch);
+    setWatchlistProgress(anime?.watchlistProgress ?? 1);
+  }, [anime]);
+
+  const handleAddOrRemoveFromWatchlist = (newStatus: boolean) => {
+    setInWatchlist(newStatus);
+
+    if (newStatus) setWatchlistStatus(WatchStatus.PlanToWatch);
+  };
+
+  const handleStatusChange = (newStatus: WatchStatus) => {
+    setWatchlistStatus(newStatus);
+
+    if (newStatus === WatchStatus.Watching) {
+      setWatchlistProgress(1);
+    }
+  };
+
+  const handleProgressChange = (newProgress: number) => {
+    setWatchlistProgress(newProgress);
+
+    const lastEpisode = anime?.episodes ?? 0;
+    if (lastEpisode && newProgress === anime?.episodes) {
+      setWatchlistStatus(WatchStatus.FinishedWatching);
+    }
+  };
 
   const checkTextOverflow = useCallback(() => {
     if (synopsisRef.current) {
@@ -105,8 +143,9 @@ const AnimeDetailsPage = () => {
         {anime && (
           <WatchlistButton
             id={anime.id}
-            inWatchlist={anime.inWatchlist}
+            inWatchlist={inWatchlist}
             disabled={isLoading}
+            onWatchlistChange={handleAddOrRemoveFromWatchlist}
           />
         )}
       </div>
@@ -149,8 +188,13 @@ const AnimeDetailsPage = () => {
                 images={anime.images}
                 url={anime.url}
                 trailer={anime.trailer}
-                inWatchlist={anime.inWatchlist}
+                episodes={anime.episodes}
+                inWatchlist={inWatchlist}
+                watchlistStatus={watchlistStatus}
+                watchlistProgress={watchlistProgress}
                 setIsTrailerModalOpen={setIsTrailerModalOpen}
+                setWatchlistStatus={handleStatusChange}
+                setWatchlistProgress={handleProgressChange}
               />
             </div>
           </div>
@@ -517,12 +561,37 @@ const ImageInfoGroup = ({
   images,
   url,
   trailer,
+  episodes,
   inWatchlist,
+  watchlistStatus,
+  watchlistProgress,
   setIsTrailerModalOpen,
-}: Pick<Anime, "id" | "images" | "url" | "trailer" | "inWatchlist"> & {
+  setWatchlistStatus,
+  setWatchlistProgress,
+}: Pick<
+  Anime,
+  | "id"
+  | "images"
+  | "url"
+  | "trailer"
+  | "episodes"
+  | "inWatchlist"
+  | "watchlistStatus"
+  | "watchlistProgress"
+> & {
   setIsTrailerModalOpen: Dispatch<SetStateAction<boolean>>;
+  setWatchlistStatus: (newStatus: WatchStatus) => void;
+  setWatchlistProgress: (newProgress: number) => void;
 }) => (
-  <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
+  <div
+    className={`sticky top-8 flex flex-col gap-4 max-w-[350px] mx-auto lg:mx-0 ${
+      inWatchlist
+        ? watchlistStatus === WatchStatus.Watching
+          ? "h-[700px]"
+          : "h-[640px]"
+        : "h-[600px]"
+    }`}
+  >
     <div className="relative w-full h-[85%] rounded-xl overflow-hidden">
       <Image
         src={images.webp.large_image_url}
@@ -554,7 +623,26 @@ const ImageInfoGroup = ({
         </Link>
       </div>
     </div>
-    {inWatchlist && <StatusSelect animeId={id} />}
+    {inWatchlist && (
+      <>
+        <StatusSelect
+          animeId={id}
+          currentStatus={watchlistStatus}
+          currentProgress={watchlistProgress}
+          onChange={setWatchlistStatus}
+        />
+
+        {watchlistStatus === WatchStatus.Watching && (
+          <ProgressField
+            animeId={id}
+            lastEpisode={episodes}
+            currentProgress={watchlistProgress}
+            currentStatus={watchlistStatus}
+            onSave={setWatchlistProgress}
+          />
+        )}
+      </>
+    )}
   </div>
 );
 

@@ -16,6 +16,7 @@ import {
 type Props = Pick<Anime, "id" | "inWatchlist"> & {
   variant?: "textBtn" | "iconBtn";
   disabled: boolean;
+  onWatchlistChange?: (newStatus: boolean) => void;
 };
 
 const WatchlistButton = ({
@@ -23,6 +24,7 @@ const WatchlistButton = ({
   id,
   inWatchlist,
   disabled,
+  onWatchlistChange,
 }: Props) => {
   const [optimisticInWatchlist, setOptimisticInWatchlist] =
     useState(inWatchlist);
@@ -52,10 +54,16 @@ const WatchlistButton = ({
     if (newWatchlistStatus) {
       addMutation.mutate(id, {
         onError: (error) => rollback(error, newWatchlistStatus),
+        onSuccess: () => {
+          if (onWatchlistChange) onWatchlistChange(newWatchlistStatus);
+        },
       });
     } else {
       removeMutation.mutate(id, {
         onError: (error) => rollback(error, newWatchlistStatus),
+        onSuccess: () => {
+          if (onWatchlistChange) onWatchlistChange(newWatchlistStatus);
+        },
       });
     }
   };
