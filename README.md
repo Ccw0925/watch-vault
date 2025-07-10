@@ -4,14 +4,14 @@
 
 A personal web app to track your anime watching progress, powered by [Jikan API](https://jikan.moe/). Save your favorite anime, update your watch status, and never lose track of episodes again (especially useful for long-running series like One Piece!).
 
-<table style="border:none;border-collapse:collapse;width:100%">
-  <tr style="border:none">
-    <td style="border:none"><img src="./images/screenshot1.png" alt="Screenshot 1" style="width:100%"></td>
-    <td style="border:none"><img src="./images/screenshot2.png" alt="Screenshot 2" style="width:100%"></td>
+<table border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><img src="./images/screenshot1.png" alt="Screenshot 1" style="width:100%"></td>
+    <td><img src="./images/screenshot2.png" alt="Screenshot 2" style="width:100%"></td>
   </tr>
-  <tr style="border:none">
-    <td style="border:none"><img src="./images/screenshot3.png" alt="Screenshot 3" style="width:100%"></td>
-    <td style="border:none"><img src="./images/screenshot4.png" alt="Screenshot 4" style="width:100%"></td>
+  <tr>
+    <td><img src="./images/screenshot3.png" alt="Screenshot 3" style="width:100%"></td>
+    <td><img src="./images/screenshot4.png" alt="Screenshot 4" style="width:100%"></td>
   </tr>
 </table>
 
