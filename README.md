@@ -21,14 +21,14 @@ A personal web app to track your anime watching progress, powered by [Jikan API]
 
 ## 🔧 Tech Stack
 
-| Layer                   | Technology           |
-| ----------------------- | -------------------- |
-| Backend                 | Go                   |
-| Frontend                | Next.js (React 19+)  |
-| Database                | Firebase             |
-| UI Kit                  | ShadCN UI            |
-| Data Sync               | TanStack React Query |
-| Anime API (Third Party) | Jikan                |
+| Layer                   | Technology             |
+| ----------------------- | ---------------------- |
+| Backend                 | Go                     |
+| Frontend                | Next.js 15 (React 19+) |
+| Database                | Firebase               |
+| UI Kit                  | ShadCN UI              |
+| Data Sync               | TanStack React Query   |
+| Anime API (Third Party) | Jikan                  |
 
 ## Project Purpose
 
