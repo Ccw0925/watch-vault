@@ -23,7 +23,7 @@ A personal web app to track your anime watching progress, powered by [Jikan API]
 
 | Layer                   | Technology             |
 | ----------------------- | ---------------------- |
-| Backend                 | Go                     |
+| Backend                 | Go (1.24+)             |
 | Frontend                | Next.js 15 (React 19+) |
 | Database                | Firebase               |
 | UI Kit                  | ShadCN UI              |
