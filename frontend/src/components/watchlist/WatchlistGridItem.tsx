@@ -30,7 +30,7 @@ const Content = ({ anime, status, progress }: WatchlistItem) => (
       href={`/animes/${anime.id}`}
       className="flex flex-col gap-1 flex-shrink-0 items-center"
     >
-      <div className="relative w-[216px] aspect-[2/3] rounded-2xl overflow-hidden bg-gray-800">
+      <div className="relative md:w-[216px] w-full aspect-[2/3] rounded-2xl overflow-hidden bg-gray-800">
         <Image
           src={anime.images.webp.large_image_url}
           alt={anime.title}
@@ -56,7 +56,9 @@ const Content = ({ anime, status, progress }: WatchlistItem) => (
         </div>
       </div>
       <div>
-        <p className="text-center font-semibold">{anime.title}</p>
+        <p className="text-center font-semibold line-clamp-3 md:line-clamp-none">
+          {anime.title}
+        </p>
         {anime.year && (
           <p className="text-center text-sm text-muted-foreground">
             {anime.year}
@@ -80,7 +82,7 @@ const Content = ({ anime, status, progress }: WatchlistItem) => (
 export const ContentSkeleton = () =>
   [...Array(5)].map((_, i) => (
     <div key={i} className="flex flex-col gap-1 items-center">
-      <Skeleton className="w-[216px] aspect-[2/3] rounded-2xl" />
+      <Skeleton className="md:w-[216px] w-full aspect-[2/3] rounded-2xl" />
       <Skeleton className="w-[45%] h-5" />
     </div>
   ));

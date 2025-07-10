@@ -12,11 +12,11 @@ const WatchlistGrid = ({
   isLoading: boolean;
 }) => {
   return isLoading ? (
-    <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,236px)] lg:justify-between gap-5 justify-center">
+    <div className="grid grid-cols-2 md:grid-cols-[repeat(auto-fill,236px)] lg:justify-between gap-5 justify-center">
       <ContentSkeleton />
     </div>
   ) : watchlistItems?.length > 0 ? (
-    <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,236px)] lg:justify-between gap-5 justify-center">
+    <div className="grid grid-cols-2 md:grid-cols-[repeat(auto-fill,236px)] lg:justify-between gap-5 justify-center">
       {watchlistItems?.map((watchlistItem, i) => (
         <WatchlistGridItem key={i} watchlistItem={watchlistItem} />
       ))}
