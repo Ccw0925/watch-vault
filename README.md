@@ -41,10 +41,12 @@ This is a personal project built to:
 
 ## 🗂 Project Structure
 
+```bash
 project-root/
 ├── backend/ # Go backend (API, DB models, etc.)
 ├── frontend/ # Next.js frontend app
 └── README.md
+```
 
 ## 🚀 Getting Started
 
