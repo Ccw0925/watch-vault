@@ -114,21 +114,39 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 		return
 	}
 
-	guestId := c.GetHeader("X-Guest-ID")
-	var watchlistMap map[int]bool
-	if guestId != "" {
-		watchlistMap, err = a.getWatchlistStatus(c.Request.Context(), guestId)
-		if err != nil {
-			log.Printf("Failed to get watchlist status: %v", err)
-		}
-	}
-
 	animeData := animeService.AnimeToResponse(&anime.Data)
 	animeData["relations"] = relations.Data
 
-	if watchlistMap != nil {
-		animeData["inWatchlist"] = watchlistMap[anime.Data.ID]
+	guestId := c.GetHeader("X-Guest-ID")
+	if guestId != "" {
+		service := watchlistService.NewWatchlistService(a.firestoreClient)
+		watchlistAnime, err := service.GetAnimeById(c.Request.Context(), guestId, id)
+		if err != nil {
+			log.Printf("Failed to get watchlist status: %v", err)
+		} else if watchlistAnime != nil {
+			switch item := watchlistAnime.(type) {
+			case *watchlistService.WatchlistItem:
+				animeData["inWatchlist"] = true
+				if item.Status != nil {
+					animeData["watchlistStatus"] = item.Status
+				}
+				if item.Progress != nil {
+					animeData["watchlistProgress"] = item.Progress
+				}
+			case map[string]interface{}:
+				if len(item) > 0 {
+					animeData["inWatchlist"] = true
+					if status, ok := item["status"]; ok {
+						animeData["watchlistStatus"] = status
+					}
+					if progress, ok := item["progress"]; ok {
+						animeData["watchlistProgress"] = progress
+					}
+				}
+			}
+		}
 	}
+
 
 	c.JSON(http.StatusOK, animeData)
 }

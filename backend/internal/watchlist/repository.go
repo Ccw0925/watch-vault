@@ -7,6 +7,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type WatchlistRepository struct {
@@ -51,6 +53,19 @@ func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map
 	}
 
 	return watchlist, nil
+}
+
+func (w *WatchlistRepository) GetAnimeById(ctx context.Context, guestId string, animeId int) (map[string]interface{}, error) {
+	doc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(fmt.Sprintf("%d", animeId)).Get(ctx)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	anime := doc.Data()
+	return anime, nil
 }
 
 func (w *WatchlistRepository) AddAnimeToWatchlist(ctx context.Context, guestId string, animeId int) error {

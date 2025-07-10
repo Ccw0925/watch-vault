@@ -25,6 +25,7 @@ func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 	watchlistGroup := r.Group("/watchlist")
 	{
 		watchlistGroup.GET("", handler.getWatchlist)
+		watchlistGroup.GET("/:id", handler.getAnimeById)
 		watchlistGroup.POST("/:id", handler.addAnimeToWatchlist)
 		watchlistGroup.DELETE("/:id", handler.removeAnimeFromWatchlist)
 		watchlistGroup.PATCH("/:id", handler.updateAnimeStatus)
@@ -50,6 +51,32 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, watchlist)
+}
+
+func (w *WatchlistHandler) getAnimeById(c *gin.Context) {
+	animeIdStr := c.Param("id")
+	animeId, err := strconv.Atoi(animeIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Anime ID"})
+		return
+	}
+
+	guestId := c.GetHeader("X-Guest-ID")
+	if guestId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
+		return
+	}
+
+	anime, err := w.service.GetAnimeById(c.Request.Context(), guestId, animeId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to fetch anime",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, anime)
 }
 
 func (w *WatchlistHandler) addAnimeToWatchlist(c *gin.Context) {

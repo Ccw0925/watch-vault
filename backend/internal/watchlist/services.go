@@ -68,6 +68,20 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 	return watchlist, nil
 }
 
+func (s *WatchlistService) GetAnimeById(ctx context.Context, guestId string, animeId int) (interface{}, error) {
+	anime, err := s.repo.GetAnimeById(ctx, guestId, animeId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if anime == nil {
+		return map[string]interface{}{}, nil
+	}
+
+	return anime, nil
+}
+
 func (s *WatchlistService) AddAnimeToWatchlist(ctx context.Context, guestId string, animeId int) error {
 	anime, err := s.jikanClient.GetAnimeById(ctx, animeId)
 	if err != nil {

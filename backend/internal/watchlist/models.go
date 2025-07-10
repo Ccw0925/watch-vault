@@ -7,3 +7,8 @@ const (
 	Watching         WatchStatus = "WATCHING"
 	FinishedWatching WatchStatus = "FINISHED_WATCHING"
 )
+
+type WatchlistItem struct {
+	Status   *WatchStatus `json:"status" firestore:"status"`
+	Progress *int         `json:"progress" firestore:"progress"`
+}
