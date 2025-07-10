@@ -1,3 +1,5 @@
+import { WatchStatus } from "./watchlist";
+
 export type Anime = {
   id: number;
   url: string;
@@ -26,6 +28,8 @@ export type Anime = {
   relations?: Relation[];
   trailer: Trailer;
   inWatchlist?: boolean;
+  watchlistStatus?: WatchStatus;
+  progress?: number;
 };
 
 type Genre = {

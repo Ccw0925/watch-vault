@@ -2,8 +2,9 @@ import {
   addAnimeToWatchlist,
   fetchAnimeWatchlist,
   removeAnimeFromWatchlist,
+  updateWatchlistStatus,
 } from "@/lib/api/watchlistService";
-import { WatchlistResponse } from "@/types/watchlist";
+import { WatchlistResponse, WatchStatus } from "@/types/watchlist";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -19,7 +20,7 @@ export const useAddAnimeToWatchlist = () => {
     mutationFn: (animeId: number) => addAnimeToWatchlist(animeId),
     onSuccess: () => {
       toast.success("Success", {
-        description: "Anime added to watchlist",
+        description: "Anime added to watchlist.",
       });
     },
   });
@@ -30,7 +31,22 @@ export const useRemoveAnimeFromWatchlist = () => {
     mutationFn: (animeId: number) => removeAnimeFromWatchlist(animeId),
     onSuccess: () => {
       toast.success("Success", {
-        description: "Anime removed from watchlist",
+        description: "Anime removed from watchlist.",
+      });
+    },
+  });
+};
+
+export const useUpdateWatchlistStatus = () => {
+  return useMutation({
+    mutationFn: (data: {
+      animeId: number;
+      status: WatchStatus;
+      progress?: number;
+    }) => updateWatchlistStatus(data.animeId, data.status, data.progress),
+    onSuccess: () => {
+      toast.success("Success", {
+        description: "Watchlist status updated.",
       });
     },
   });

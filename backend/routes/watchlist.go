@@ -119,7 +119,7 @@ func (w *WatchlistHandler) updateAnimeStatus(c *gin.Context) {
 	}
 
 	var requestBody struct {
-		Status   watchlist.WatchStatus `json:"status"`
+		Status   watchlist.WatchStatus `json:"status" binding:"required"`
 		Progress *int                  `json:"progress,omitempty"`
 	}
 

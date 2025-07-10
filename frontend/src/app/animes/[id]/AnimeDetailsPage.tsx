@@ -45,6 +45,7 @@ import { twMerge } from "tailwind-merge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatePresence, motion } from "motion/react";
 import WatchlistButton from "@/components/anime/WatchlistButton";
+import StatusSelect from "@/components/watchlist/StatusSelect";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,9 +145,11 @@ const AnimeDetailsPage = () => {
 
             <div className="relative order-1 lg:order-none">
               <ImageInfoGroup
+                id={anime.id}
                 images={anime.images}
                 url={anime.url}
                 trailer={anime.trailer}
+                inWatchlist={anime.inWatchlist}
                 setIsTrailerModalOpen={setIsTrailerModalOpen}
               />
             </div>
@@ -510,11 +513,13 @@ const DemographicsInfo = ({ demographics }: Pick<Anime, "demographics">) => {
 };
 
 const ImageInfoGroup = ({
+  id,
   images,
   url,
   trailer,
+  inWatchlist,
   setIsTrailerModalOpen,
-}: Pick<Anime, "images" | "url" | "trailer"> & {
+}: Pick<Anime, "id" | "images" | "url" | "trailer" | "inWatchlist"> & {
   setIsTrailerModalOpen: Dispatch<SetStateAction<boolean>>;
 }) => (
   <div className="sticky top-8 flex flex-col gap-4 h-[600px] max-w-[350px] mx-auto lg:mx-0">
@@ -549,6 +554,7 @@ const ImageInfoGroup = ({
         </Link>
       </div>
     </div>
+    {inWatchlist && <StatusSelect animeId={id} />}
   </div>
 );
 
