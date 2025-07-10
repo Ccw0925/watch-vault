@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Bird, Calendar, Trophy } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import TopNavBarGitHubIcon from "./TopNavBarGitHubIcon";
 
 const TopNavBar = () => {
   return (
@@ -97,7 +98,10 @@ const TopNavBar = () => {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <ThemeButton />
+          <div className="flex items-center gap-3">
+            <TopNavBarGitHubIcon />
+            <ThemeButton />
+          </div>
         </div>
         <Separator />
       </div>
