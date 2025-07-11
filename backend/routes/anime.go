@@ -128,7 +128,7 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 			case *watchlistService.WatchlistItem:
 				animeData["inWatchlist"] = true
 				if item.Status != nil {
-					animeData["watchlistStatus"] = item.Status
+					animeData["watchlistStatus"] = item.Status.ToReadable()
 				}
 				if item.Progress != nil {
 					animeData["watchlistProgress"] = item.Progress
@@ -136,8 +136,8 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 			case map[string]interface{}:
 				if len(item) > 0 {
 					animeData["inWatchlist"] = true
-					if status, ok := item["status"]; ok {
-						animeData["watchlistStatus"] = status
+					if status, ok := item["status"].(int64); ok {
+						animeData["watchlistStatus"] = watchlistService.WatchStatus(status).ToReadable()
 					}
 					if progress, ok := item["progress"]; ok {
 						animeData["watchlistProgress"] = progress
@@ -146,7 +146,6 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 			}
 		}
 	}
-
 
 	c.JSON(http.StatusOK, animeData)
 }
