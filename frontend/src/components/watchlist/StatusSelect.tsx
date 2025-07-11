@@ -29,7 +29,8 @@ const StatusSelect = ({
       {
         animeId,
         status: newStatus,
-        progress: currentProgress,
+        progress:
+          newStatus === WatchStatus.Watching ? currentProgress : undefined,
       },
       {
         onSuccess: () => {
