@@ -146,8 +146,8 @@ func (w *WatchlistHandler) updateAnimeStatus(c *gin.Context) {
 	}
 
 	var requestBody struct {
-		Status   watchlist.WatchStatus `json:"status" binding:"required"`
-		Progress *int                  `json:"progress,omitempty"`
+		Status   watchlist.ReadableWatchStatus `json:"status" binding:"required"`
+		Progress *int                          `json:"progress,omitempty"`
 	}
 
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -156,7 +156,7 @@ func (w *WatchlistHandler) updateAnimeStatus(c *gin.Context) {
 	}
 
 	updateData := make(map[string]interface{})
-	updateData["status"] = requestBody.Status
+	updateData["status"] = requestBody.Status.ToWatchStatus()
 
 	if requestBody.Progress != nil {
 		if *requestBody.Progress < 1 {
@@ -164,7 +164,7 @@ func (w *WatchlistHandler) updateAnimeStatus(c *gin.Context) {
 			return
 		}
 		updateData["progress"] = *requestBody.Progress
-	} else if requestBody.Status == watchlist.Watching {
+	} else if requestBody.Status == watchlist.WatchingString {
 		updateData["progress"] = 1
 	}
 

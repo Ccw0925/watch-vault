@@ -3,7 +3,6 @@ package watchlist
 import (
 	"context"
 	"fmt"
-	"slices"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -51,41 +50,6 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 	if err != nil {
 		return nil, err
 	}
-
-	slices.SortFunc(watchlist, func(a, b map[string]interface{}) int {
-		aStatusStr, aOk := a["status"].(string)
-		bStatusStr, bOk := b["status"].(string)
-
-		if !aOk {
-			if !bOk {
-				return 0
-			}
-			return 1
-		}
-		if !bOk {
-			return -1
-		}
-
-		aStatus := WatchStatus(aStatusStr)
-		bStatus := WatchStatus(bStatusStr)
-
-		priority := map[WatchStatus]int{
-			PlanToWatch:      1,
-			Watching:         2,
-			FinishedWatching: 3,
-		}
-
-		aPriority := priority[aStatus]
-		bPriority := priority[bStatus]
-
-		if aPriority < bPriority {
-			return -1
-		}
-		if aPriority > bPriority {
-			return 1
-		}
-		return 0
-	})
 
 	c.SetDefault(cacheKey, watchlist)
 

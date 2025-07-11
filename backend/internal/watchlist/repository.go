@@ -22,7 +22,7 @@ func NewWatchlistRepository(client *firestore.Client) *WatchlistRepository {
 func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map[string]interface{}, error) {
 	var watchlist []map[string]interface{}
 
-	iter := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Documents(ctx)
+	iter := w.client.Collection("guests").Doc(guestId).Collection("watchlist").OrderBy("status", firestore.Asc).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -36,6 +36,12 @@ func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map
 		item := make(map[string]interface{})
 
 		for k, v := range data {
+			if k == "status" {
+				if watchStatus, ok := v.(int64); ok {
+					item[k] = WatchStatus(watchStatus).ToReadable()
+					continue
+				}
+			}
 			item[k] = v
 		}
 
