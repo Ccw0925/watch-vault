@@ -8,21 +8,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQueryClient } from "@tanstack/react-query";
+import { Anime } from "@/types/anime";
 
 interface StatusSelectProps {
   animeId: number;
   currentStatus?: WatchStatus;
   currentProgress?: number;
-  onChange: () => void;
 }
 
 const StatusSelect = ({
   animeId,
   currentStatus,
   currentProgress,
-  onChange,
 }: StatusSelectProps) => {
   const { mutate: updateStatus } = useUpdateWatchlistStatus();
+  const queryClient = useQueryClient();
 
   const handleStatusChange = (newStatus: WatchStatus) => {
     updateStatus(
@@ -33,8 +34,22 @@ const StatusSelect = ({
           newStatus === WatchStatus.Watching ? currentProgress : undefined,
       },
       {
-        onSuccess: () => {
-          onChange();
+        onSuccess: (data, variables) => {
+          queryClient.setQueryData(
+            ["animes", String(variables.animeId)],
+            (oldData: Anime) =>
+              oldData
+                ? {
+                    ...oldData,
+                    watchlistStatus: newStatus,
+                    watchlistProgress:
+                      newStatus === WatchStatus.Watching &&
+                      currentProgress === undefined
+                        ? 1
+                        : currentProgress,
+                  }
+                : oldData
+          );
         },
       }
     );

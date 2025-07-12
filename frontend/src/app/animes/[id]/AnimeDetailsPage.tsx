@@ -143,7 +143,6 @@ const AnimeDetailsPage = () => {
                 watchlistStatus={anime.watchlistStatus}
                 watchlistProgress={anime.watchlistProgress}
                 setIsTrailerModalOpen={setIsTrailerModalOpen}
-                refetch={refetch}
               />
             </div>
           </div>

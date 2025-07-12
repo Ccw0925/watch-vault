@@ -18,7 +18,6 @@ const ImageInfoGroup = ({
   watchlistStatus,
   watchlistProgress,
   setIsTrailerModalOpen,
-  refetch,
 }: Pick<
   Anime,
   | "id"
@@ -31,7 +30,6 @@ const ImageInfoGroup = ({
   | "watchlistProgress"
 > & {
   setIsTrailerModalOpen: Dispatch<SetStateAction<boolean>>;
-  refetch: () => void;
 }) => (
   <div
     className={`sticky top-8 flex flex-col gap-4 max-w-[350px] mx-auto lg:mx-0 ${
@@ -79,7 +77,6 @@ const ImageInfoGroup = ({
           animeId={id}
           currentStatus={watchlistStatus}
           currentProgress={watchlistProgress}
-          onChange={refetch}
         />
 
         {watchlistStatus === WatchStatus.Watching && (
@@ -88,7 +85,6 @@ const ImageInfoGroup = ({
             lastEpisode={episodes}
             currentProgress={watchlistProgress}
             currentStatus={watchlistStatus}
-            onSave={refetch}
           />
         )}
       </>

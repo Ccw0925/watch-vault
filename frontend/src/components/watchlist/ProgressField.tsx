@@ -3,13 +3,14 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useUpdateWatchlistStatus } from "@/hooks/api/watchlistHooks";
 import { WatchStatus } from "@/types/watchlist";
+import { useQueryClient } from "@tanstack/react-query";
+import { Anime } from "@/types/anime";
 
 interface ProgressFieldProps {
   animeId: number;
   lastEpisode: number;
   currentProgress?: number;
   currentStatus?: WatchStatus;
-  onSave: () => void;
 }
 
 const ProgressField = ({
@@ -17,11 +18,11 @@ const ProgressField = ({
   lastEpisode,
   currentProgress,
   currentStatus,
-  onSave,
 }: ProgressFieldProps) => {
   const { mutate: updateStatus } = useUpdateWatchlistStatus();
   const [progress, setProgress] = useState(currentProgress);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const handleSave = (newProgress: number) => {
     if (lastEpisode && newProgress > lastEpisode) {
@@ -49,8 +50,18 @@ const ProgressField = ({
         progress: newProgress,
       },
       {
-        onSuccess: () => {
-          onSave();
+        onSuccess: (data, variables) => {
+          queryClient.setQueryData(
+            ["animes", String(variables.animeId)],
+            (oldData: Anime) =>
+              oldData
+                ? {
+                    ...oldData,
+                    watchlistStatus: newStatus,
+                    watchlistProgress: newProgress,
+                  }
+                : oldData
+          );
         },
       }
     );
