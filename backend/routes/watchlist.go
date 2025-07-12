@@ -34,14 +34,31 @@ func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 
 func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 	guestId := c.GetHeader("X-Guest-ID")
-	showIdsOnly := c.Query("showIdsOnly")
+	currentCursor := c.Query("currentCursor")
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "25"))
+	if err != nil || limit <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+		return
+	}
+
+	status := c.Query("status")
+	watchStatus := watchlist.WatchStatus(-1)
+	if status != "" {
+		rws := watchlist.ReadableWatchStatus(status)
+		if !watchlist.IsValid(rws) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status"})
+			return
+		}
+		watchStatus = rws.ToWatchStatus()
+	}
 
 	if guestId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
 		return
 	}
 
-	watchlist, err := w.service.GetGuestWatchlist(c.Request.Context(), guestId, showIdsOnly == "true")
+	watchlist, nextPageCursor, hasNextPage, err := w.service.GetPaginatedWatchlist(c.Request.Context(), guestId, limit, currentCursor, watchStatus)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch watchlist",
@@ -50,7 +67,20 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, watchlist)
+	response := gin.H{
+		"data": watchlist,
+		"pagination": gin.H{
+			"itemCount":   len(watchlist),
+			"pageSize":    limit,
+			"hasNextPage": hasNextPage,
+		},
+	}
+
+	if hasNextPage {
+		response["pagination"].(gin.H)["nextPageCursor"] = nextPageCursor
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (w *WatchlistHandler) getAnimeById(c *gin.Context) {

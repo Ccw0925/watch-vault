@@ -42,6 +42,10 @@ func (rws ReadableWatchStatus) ToWatchStatus() WatchStatus {
 	}
 }
 
+func IsValid(rws ReadableWatchStatus) bool {
+	return rws == PlanToWatchString || rws == WatchingString || rws == FinishedWatchingString
+}
+
 type WatchlistItem struct {
 	Status   *WatchStatus `json:"status" firestore:"status"`
 	Progress *int         `json:"progress" firestore:"progress"`
