@@ -13,7 +13,7 @@ interface StatusSelectProps {
   animeId: number;
   currentStatus?: WatchStatus;
   currentProgress?: number;
-  onChange: (newStatus: WatchStatus) => void;
+  onChange: () => void;
 }
 
 const StatusSelect = ({
@@ -34,7 +34,7 @@ const StatusSelect = ({
       },
       {
         onSuccess: () => {
-          onChange(newStatus);
+          onChange();
         },
       }
     );

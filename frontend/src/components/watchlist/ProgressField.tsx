@@ -9,7 +9,7 @@ interface ProgressFieldProps {
   lastEpisode: number;
   currentProgress?: number;
   currentStatus?: WatchStatus;
-  onSave: (newProgress: number) => void;
+  onSave: () => void;
 }
 
 const ProgressField = ({
@@ -50,7 +50,7 @@ const ProgressField = ({
       },
       {
         onSuccess: () => {
-          onSave(newProgress);
+          onSave();
         },
       }
     );

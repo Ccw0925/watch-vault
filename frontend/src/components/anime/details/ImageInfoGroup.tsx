@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
-import ProgressField from '@/components/watchlist/ProgressField';
-import StatusSelect from '@/components/watchlist/StatusSelect';
-import { Anime } from '@/types/anime';
-import { WatchStatus } from '@/types/watchlist';
-import { Play, SquareArrowOutUpRight } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import { Button } from "@/components/ui/button";
+import ProgressField from "@/components/watchlist/ProgressField";
+import StatusSelect from "@/components/watchlist/StatusSelect";
+import { Anime } from "@/types/anime";
+import { WatchStatus } from "@/types/watchlist";
+import { Play, SquareArrowOutUpRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { Dispatch, SetStateAction } from "react";
 
 const ImageInfoGroup = ({
   id,
@@ -18,8 +18,7 @@ const ImageInfoGroup = ({
   watchlistStatus,
   watchlistProgress,
   setIsTrailerModalOpen,
-  setWatchlistStatus,
-  setWatchlistProgress,
+  refetch,
 }: Pick<
   Anime,
   | "id"
@@ -32,8 +31,7 @@ const ImageInfoGroup = ({
   | "watchlistProgress"
 > & {
   setIsTrailerModalOpen: Dispatch<SetStateAction<boolean>>;
-  setWatchlistStatus: (newStatus: WatchStatus) => void;
-  setWatchlistProgress: (newProgress: number) => void;
+  refetch: () => void;
 }) => (
   <div
     className={`sticky top-8 flex flex-col gap-4 max-w-[350px] mx-auto lg:mx-0 ${
@@ -81,7 +79,7 @@ const ImageInfoGroup = ({
           animeId={id}
           currentStatus={watchlistStatus}
           currentProgress={watchlistProgress}
-          onChange={setWatchlistStatus}
+          onChange={refetch}
         />
 
         {watchlistStatus === WatchStatus.Watching && (
@@ -90,7 +88,7 @@ const ImageInfoGroup = ({
             lastEpisode={episodes}
             currentProgress={watchlistProgress}
             currentStatus={watchlistStatus}
-            onSave={setWatchlistProgress}
+            onSave={refetch}
           />
         )}
       </>
@@ -98,4 +96,4 @@ const ImageInfoGroup = ({
   </div>
 );
 
-export default ImageInfoGroup
+export default ImageInfoGroup;

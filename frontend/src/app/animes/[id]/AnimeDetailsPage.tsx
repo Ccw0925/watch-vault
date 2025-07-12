@@ -12,7 +12,6 @@ import { useParams } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WatchlistButton from "@/components/anime/WatchlistButton";
-import { WatchStatus } from "@/types/watchlist";
 import AnimePrequelSequelGroup from "@/components/anime/details/AnimePrequelSequelGroup";
 import AnimeTitleInfo from "@/components/anime/details/AnimeTitleInfo";
 import AnimeStatsBadges from "@/components/anime/details/AnimeStatsBadges";
@@ -28,46 +27,20 @@ import ImageInfoGroup from "@/components/anime/details/ImageInfoGroup";
 
 const AnimeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: anime, isLoading } = useAnimeById(id);
+  const { data: anime, isLoading, refetch } = useAnimeById(id);
   const [showMore, setShowMore] = useState(false);
   const [shouldShowMore, setShouldShowMore] = useState(false);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const synopsisRef = useRef<HTMLParagraphElement>(null);
   const [inWatchlist, setInWatchlist] = useState(anime?.inWatchlist ?? false);
-  const [watchlistStatus, setWatchlistStatus] = useState(
-    anime?.watchlistStatus ?? WatchStatus.PlanToWatch
-  );
-  const [watchlistProgress, setWatchlistProgress] = useState(
-    anime?.watchlistProgress ?? 1
-  );
 
   useEffect(() => {
     setInWatchlist(anime?.inWatchlist ?? false);
-    setWatchlistStatus(anime?.watchlistStatus ?? WatchStatus.PlanToWatch);
-    setWatchlistProgress(anime?.watchlistProgress ?? 1);
   }, [anime]);
 
   const handleAddOrRemoveFromWatchlist = (newStatus: boolean) => {
     setInWatchlist(newStatus);
-
-    if (newStatus) setWatchlistStatus(WatchStatus.PlanToWatch);
-  };
-
-  const handleStatusChange = (newStatus: WatchStatus) => {
-    setWatchlistStatus(newStatus);
-
-    if (newStatus === WatchStatus.Watching) {
-      setWatchlistProgress(1);
-    }
-  };
-
-  const handleProgressChange = (newProgress: number) => {
-    setWatchlistProgress(newProgress);
-
-    const lastEpisode = anime?.episodes ?? 0;
-    if (lastEpisode && newProgress === anime?.episodes) {
-      setWatchlistStatus(WatchStatus.FinishedWatching);
-    }
+    refetch();
   };
 
   const checkTextOverflow = useCallback(() => {
@@ -167,11 +140,10 @@ const AnimeDetailsPage = () => {
                 trailer={anime.trailer}
                 episodes={anime.episodes}
                 inWatchlist={inWatchlist}
-                watchlistStatus={watchlistStatus}
-                watchlistProgress={watchlistProgress}
+                watchlistStatus={anime.watchlistStatus}
+                watchlistProgress={anime.watchlistProgress}
                 setIsTrailerModalOpen={setIsTrailerModalOpen}
-                setWatchlistStatus={handleStatusChange}
-                setWatchlistProgress={handleProgressChange}
+                refetch={refetch}
               />
             </div>
           </div>
