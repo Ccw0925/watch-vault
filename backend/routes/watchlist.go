@@ -58,7 +58,7 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		return
 	}
 
-	watchlist, nextPageCursor, hasNextPage, err := w.service.GetPaginatedWatchlist(c.Request.Context(), guestId, limit, currentCursor, watchStatus)
+	watchlist, nextPageCursor, hasNextPage, hasPrevPage, err := w.service.GetPaginatedWatchlist(c.Request.Context(), guestId, limit, currentCursor, watchStatus)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch watchlist",
@@ -72,6 +72,7 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		"pagination": gin.H{
 			"itemCount":   len(watchlist),
 			"pageSize":    limit,
+			"hasPrevPage": hasPrevPage,
 			"hasNextPage": hasNextPage,
 		},
 	}

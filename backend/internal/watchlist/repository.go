@@ -63,72 +63,83 @@ func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map
 	return watchlist, nil
 }
 
-func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId string, pageSize int, cursor string, status WatchStatus) ([]map[string]interface{}, string, bool, error) {
-	if pageSize <= 0 {
-		pageSize = DefaultPageSize
-	}
+func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId string, pageSize int, cursor string, status WatchStatus) ([]map[string]interface{}, string, bool, bool, error) {
+    if pageSize <= 0 {
+        pageSize = DefaultPageSize
+    }
 
-	var watchlist []map[string]interface{}
-	query := w.client.Collection("guests").Doc(guestId).Collection("watchlist").
-		OrderBy("status", firestore.Asc).
-		OrderBy(firestore.DocumentID, firestore.Desc).
-		Limit(pageSize + 1)
+    var watchlist []map[string]interface{}
+    baseQuery := w.client.Collection("guests").Doc(guestId).Collection("watchlist").
+        OrderBy("status", firestore.Asc).
+        OrderBy(firestore.DocumentID, firestore.Desc)
 
-	if status != -1 {
-		query = query.Where("status", "==", int64(status))
-	}
+    query := baseQuery.Limit(pageSize + 1)
 
-	if cursor != "" {
-		lastDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(cursor).Get(ctx)
-		if err != nil {
-			return nil, "", false, fmt.Errorf("invalid cursor: %v", err)
-		}
-		query = query.StartAfter(lastDoc.Data()["status"], cursor)
-	}
+    if status != -1 {
+        query = query.Where("status", "==", int64(status))
+        baseQuery = baseQuery.Where("status", "==", int64(status))
+    }
 
-	iter := query.Documents(ctx)
-	var lastDocID string
+    var hasPrevious bool
+    if cursor != "" {
+        lastDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(cursor).Get(ctx)
+        if err != nil {
+            return nil, "", false, false, fmt.Errorf("invalid cursor: %v", err)
+        }
+        query = query.StartAfter(lastDoc.Data()["status"], cursor)
+        
+        prevQuery := baseQuery.
+            EndBefore(lastDoc.Data()["status"], cursor).
+            Limit(1)
+        
+        prevIter := prevQuery.Documents(ctx)
+        _, err = prevIter.Next()
+        hasPrevious = err == nil
+    }
 
-	for i := 0; i < pageSize; i++ {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, "", false, fmt.Errorf("error iterating watchlist: %v", err)
-		}
+    iter := query.Documents(ctx)
+    var lastDocID string
 
-		data := doc.Data()
-		item := make(map[string]interface{})
+    for i := 0; i < pageSize; i++ {
+        doc, err := iter.Next()
+        if err == iterator.Done {
+            break
+        }
+        if err != nil {
+            return nil, "", false, false, fmt.Errorf("error iterating watchlist: %v", err)
+        }
 
-		for k, v := range data {
-			if k == "status" {
-				if watchStatus, ok := v.(int64); ok {
-					item[k] = WatchStatus(watchStatus).ToReadable()
-					continue
-				}
-			}
-			item[k] = v
-		}
+        data := doc.Data()
+        item := make(map[string]interface{})
 
-		if ref, ok := data["animeRef"].(*firestore.DocumentRef); ok {
-			animeDoc, err := ref.Get(ctx)
-			if err != nil {
-				log.Printf("Warning: could not fetch anime %s: %v", ref.ID, err)
-				continue
-			}
-			item["anime"] = animeDoc.Data()
-		}
+        for k, v := range data {
+            if k == "status" {
+                if watchStatus, ok := v.(int64); ok {
+                    item[k] = WatchStatus(watchStatus).ToReadable()
+                    continue
+                }
+            }
+            item[k] = v
+        }
 
-		delete(item, "animeRef")
-		watchlist = append(watchlist, item)
-		lastDocID = doc.Ref.ID
-	}
+        if ref, ok := data["animeRef"].(*firestore.DocumentRef); ok {
+            animeDoc, err := ref.Get(ctx)
+            if err != nil {
+                log.Printf("Warning: could not fetch anime %s: %v", ref.ID, err)
+                continue
+            }
+            item["anime"] = animeDoc.Data()
+        }
 
-	_, err := iter.Next()
-	hasMore := err == nil
+        delete(item, "animeRef")
+        watchlist = append(watchlist, item)
+        lastDocID = doc.Ref.ID
+    }
 
-	return watchlist, lastDocID, hasMore, nil
+    _, err := iter.Next()
+    hasMore := err == nil
+
+    return watchlist, lastDocID, hasMore, hasPrevious, nil
 }
 
 func (w *WatchlistRepository) GetAnimeById(ctx context.Context, guestId string, animeId int) (map[string]interface{}, error) {
