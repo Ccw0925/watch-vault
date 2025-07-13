@@ -13,8 +13,36 @@ const api = axios.create({
   },
 });
 
-export const fetchAnimeWatchlist = async (): Promise<WatchlistResponse> => {
-  const response = await api.get<WatchlistResponse>("/watchlist");
+export const fetchAnimeWatchlist = async (options?: {
+  limit?: number;
+  status?: WatchStatus;
+  startCursor?: string;
+  endCursor?: string;
+  direction?: "prev" | "next";
+}): Promise<WatchlistResponse> => {
+  const params = new URLSearchParams();
+
+  if (options?.limit && options?.limit !== undefined) {
+    params.append("limit", options.limit.toString());
+  }
+
+  if (options?.status && options?.status !== undefined) {
+    params.append("status", options.status);
+  }
+
+  if (options?.startCursor && options?.startCursor !== undefined) {
+    params.append("startCursor", options.startCursor);
+  }
+
+  if (options?.endCursor && options?.endCursor !== undefined) {
+    params.append("endCursor", options.endCursor);
+  }
+
+  if (options?.direction && options?.direction !== undefined) {
+    params.append("direction", options.direction);
+  }
+
+  const response = await api.get<WatchlistResponse>("/watchlist", { params });
   return response.data;
 };
 

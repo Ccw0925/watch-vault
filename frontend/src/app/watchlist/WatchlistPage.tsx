@@ -1,10 +1,8 @@
 "use client";
 import { TypographyH3 } from "@/components/ui/typography";
-import WatchlistGrid from "@/components/watchlist/WatchlistGrid";
-import { useAnimeWatchlist } from "@/hooks/api/watchlistHooks";
 import { StatusDisplayMap, WatchStatus } from "@/types/watchlist";
 import { Bookmark } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -13,39 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import FilteredWatchlist from "@/components/watchlist/FilteredWatchlist";
 
 const WatchlistPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const { data: watchlistItems, isLoading } = useAnimeWatchlist();
-  const planToWatchList = watchlistItems?.filter(
-    (item) => item.status === WatchStatus.PlanToWatch
-  );
-  const watchingList = watchlistItems?.filter(
-    (item) => item.status === WatchStatus.Watching
-  );
-  const finishedWatchingList = watchlistItems?.filter(
-    (item) => item.status === WatchStatus.FinishedWatching
-  );
-  const mobileViewWatchlist = useMemo(() => {
-    if (!watchlistItems) return [];
-
-    switch (selectedStatus) {
-      case WatchStatus.PlanToWatch:
-        return planToWatchList;
-      case WatchStatus.Watching:
-        return watchingList;
-      case WatchStatus.FinishedWatching:
-        return finishedWatchingList;
-      default:
-        return watchlistItems;
-    }
-  }, [
-    watchlistItems,
-    selectedStatus,
-    planToWatchList,
-    watchingList,
-    finishedWatchingList,
-  ]);
 
   return (
     <div className="p-5 lg:p-8 mx-auto w-full max-w-[1850px] font-inter">
@@ -72,28 +41,16 @@ const WatchlistPage = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="all" className="pt-5">
-          <WatchlistGrid
-            watchlistItems={watchlistItems ?? []}
-            isLoading={isLoading}
-          />
+          <FilteredWatchlist />
         </TabsContent>
         <TabsContent value="planToWatch" className="pt-5">
-          <WatchlistGrid
-            watchlistItems={planToWatchList ?? []}
-            isLoading={isLoading}
-          />
+          <FilteredWatchlist status={WatchStatus.PlanToWatch} />
         </TabsContent>
         <TabsContent value="watching" className="pt-5">
-          <WatchlistGrid
-            watchlistItems={watchingList ?? []}
-            isLoading={isLoading}
-          />
+          <FilteredWatchlist status={WatchStatus.Watching} />
         </TabsContent>
         <TabsContent value="finishedWatching" className="pt-5">
-          <WatchlistGrid
-            watchlistItems={finishedWatchingList ?? []}
-            isLoading={isLoading}
-          />
+          <FilteredWatchlist status={WatchStatus.FinishedWatching} />
         </TabsContent>
       </Tabs>
 
@@ -116,9 +73,12 @@ const WatchlistPage = () => {
       </Select>
 
       <div className="block md:hidden mt-5">
-        <WatchlistGrid
-          watchlistItems={mobileViewWatchlist ?? []}
-          isLoading={isLoading}
+        <FilteredWatchlist
+          status={
+            selectedStatus === "all"
+              ? undefined
+              : (selectedStatus as WatchStatus)
+          }
         />
       </div>
     </div>

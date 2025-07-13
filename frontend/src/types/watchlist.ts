@@ -28,4 +28,14 @@ export type WatchlistItem = {
   progress?: number;
 };
 
-export type WatchlistResponse = WatchlistItem[];
+export type WatchlistResponse = {
+  data: WatchlistItem[];
+  pagination: {
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    itemCount: number;
+    prevPageCursor?: string;
+    nextPageCursor?: string;
+    pageSize: number;
+  };
+};
