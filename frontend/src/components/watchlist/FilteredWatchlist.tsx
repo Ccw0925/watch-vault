@@ -15,7 +15,7 @@ const FilteredWatchlist = ({ status }: { status?: WatchStatus }) => {
   const [endCursor, setEndCursor] = useState("");
   const [direction, setDirection] = useState<"prev" | "next">("next");
   const { data, isLoading, isPlaceholderData } = useAnimeWatchlist({
-    limit: 25,
+    limit: 5,
     startCursor: startCursor,
     endCursor: endCursor,
     direction: direction,
@@ -44,12 +44,17 @@ const FilteredWatchlist = ({ status }: { status?: WatchStatus }) => {
               <PaginationPrevious
                 href=""
                 onClick={() => {
-                  if (!data?.pagination.hasPrevPage) return;
+                  if (
+                    (isLoading || isPlaceholderData) &&
+                    !data?.pagination.hasPrevPage
+                  )
+                    return;
                   setStartCursor("");
                   setEndCursor(prevPageCursor);
                   setDirection("prev");
                 }}
                 className={`${
+                  !(isLoading || isPlaceholderData) &&
                   data?.pagination.hasPrevPage
                     ? "cursor-pointer"
                     : "pointer-events-none opacity-50"
@@ -60,12 +65,17 @@ const FilteredWatchlist = ({ status }: { status?: WatchStatus }) => {
               <PaginationNext
                 href=""
                 onClick={() => {
-                  if (!data?.pagination.hasNextPage) return;
+                  if (
+                    (isLoading || isPlaceholderData) &&
+                    !data?.pagination.hasNextPage
+                  )
+                    return;
                   setStartCursor(nextPageCursor);
                   setEndCursor("");
                   setDirection("next");
                 }}
                 className={`${
+                  !(isLoading || isPlaceholderData) &&
                   data?.pagination.hasNextPage
                     ? "cursor-pointer"
                     : "pointer-events-none opacity-50"
