@@ -105,6 +105,11 @@ yarn
 - Custom 5-star ratings independent of [MyAnimeList](https://myanimelist.net/) scores
 - Private user notes per anime entry
 
+**🔔 Anime Release Notifications**
+
+- Notify users when upcoming anime(s) are aired
+- Optional email/push notifications for release reminders
+
 ### Social Integration
 
 **👥 Community Features**
