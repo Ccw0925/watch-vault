@@ -63,83 +63,153 @@ func (w *WatchlistRepository) GetAll(ctx context.Context, guestId string) ([]map
 	return watchlist, nil
 }
 
-func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId string, pageSize int, cursor string, status WatchStatus) ([]map[string]interface{}, string, bool, bool, error) {
-    if pageSize <= 0 {
-        pageSize = DefaultPageSize
-    }
+func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId string, pageSize int, startCursor string, endCursor string, direction string, status WatchStatus) ([]map[string]interface{}, string, string, bool, bool, error) {
+	if pageSize <= 0 {
+		pageSize = DefaultPageSize
+	}
 
-    var watchlist []map[string]interface{}
-    baseQuery := w.client.Collection("guests").Doc(guestId).Collection("watchlist").
-        OrderBy("status", firestore.Asc).
-        OrderBy(firestore.DocumentID, firestore.Desc)
+	baseQuery := w.client.Collection("guests").Doc(guestId).Collection("watchlist").
+		OrderBy("status", firestore.Asc).
+		OrderBy(firestore.DocumentID, firestore.Desc)
 
-    query := baseQuery.Limit(pageSize + 1)
+	if status != -1 {
+		baseQuery = baseQuery.Where("status", "==", int64(status))
+	}
 
-    if status != -1 {
-        query = query.Where("status", "==", int64(status))
-        baseQuery = baseQuery.Where("status", "==", int64(status))
-    }
+	var query firestore.Query
+	var hasMore, hasPrevious bool
+	var firstDocID, lastDocID string
 
-    var hasPrevious bool
-    if cursor != "" {
-        lastDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(cursor).Get(ctx)
-        if err != nil {
-            return nil, "", false, false, fmt.Errorf("invalid cursor: %v", err)
-        }
-        query = query.StartAfter(lastDoc.Data()["status"], cursor)
-        
-        prevQuery := baseQuery.
-            EndBefore(lastDoc.Data()["status"], cursor).
-            Limit(1)
-        
-        prevIter := prevQuery.Documents(ctx)
-        _, err = prevIter.Next()
-        hasPrevious = err == nil
-    }
+	switch direction {
+	case "next":
+		query = baseQuery.Limit(pageSize + 1)
+		if startCursor != "" {
+			cursorDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(startCursor).Get(ctx)
+			if err != nil {
+				return nil, "", "", false, false, fmt.Errorf("invalid start cursor: %v", err)
+			}
+			cursorStatus := cursorDoc.Data()["status"]
+			query = query.StartAfter(cursorStatus, startCursor)
+		}
 
-    iter := query.Documents(ctx)
-    var lastDocID string
+	case "prev":
+		reverseQuery := w.client.Collection("guests").Doc(guestId).Collection("watchlist").
+			OrderBy("status", firestore.Desc).
+			OrderBy(firestore.DocumentID, firestore.Asc)
 
-    for i := 0; i < pageSize; i++ {
-        doc, err := iter.Next()
-        if err == iterator.Done {
-            break
-        }
-        if err != nil {
-            return nil, "", false, false, fmt.Errorf("error iterating watchlist: %v", err)
-        }
+		if status != -1 {
+			reverseQuery = reverseQuery.Where("status", "==", int64(status))
+		}
 
-        data := doc.Data()
-        item := make(map[string]interface{})
+		query = reverseQuery.Limit(pageSize + 1)
+		if endCursor != "" {
+			cursorDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(endCursor).Get(ctx)
+			if err != nil {
+				return nil, "", "", false, false, fmt.Errorf("invalid end cursor: %v", err)
+			}
+			cursorStatus := cursorDoc.Data()["status"]
+			query = query.StartAt(cursorStatus, endCursor)
+		}
+	default:
+		query = baseQuery.Limit(pageSize + 1)
+	}
 
-        for k, v := range data {
-            if k == "status" {
-                if watchStatus, ok := v.(int64); ok {
-                    item[k] = WatchStatus(watchStatus).ToReadable()
-                    continue
-                }
-            }
-            item[k] = v
-        }
+	iter := query.Documents(ctx)
+	var docs []*firestore.DocumentSnapshot
 
-        if ref, ok := data["animeRef"].(*firestore.DocumentRef); ok {
-            animeDoc, err := ref.Get(ctx)
-            if err != nil {
-                log.Printf("Warning: could not fetch anime %s: %v", ref.ID, err)
-                continue
-            }
-            item["anime"] = animeDoc.Data()
-        }
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, "", "", false, false, fmt.Errorf("error iterating watchlist: %v", err)
+		}
+		docs = append(docs, doc)
+	}
 
-        delete(item, "animeRef")
-        watchlist = append(watchlist, item)
-        lastDocID = doc.Ref.ID
-    }
+	// If going previous, we need to reverse the results back to original order
+	if direction == "prev" {
+		for i, j := 0, len(docs)-1; i < j; i, j = i+1, j-1 {
+			docs[i], docs[j] = docs[j], docs[i]
+		}
+	}
 
-    _, err := iter.Next()
-    hasMore := err == nil
+	// Process only the needed documents
+	limit := pageSize
+	if len(docs) > limit {
+		hasMore = true
+		docs = docs[:limit]
+	}
 
-    return watchlist, lastDocID, hasMore, hasPrevious, nil
+	var watchlist []map[string]interface{}
+	for i, doc := range docs {
+		data := doc.Data()
+		item := make(map[string]interface{})
+
+		for k, v := range data {
+			if k == "status" {
+				if watchStatus, ok := v.(int64); ok {
+					item[k] = WatchStatus(watchStatus).ToReadable()
+					continue
+				}
+			}
+			item[k] = v
+		}
+
+		if ref, ok := data["animeRef"].(*firestore.DocumentRef); ok {
+			animeDoc, err := ref.Get(ctx)
+			if err != nil {
+				log.Printf("Warning: could not fetch anime %s: %v", ref.ID, err)
+				continue
+			}
+			item["anime"] = animeDoc.Data()
+		}
+
+		delete(item, "animeRef")
+		watchlist = append(watchlist, item)
+
+		if i == 0 {
+			firstDocID = doc.Ref.ID
+		}
+		lastDocID = doc.Ref.ID
+	}
+
+	// Check for previous page (only when going forward or on first page)
+	if direction != "prev" && firstDocID != "" {
+		prevCheckDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(firstDocID).Get(ctx)
+		if err != nil {
+			return nil, "", "", false, false, fmt.Errorf("error checking previous page: %v", err)
+		}
+		prevCheckStatus := prevCheckDoc.Data()["status"]
+
+		prevCheckQuery := baseQuery.
+			EndBefore(prevCheckStatus, firstDocID).
+			Limit(1)
+
+		prevIter := prevCheckQuery.Documents(ctx)
+		_, err = prevIter.Next()
+		hasPrevious = err == nil
+	}
+
+	// Check for next page when going backward
+	if direction == "prev" && lastDocID != "" {
+		nextCheckDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(lastDocID).Get(ctx)
+		if err != nil {
+			return nil, "", "", false, false, fmt.Errorf("error checking next page: %v", err)
+		}
+		nextCheckStatus := nextCheckDoc.Data()["status"]
+
+		nextCheckQuery := baseQuery.
+			StartAfter(nextCheckStatus, lastDocID).
+			Limit(1)
+
+		nextIter := nextCheckQuery.Documents(ctx)
+		_, err = nextIter.Next()
+		hasMore = err == nil
+	}
+
+	return watchlist, firstDocID, lastDocID, hasMore, hasPrevious, nil
 }
 
 func (w *WatchlistRepository) GetAnimeById(ctx context.Context, guestId string, animeId int) (map[string]interface{}, error) {

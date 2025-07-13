@@ -34,11 +34,23 @@ func RegisterWatchlistRoutes(r *gin.Engine, client *firestore.Client) {
 
 func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 	guestId := c.GetHeader("X-Guest-ID")
-	currentCursor := c.Query("currentCursor")
+	if guestId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
+		return
+	}
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "25"))
 	if err != nil || limit <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+		return
+	}
+
+	startCursor := c.Query("startCursor")
+	endCursor := c.Query("endCursor")
+	direction := c.DefaultQuery("direction", "next")
+
+	if direction != "next" && direction != "prev" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid direction - must be 'next' or 'prev'"})
 		return
 	}
 
@@ -53,12 +65,15 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		watchStatus = rws.ToWatchStatus()
 	}
 
-	if guestId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Guest-ID header"})
-		return
-	}
-
-	watchlist, nextPageCursor, hasNextPage, hasPrevPage, err := w.service.GetPaginatedWatchlist(c.Request.Context(), guestId, limit, currentCursor, watchStatus)
+	watchlist, firstID, lastID, hasNextPage, hasPrevPage, err := w.service.GetPaginatedWatchlist(
+		c.Request.Context(),
+		guestId,
+		limit,
+		startCursor,
+		endCursor,
+		direction,
+		watchStatus,
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch watchlist",
@@ -77,8 +92,12 @@ func (w *WatchlistHandler) getWatchlist(c *gin.Context) {
 		},
 	}
 
+	pagination := response["pagination"].(gin.H)
 	if hasNextPage {
-		response["pagination"].(gin.H)["nextPageCursor"] = nextPageCursor
+		pagination["nextPageCursor"] = lastID
+	}
+	if hasPrevPage {
+		pagination["prevPageCursor"] = firstID
 	}
 
 	c.JSON(http.StatusOK, response)

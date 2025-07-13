@@ -68,8 +68,24 @@ func (s *WatchlistService) GetGuestWatchlist(ctx context.Context, guestId string
 	return watchlist, nil
 }
 
-func (s *WatchlistService) GetPaginatedWatchlist(ctx context.Context, guestId string, pageSize int, cursor string, watchStatus WatchStatus) ([]map[string]interface{}, string, bool, bool, error) {
-	return s.repo.GetPaginatedAll(ctx, guestId, pageSize, cursor, watchStatus)
+func (s *WatchlistService) GetPaginatedWatchlist(
+	ctx context.Context,
+	guestId string,
+	pageSize int,
+	startCursor string,
+	endCursor string,
+	direction string,
+	watchStatus WatchStatus,
+) ([]map[string]interface{}, string, string, bool, bool, error) {
+	return s.repo.GetPaginatedAll(
+		ctx,
+		guestId,
+		pageSize,
+		startCursor,
+		endCursor,
+		direction,
+		watchStatus,
+	)
 }
 
 func (s *WatchlistService) GetAnimeById(ctx context.Context, guestId string, animeId int) (interface{}, error) {
