@@ -15,7 +15,7 @@ const FilteredWatchlist = ({ status }: { status?: WatchStatus }) => {
   const [endCursor, setEndCursor] = useState("");
   const [direction, setDirection] = useState<"prev" | "next">("next");
   const { data, isLoading, isPlaceholderData } = useAnimeWatchlist({
-    limit: 5,
+    limit: 25,
     startCursor: startCursor,
     endCursor: endCursor,
     direction: direction,
