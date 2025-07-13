@@ -53,13 +53,14 @@ func RegisterAnimeRoutes(r *gin.Engine, jikanClient *jikan.Client, firestoreClie
 func (a *AnimeHandler) ListAllAnime(c *gin.Context) {
 	page := getPageParam(c)
 	limit := c.DefaultQuery("limit", "25")
+	animeType := c.Query("type")
 	genres := c.Query("genres")
 	rating := c.Query("rating")
 	orderBy := c.DefaultQuery("orderBy", "popularity")
 	sort := c.DefaultQuery("sort", "asc")
 	q := c.Query("q")
 
-	response, err := a.jikanClient.ListAllAnime(c.Request.Context(), page, limit, genres, rating, orderBy, sort, q)
+	response, err := a.jikanClient.ListAllAnime(c.Request.Context(), page, limit, animeType, genres, rating, orderBy, sort, q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch all anime",
@@ -153,8 +154,9 @@ func (a *AnimeHandler) GetAnimeById(c *gin.Context) {
 func (a *AnimeHandler) GetTopAnime(c *gin.Context) {
 	page := getPageParam(c)
 	limit := c.DefaultQuery("limit", "25")
+	animeType := c.Query("type")
 
-	response, err := a.jikanClient.GetTopAnime(c.Request.Context(), page, limit)
+	response, err := a.jikanClient.GetTopAnime(c.Request.Context(), page, limit, animeType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to fetch top anime",

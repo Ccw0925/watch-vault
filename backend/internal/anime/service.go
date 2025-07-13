@@ -14,6 +14,7 @@ func AnimeToResponse(anime *jikan.Anime) gin.H {
 		"japaneseTitle": anime.JapaneseName,
 		"season":        anime.Season,
 		"year":          anime.Year,
+		"type":          anime.Type,
 		"genres":        anime.Genres,
 		"rank":          anime.Rank,
 		"score":         anime.Score,

@@ -18,6 +18,7 @@ type Anime struct {
 	EnglishName  string        `json:"title_english"`
 	JapaneseName string        `json:"title_japanese"`
 	Year         int           `json:"year"`
+	Type         string        `json:"type"`
 	Genres       []Genre       `json:"genres"`
 	Rank         int           `json:"rank"`
 	Score        float32       `json:"score"`
