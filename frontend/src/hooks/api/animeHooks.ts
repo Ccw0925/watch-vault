@@ -12,6 +12,7 @@ import {
   Anime,
   AnimeCharacter,
   AnimesResponse,
+  AnimeTypeQueryParam,
   EpisodesResponse,
   SeasonalAnimesResponse,
 } from "@/types/anime";
@@ -20,6 +21,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 export const useAnimes = ({
   page,
   limit,
+  type,
   genres,
   rating,
   orderBy,
@@ -28,6 +30,7 @@ export const useAnimes = ({
 }: {
   page?: number;
   limit?: number;
+  type?: AnimeTypeQueryParam;
   genres?: string | null;
   rating?: string | null;
   orderBy?: string | null;
@@ -37,10 +40,19 @@ export const useAnimes = ({
   return useQuery<AnimesResponse, Error>({
     queryKey: [
       "animes",
-      { page, limit, genres, rating, orderBy, sort, queryString },
+      { page, limit, type, genres, rating, orderBy, sort, queryString },
     ],
     queryFn: () =>
-      fetchAnimes({ page, limit, genres, rating, orderBy, sort, queryString }),
+      fetchAnimes({
+        page,
+        limit,
+        type,
+        genres,
+        rating,
+        orderBy,
+        sort,
+        queryString,
+      }),
     placeholderData: keepPreviousData,
   });
 };
@@ -55,13 +67,15 @@ export const useAnimeById = (id: string) => {
 export const useTopAnimes = ({
   page,
   limit,
+  type,
 }: {
   page?: number;
   limit?: number;
+  type?: AnimeTypeQueryParam;
 }) => {
   return useQuery<AnimesResponse, Error>({
-    queryKey: ["topAnimes", { page, limit }],
-    queryFn: () => fetchTopAnimes({ page, limit }),
+    queryKey: ["topAnimes", { page, limit, type }],
+    queryFn: () => fetchTopAnimes({ page, limit, type }),
     placeholderData: keepPreviousData,
   });
 };

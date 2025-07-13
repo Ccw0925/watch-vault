@@ -1,15 +1,16 @@
 import { getRatingKey } from "@/lib/anime/rating/utils";
-import { Anime } from "@/types/anime";
-import { Star } from "lucide-react";
+import { Anime, getQueryParam } from "@/types/anime";
+import { Clapperboard, Star, Tv } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 const AnimeStatsBadges = ({ anime }: { anime: Anime }) => {
-  const ratingTag = (
-    <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium">
-      {anime.rating}
-    </p>
-  );
+  const ratingTag =
+    anime.rating !== "" ? (
+      <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium">
+        {anime.rating}
+      </p>
+    ) : null;
 
   return (
     <div className="flex flex-wrap gap-2 items-center">
@@ -20,6 +21,17 @@ const AnimeStatsBadges = ({ anime }: { anime: Anime }) => {
           ({anime.scoredBy.toLocaleString()})
         </p>
       </div>
+
+      <Link href={`/animes?type=${getQueryParam(anime.type)}`}>
+        <div className="flex items-center gap-1 py-1 px-2 rounded-full bg-secondary hover:bg-secondary/80">
+          {anime.type === "Movie" ? (
+            <Clapperboard className="h-3 w-3" />
+          ) : (
+            <Tv className="h-3 w-3" />
+          )}
+          <p className="font-semibold text-xs font-inter">{anime.type}</p>
+        </div>
+      </Link>
 
       {getRatingKey(anime.rating) ? (
         <Link href={`/animes/rating/${getRatingKey(anime.rating)}`}>
@@ -34,9 +46,11 @@ const AnimeStatsBadges = ({ anime }: { anime: Anime }) => {
       </p>
 
       {anime.year > 0 && (
-        <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
-          {`${anime.season} ${anime.year}`}
-        </p>
+        <Link href={`/animes/seasons/${anime.year}/${anime.season}`}>
+          <p className="text-xs font-inter px-2 py-1 rounded-full border font-medium capitalize">
+            {`${anime.season} ${anime.year}`}
+          </p>
+        </Link>
       )}
     </div>
   );

@@ -9,6 +9,7 @@ export type Anime = {
   season: string;
   rating: string;
   year: number;
+  type: string;
   genres: Genre[];
   rank: number;
   score: number;
@@ -161,4 +162,52 @@ export type AnimeCharacter = {
   role: string;
   favorites: number;
   voice_actors: VoiceActor[];
+};
+
+enum AnimeType {
+  TV = "tv",
+  Movie = "movie",
+  OVA = "ova",
+  Special = "special",
+  ONA = "ona",
+  Music = "music",
+  CM = "cm",
+  PV = "pv",
+  TVSpecial = "tv_special",
+}
+
+export type AnimeTypeQueryParam =
+  | "tv"
+  | "movie"
+  | "ova"
+  | "special"
+  | "ona"
+  | "music"
+  | "cm"
+  | "pv"
+  | "tv_special";
+
+const animeTypeDisplayMap: Record<AnimeTypeQueryParam, string> = {
+  [AnimeType.TV]: "TV",
+  [AnimeType.Movie]: "Movie",
+  [AnimeType.OVA]: "OVA",
+  [AnimeType.Special]: "Special",
+  [AnimeType.ONA]: "ONA",
+  [AnimeType.Music]: "Music",
+  [AnimeType.CM]: "CM",
+  [AnimeType.PV]: "PV",
+  [AnimeType.TVSpecial]: "TV Special",
+};
+
+export const getDisplayName = (queryValue: AnimeTypeQueryParam): string => {
+  return animeTypeDisplayMap[queryValue];
+};
+
+export const getQueryParam = (
+  displayName: string
+): AnimeTypeQueryParam | undefined => {
+  const entry = Object.entries(animeTypeDisplayMap).find(
+    ([, value]) => value === displayName
+  );
+  return entry?.[0] as AnimeTypeQueryParam | undefined;
 };

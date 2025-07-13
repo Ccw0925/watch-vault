@@ -2,6 +2,7 @@ import {
   Anime,
   AnimeCharacter,
   AnimesResponse,
+  AnimeTypeQueryParam,
   EpisodesResponse,
   SeasonalAnimesResponse,
 } from "@/types/anime";
@@ -18,6 +19,7 @@ const api = axios.create({
 export const fetchAnimes = async (options?: {
   page?: number;
   limit?: number;
+  type?: AnimeTypeQueryParam;
   genres?: string | null;
   rating?: string | null;
   orderBy?: string | null;
@@ -32,6 +34,10 @@ export const fetchAnimes = async (options?: {
 
   if (options?.limit && options?.limit !== undefined) {
     params.append("limit", options.limit.toString());
+  }
+
+  if (options?.type && options?.type !== undefined) {
+    params.append("type", options.type);
   }
 
   if (options?.genres && options?.genres !== undefined) {
@@ -66,6 +72,7 @@ export const fetchAnimeById = async (id: string): Promise<Anime> => {
 export const fetchTopAnimes = async (options?: {
   page?: number;
   limit?: number;
+  type?: AnimeTypeQueryParam;
 }): Promise<AnimesResponse> => {
   const params = new URLSearchParams();
 
@@ -75,6 +82,10 @@ export const fetchTopAnimes = async (options?: {
 
   if (options?.limit && options?.limit !== undefined) {
     params.append("limit", options.limit.toString());
+  }
+
+  if (options?.type && options?.type !== undefined) {
+    params.append("type", options.type);
   }
 
   const response = await api.get<AnimesResponse>("/animes/top", { params });
