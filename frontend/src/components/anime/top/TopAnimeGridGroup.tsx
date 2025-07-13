@@ -10,6 +10,8 @@ const TopAnimeGridGroup = ({ type }: { type?: AnimeTypeQueryParam }) => {
   const queryParams = useSearchParams();
   const page = queryParams.get("page");
   const pageInt = parseInt(page ?? "1");
+  const allParams = Object.fromEntries(queryParams.entries());
+
   const { data, isLoading, isPlaceholderData } = useTopAnimes({
     page: pageInt,
     type: type,
@@ -41,7 +43,11 @@ const TopAnimeGridGroup = ({ type }: { type?: AnimeTypeQueryParam }) => {
         </p>
       )}
 
-      <CustomPagination currentPage={pageInt} totalPages={totalPages} />
+      <CustomPagination
+        currentPage={pageInt}
+        totalPages={totalPages}
+        additionalParams={allParams}
+      />
     </>
   );
 };

@@ -20,8 +20,6 @@ const AllAnimesPage = () => {
     queryParams.get("orderBy") ?? "members"
   );
 
-  console.log(animeType);
-
   const { data, isLoading, isPlaceholderData } = useAnimes({
     rating,
     type: animeType ? (animeType as AnimeTypeQueryParam) : undefined,
