@@ -108,7 +108,7 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 				return nil, "", "", false, false, fmt.Errorf("invalid end cursor: %v", err)
 			}
 			cursorStatus := cursorDoc.Data()["status"]
-			query = query.StartAt(cursorStatus, endCursor)
+			query = query.StartAfter(cursorStatus, endCursor)
 		}
 	default:
 		query = baseQuery.Limit(pageSize + 1)
@@ -136,8 +136,13 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 
 	limit := pageSize
 	if len(docs) > limit {
-		hasMore = true
-		docs = docs[:limit]
+		if direction != "prev" {
+			hasMore = true
+			docs = docs[:limit]
+		} else {
+			hasPrevious = true
+			docs = docs[len(docs)-limit:]
+		}
 	}
 
 	var watchlist []map[string]interface{}
@@ -173,7 +178,7 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 		lastDocID = doc.Ref.ID
 	}
 
-	if firstDocID != "" {
+	if direction != "prev" && firstDocID != "" {
 		prevCheckDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(firstDocID).Get(ctx)
 		if err != nil {
 			return nil, "", "", false, false, fmt.Errorf("error checking previous page: %v", err)
