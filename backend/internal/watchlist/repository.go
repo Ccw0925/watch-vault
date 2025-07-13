@@ -128,14 +128,12 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 		docs = append(docs, doc)
 	}
 
-	// If going previous, we need to reverse the results back to original order
 	if direction == "prev" {
 		for i, j := 0, len(docs)-1; i < j; i, j = i+1, j-1 {
 			docs[i], docs[j] = docs[j], docs[i]
 		}
 	}
 
-	// Process only the needed documents
 	limit := pageSize
 	if len(docs) > limit {
 		hasMore = true
@@ -175,8 +173,7 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 		lastDocID = doc.Ref.ID
 	}
 
-	// Check for previous page (only when going forward or on first page)
-	if direction != "prev" && firstDocID != "" {
+	if firstDocID != "" {
 		prevCheckDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(firstDocID).Get(ctx)
 		if err != nil {
 			return nil, "", "", false, false, fmt.Errorf("error checking previous page: %v", err)
@@ -192,7 +189,6 @@ func (w *WatchlistRepository) GetPaginatedAll(ctx context.Context, guestId strin
 		hasPrevious = err == nil
 	}
 
-	// Check for next page when going backward
 	if direction == "prev" && lastDocID != "" {
 		nextCheckDoc, err := w.client.Collection("guests").Doc(guestId).Collection("watchlist").Doc(lastDocID).Get(ctx)
 		if err != nil {
